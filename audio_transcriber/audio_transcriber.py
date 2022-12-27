@@ -103,11 +103,11 @@ class AudioTranscriber:
         wave_file.writeframes(b''.join(self.frames))
         wave_file.close()
 
-    def transcribe(self):
+    def transcribe(self, language='en'):
         self.output = None
         start_time = datetime.datetime.now()
         print(f"Started: {start_time}\nTranscribing: {self.file}")
-        self.output = self.model.transcribe(self.file)
+        self.output = self.model.transcribe(self.file, language=language)
         end_time = datetime.datetime.now()
         print(f"Ended: {end_time}\nTime Elapsed: {end_time - start_time}")
         print(f"Output: \n{self.output}")
@@ -212,9 +212,11 @@ def audio_transcriber(argv):
     export_flag = False
     file = None
     seconds = 0
+    language = 'en'
+
     try:
-        opts, args = getopt.getopt(argv, "hb:c:d:ef:m:n:r:", ["help", "bitrate=", "channels=", "directory=", "export",
-                                                              "file=", "model=", "name=", "record="])
+        opts, args = getopt.getopt(argv, "hb:c:d:ef:l:m:n:r:", ["help", "bitrate=", "channels=", "directory=", "export",
+                                                              "file=", "language=", "model=", "name=", "record="])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -237,7 +239,8 @@ def audio_transcriber(argv):
                 print(f"File {arg} does not exist")
                 usage()
                 sys.exit(2)
-
+        elif opt in ("-l", "--language"):
+            language = arg
         elif opt in ("-m", "--model"):
             if model in ['tiny', 'base', 'small', 'medium', 'large']:
                 model = arg
@@ -265,7 +268,7 @@ def audio_transcriber(argv):
         audio_transcribe.stop_stream()
         audio_transcribe.save_stream()
 
-    audio_transcribe.transcribe()
+    audio_transcribe.transcribe(language=language)
 
     if export_flag:
         audio_transcribe.export_text()
