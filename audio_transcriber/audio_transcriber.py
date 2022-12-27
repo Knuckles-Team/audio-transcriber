@@ -12,7 +12,8 @@ import datetime
 
 
 class AudioTranscriber:
-    def __init__(self, model='base', channels=1, rate=44100, file_name='output.wav', directory=os.curdir, file=None):
+    def __init__(self, model: str = 'base', channels: int = 1, rate: int = 44100, file_name: str = 'output.wav',
+                 directory: str = os.curdir, file: str = ""):
         self.chunk = 1024
         self.format = pyaudio.paInt16
         self.channels = channels
@@ -22,10 +23,11 @@ class AudioTranscriber:
         self.frames = []
         self.file_name = file_name
         self.directory = directory
-        if file:
-            self.file = file
+        self.file = None
+        if file != "":
+            self.set_file(file)
         else:
-            os.path.join(self.directory, self.file_name)
+            self.set_file(os.path.join(self.directory, self.file_name))
         self.stop = False
         self.initiate_stream()
         self.model = whisper.load_model(model)
@@ -97,7 +99,7 @@ class AudioTranscriber:
 
     def transcribe(self):
         start_time = datetime.datetime.now()
-        print(f"Started: {start_time}")
+        print(f"Started: {start_time}\nTranscribing: {self.file}")
         output = self.model.transcribe(self.file)
         end_time = datetime.datetime.now()
         print(f"Ended: {end_time}\nTime Elapsed: {end_time - start_time}")
@@ -148,7 +150,13 @@ def audio_transcriber(argv):
         elif opt in ("-d", "--directory"):
             directory = arg
         elif opt in ("-f", "--file"):
-            file = arg
+            if os.path.isfile(arg):
+                file = arg
+            else:
+                print(f"File {arg} does not exist")
+                usage()
+                sys.exit(2)
+
         elif opt in ("-m", "--model"):
             if model in ['tiny', 'base', 'small', 'medium', 'large']:
                 model = arg
