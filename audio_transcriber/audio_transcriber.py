@@ -39,32 +39,32 @@ class AudioTranscriber:
                                                  input=True,
                                                  frames_per_buffer=self.chunk)
 
-    def set_file(self, file):
+    def set_file(self, file: str):
         self.file = file
         self.file_name = os.path.basename(file)
         self.directory = os.path.dirname(file)
 
-    def set_file_name(self, file_name):
+    def set_file_name(self, file_name: str):
         self.file_name = file_name
         self.set_file(os.path.join(self.directory, self.file_name))
 
-    def set_directory(self, directory):
+    def set_directory(self, directory: str):
         self.directory = directory
         self.set_file(os.path.join(self.directory, self.file_name))
 
-    def set_rate(self, rate):
+    def set_rate(self, rate: int):
         self.rate = rate
 
-    def set_channels(self, channels):
+    def set_channels(self, channels: int):
         self.channels = channels
 
-    def set_model(self, model):
+    def set_model(self, model: str):
         if model in ['tiny', 'base', 'small', 'medium', 'large']:
             self.model = whisper.load_model(model)
         else:
             print('Model does not exist, please choose from: tiny, base, small, medium, or large')
 
-    def record(self, seconds=0):
+    def record(self, seconds: int = 0):
         print("Recording started...")
         self.frames = []
         self.stop = False
