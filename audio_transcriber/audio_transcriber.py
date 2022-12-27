@@ -48,7 +48,6 @@ class AudioTranscriber:
         self.title = os.path.splitext(self.file_name)[0]
         if self.directory == "":
             self.directory = os.curdir
-        print(f"DIRECTORY SET: {self.directory}\nFILE: {self.file}\nTITLE: {self.title}")
 
     def set_file_name(self, file_name: str):
         self.file_name = file_name
@@ -117,6 +116,7 @@ class AudioTranscriber:
             second = second - (second % 5)
             print(f'Second: {second} - Segment: \n{segment}\n\n')
 
+    def export_text(self):
         with open(os.path.join(self.directory, f"{self.title}.txt"), "w", encoding="utf-8") as txt:
             self.write_txt(self.output["segments"], file=txt)
 
@@ -140,7 +140,7 @@ class AudioTranscriber:
         seconds = milliseconds // 1_000
         milliseconds -= seconds * 1_000
 
-        return (f"{hours}:") + f"{minutes:02d}:{seconds:02d},{milliseconds:03d}"
+        return f"{hours}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
 
     def write_srt(self, transcript: Iterator[dict], file: TextIO):
         count = 0
@@ -193,6 +193,7 @@ def usage():
           f"-b | --bitrate   [ Bitrate to use during recording ]\n"
           f"-c | --channels  [ Number of channels to use during recording ]\n"
           f"-d | --directory [ Directory to save recording ]\n"
+          f"-e | --export    [ Export txt, srt, & vtt ]\n"
           f"-f | --file      [ File to transcribe ]\n"
           f"-m | --model     [ Model to use: <tiny, base, small, medium, large> ]\n"
           f"-n | --name      [ Name of recording ]\n"
@@ -208,11 +209,12 @@ def audio_transcriber(argv):
     rate = 44100
     file_name = 'output.wav'
     directory = os.curdir
+    export_flag = False
     file = None
     seconds = 0
     try:
-        opts, args = getopt.getopt(argv, "hb:c:d:f:m:n:r:", ["help", "bitrate=", "channels=", "directory=", "file=",
-                                                               "model=", "name=",  "record="])
+        opts, args = getopt.getopt(argv, "hb:c:d:ef:m:n:r:", ["help", "bitrate=", "channels=", "directory=", "export",
+                                                              "file=", "model=", "name=", "record="])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -226,6 +228,8 @@ def audio_transcriber(argv):
             channels = arg
         elif opt in ("-d", "--directory"):
             directory = arg
+        elif opt in ("-e", "--export"):
+            export_flag = True
         elif opt in ("-f", "--file"):
             if os.path.isfile(arg):
                 file = arg
@@ -262,6 +266,9 @@ def audio_transcriber(argv):
         audio_transcribe.save_stream()
 
     audio_transcribe.transcribe()
+
+    if export_flag:
+        audio_transcribe.export_text()
 
 
 def main():
