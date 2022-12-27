@@ -28,6 +28,11 @@ Install Python Package
 python -m pip install audio-transcriber
 ```
 
+##### Ubuntu Dependencies
+```bash
+apt install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg
+```
+
 #### Build Instructions
 Build Python Package
 

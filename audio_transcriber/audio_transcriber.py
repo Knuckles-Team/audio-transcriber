@@ -9,6 +9,7 @@ import getopt
 import pyaudio
 import wave
 import datetime
+from typing import Iterator, TextIO
 
 
 class AudioTranscriber:
@@ -22,14 +23,15 @@ class AudioTranscriber:
         self.stream = None
         self.frames = []
         self.file_name = file_name
+        self.title = os.path.split(self.file_name)[0]
         self.directory = directory
         self.file = None
+        self.output = None
         if file != "":
             self.set_file(file)
         else:
             self.set_file(os.path.join(self.directory, self.file_name))
         self.stop = False
-        self.initiate_stream()
         self.model = whisper.load_model(model)
 
     def initiate_stream(self):
@@ -43,10 +45,15 @@ class AudioTranscriber:
         self.file = file
         self.file_name = os.path.basename(file)
         self.directory = os.path.dirname(file)
+        self.title = os.path.splitext(self.file_name)[0]
+        if self.directory == "":
+            self.directory = os.curdir
+        print(f"DIRECTORY SET: {self.directory}\nFILE: {self.file}\nTITLE: {self.title}")
 
     def set_file_name(self, file_name: str):
         self.file_name = file_name
         self.set_file(os.path.join(self.directory, self.file_name))
+        self.title = os.path.split(self.file_name)[0]
 
     def set_directory(self, directory: str):
         self.directory = directory
@@ -98,16 +105,86 @@ class AudioTranscriber:
         wave_file.close()
 
     def transcribe(self):
+        self.output = None
         start_time = datetime.datetime.now()
         print(f"Started: {start_time}\nTranscribing: {self.file}")
-        output = self.model.transcribe(self.file)
+        self.output = self.model.transcribe(self.file)
         end_time = datetime.datetime.now()
         print(f"Ended: {end_time}\nTime Elapsed: {end_time - start_time}")
-        print(f"Output: \n{output}")
-        for segment in output['segments']:
+        print(f"Output: \n{self.output}")
+        for segment in self.output['segments']:
             second = int(segment['start'])
             second = second - (second % 5)
             print(f'Second: {second} - Segment: \n{segment}\n\n')
+
+        with open(os.path.join(self.directory, f"{self.title}.txt"), "w", encoding="utf-8") as txt:
+            self.write_txt(self.output["segments"], file=txt)
+
+        with open(os.path.join(self.directory, f"{self.title}.vtt"), "w", encoding="utf-8") as vtt:
+            self.write_vtt(self.output["segments"], file=vtt)
+
+        with open(os.path.join(self.directory, f"{self.title}.srt"), "w", encoding="utf-8") as srt:
+            self.write_srt(self.output["segments"], file=srt)
+
+    @staticmethod
+    def srt_format_timestamp(seconds: float):
+        assert seconds >= 0, "non-negative timestamp expected"
+        milliseconds = round(seconds * 1000.0)
+
+        hours = milliseconds // 3_600_000
+        milliseconds -= hours * 3_600_000
+
+        minutes = milliseconds // 60_000
+        milliseconds -= minutes * 60_000
+
+        seconds = milliseconds // 1_000
+        milliseconds -= seconds * 1_000
+
+        return (f"{hours}:") + f"{minutes:02d}:{seconds:02d},{milliseconds:03d}"
+
+    def write_srt(self, transcript: Iterator[dict], file: TextIO):
+        count = 0
+        for segment in transcript:
+            count += 1
+            print(
+                f"{count}\n"
+                f"{self.srt_format_timestamp(segment['start'])} --> {self.srt_format_timestamp(segment['end'])}\n"
+                f"{segment['text'].replace('-->', '->').strip()}\n",
+                file=file,
+                flush=True,
+            )
+
+    @staticmethod
+    def write_txt(transcript: Iterator[dict], file: TextIO):
+        for segment in transcript:
+            print(segment['text'].strip(), file=file, flush=True)
+
+    def write_vtt(self, transcript: Iterator[dict], file: TextIO):
+        print("WEBVTT\n", file=file)
+        for segment in transcript:
+            print(
+                f"{self.format_timestamp(segment['start'])} --> {self.format_timestamp(segment['end'])}\n"
+                f"{segment['text'].strip().replace('-->', '->')}\n",
+                file=file,
+                flush=True,
+            )
+
+    @staticmethod
+    def format_timestamp(seconds: float, always_include_hours: bool = False, decimal_marker: str = '.'):
+        assert seconds >= 0, "non-negative timestamp expected"
+        milliseconds = round(seconds * 1000.0)
+
+        hours = milliseconds // 3_600_000
+        milliseconds -= hours * 3_600_000
+
+        minutes = milliseconds // 60_000
+        milliseconds -= minutes * 60_000
+
+        seconds = milliseconds // 1_000
+        milliseconds -= seconds * 1_000
+
+        hours_marker = f"{hours:02d}:" if always_include_hours or hours > 0 else ""
+        return f"{hours_marker}{minutes:02d}:{seconds:02d}{decimal_marker}{milliseconds:03d}"
 
 
 def usage():
@@ -135,7 +212,7 @@ def audio_transcriber(argv):
     seconds = 0
     try:
         opts, args = getopt.getopt(argv, "hb:c:d:f:m:n:r:", ["help", "bitrate=", "channels=", "directory=", "file=",
-                                                             "model=", "name=", "record="])
+                                                               "model=", "name=",  "record="])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -179,6 +256,7 @@ def audio_transcriber(argv):
                                             rate=rate,
                                             file_name=file_name,
                                             directory=directory)
+        audio_transcribe.initiate_stream()
         audio_transcribe.record(seconds=seconds)
         audio_transcribe.stop_stream()
         audio_transcribe.save_stream()
