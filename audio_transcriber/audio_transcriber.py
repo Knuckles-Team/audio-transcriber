@@ -195,6 +195,7 @@ def usage():
           f"-d | --directory [ Directory to save recording ]\n"
           f"-e | --export    [ Export txt, srt, & vtt ]\n"
           f"-f | --file      [ File to transcribe ]\n"
+          f"-l | --language  [ Language to transcribe <'en', 'fa', 'es', 'zh'> ]\n"
           f"-m | --model     [ Model to use: <tiny, base, small, medium, large> ]\n"
           f"-n | --name      [ Name of recording ]\n"
           f"-r | --record    [ Specify number of seconds to record to record from microphone ]\n"
@@ -216,7 +217,7 @@ def audio_transcriber(argv):
 
     try:
         opts, args = getopt.getopt(argv, "hb:c:d:ef:l:m:n:r:", ["help", "bitrate=", "channels=", "directory=", "export",
-                                                              "file=", "language=", "model=", "name=", "record="])
+                                                                "file=", "language=", "model=", "name=", "record="])
     except getopt.GetoptError:
         usage()
         sys.exit(2)

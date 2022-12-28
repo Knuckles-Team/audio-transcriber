@@ -10,7 +10,9 @@ Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!
 | -b         | --bitrate   | Bitrate to use during recording                               |
 | -c         | --channels  | Number of channels to use during recording                    |
 | -d         | --directory | Directory to save recording                                   |
+| -e         | --export    | Export txt, srt, and vtt files                                |
 | -f         | --file      | File to transcribe                                            |
+| -l         | --language  | Language to transcribe                                        |
 | -m         | --model     | Model to use: <tiny, base, small, medium, large>              |
 | -n         | --name      | Name of recording                                             |
 | -r         | --record    | Specify number of seconds to record to record from microphone |
