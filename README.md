@@ -24,7 +24,7 @@ audio-transcriber --record 60 --directory '~/Downloads/' --name 'my_recording.wa
 ```
 
 ### Model Information
-[Courtesy of OpenAI](https://github.com/openai/whisper/blob/main/README.md)
+[Courtesy of and Credits to OpenAI: Whisper.ai](https://github.com/openai/whisper/blob/main/README.md)
 
 |  Size  | Parameters | English-only model | Multilingual model | Required VRAM | Relative speed |
 |:------:|:----------:|:------------------:|:------------------:|:-------------:|:--------------:|
