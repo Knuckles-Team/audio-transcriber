@@ -1,5 +1,5 @@
 # Audio-Transcriber
-*Version: 0.0.1*
+*Version: 0.1.0*
 
 Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!
 
