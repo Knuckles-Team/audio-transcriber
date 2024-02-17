@@ -91,6 +91,23 @@ apt install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmp
 
 </details>
 
+## Geniusbot Application
+
+Use with a GUI through Geniusbot
+
+Visit our [GitHub](https://github.com/Knuckles-Team/geniusbot) for more information
+
+<details>
+  <summary><b>Installation Instructions with Geniusbot:</b></summary>
+
+Install Python Package
+
+```bash
+python -m pip install geniusbot
+```
+
+</details>
+
 <details>
   <summary><b>Repository Owners:</b></summary>
 
