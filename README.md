@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/audio-transcriber)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/audio-transcriber)
 
-*Version: 0.5.38*
+*Version: 0.5.39*
 
 Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!
 
@@ -144,12 +144,6 @@ apt install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmp
 ```
 
 </details>
-
-## Geniusbot Application
-
-Use with a GUI through Geniusbot
-
-Visit our [GitHub](https://github.com/Knuckles-Team/geniusbot) for more information
 
 <details>
   <summary><b>Repository Owners:</b></summary>
