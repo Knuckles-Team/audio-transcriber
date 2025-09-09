@@ -1,26 +1,33 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import whisper
-import sys
-import os
-import threading
-import getopt
-import pyaudio
-import wave
+import argparse
 import datetime
-from typing import Iterator, TextIO
+import json
+import logging
+import sys
+import threading
+from pathlib import Path
+from typing import Iterator, List, Optional, TextIO, Union
+
+import pyaudio
+import whisper
+import wave
 
 
 class AudioTranscriber:
+    """A class for recording audio and transcribing it using OpenAI's Whisper model."""
+
     def __init__(
         self,
         model: str = "base",
         channels: int = 1,
-        rate: int = 44100,
+        rate: int = 16000,  # Whisper recommends 16kHz for better accuracy
         file_name: str = "output.wav",
-        directory: str = os.curdir,
-        file: str = "",
+        directory: Union[str, Path] = Path.cwd(),
+        file: Optional[Union[str, Path]] = None,
+        device: Optional[int] = None,
+        logger: Optional[logging.Logger] = None,
     ):
         self.chunk = 1024
         self.format = pyaudio.paInt16
@@ -28,300 +35,395 @@ class AudioTranscriber:
         self.rate = rate
         self.pyaudio_instance = pyaudio.PyAudio()
         self.stream = None
-        self.frames = []
-        self.file_name = file_name
-        self.title = os.path.split(self.file_name)[0]
-        self.directory = directory
-        self.file = None
-        self.output = None
-        if file != "":
-            self.set_file(file)
-        else:
-            self.set_file(os.path.join(self.directory, self.file_name))
+        self.frames: List[bytes] = []
+        self.file_path = Path(file) if file else Path(directory) / file_name
+        self.title = self.file_path.stem
+        self.directory = self.file_path.parent
         self.stop = False
         self.model = whisper.load_model(model)
+        self.device_index = device or self._get_default_device()
+        self.logger = logger or logging.getLogger(__name__)
+        self._check_ffmpeg()
 
-    def initiate_stream(self):
+    def _get_default_device(self) -> int:
+        """Get the default input device index."""
+        return self.pyaudio_instance.get_default_input_device_info()["index"]
+
+    def _check_ffmpeg(self) -> None:
+        """Check if ffmpeg is installed; log warning if not."""
+        import shutil
+
+        if not shutil.which("ffmpeg"):
+            self.logger.warning(
+                "ffmpeg not found. Install it for better audio format support. "
+                "See https://ffmpeg.org/download.html for instructions."
+            )
+
+    def initiate_stream(self) -> None:
+        """Initiate the audio input stream."""
         self.stream = self.pyaudio_instance.open(
             format=self.format,
             channels=self.channels,
             rate=self.rate,
             input=True,
             frames_per_buffer=self.chunk,
+            input_device_index=self.device_index,
         )
 
-    def set_file(self, file: str):
-        self.file = file
-        self.file_name = os.path.basename(file)
-        self.directory = os.path.dirname(file)
-        self.title = os.path.splitext(self.file_name)[0]
-        if self.directory == "":
-            self.directory = os.curdir
-
-    def set_file_name(self, file_name: str):
-        self.file_name = file_name
-        self.set_file(os.path.join(self.directory, self.file_name))
-        self.title = os.path.split(self.file_name)[0]
-
-    def set_directory(self, directory: str):
-        self.directory = directory
-        self.set_file(os.path.join(self.directory, self.file_name))
-
-    def set_rate(self, rate: int):
-        self.rate = rate
-
-    def set_channels(self, channels: int):
-        self.channels = channels
-
-    def set_model(self, model: str):
-        if model in ["tiny", "base", "small", "medium", "large"]:
-            self.model = whisper.load_model(model)
-        else:
-            print(
-                "Model does not exist, please choose from: tiny, base, small, medium, or large"
-            )
-
-    def record(self, seconds: int = 0):
-        print("Recording started...")
+    def record(self, seconds: int = 0) -> None:
+        """Record audio for a specified duration or until stopped."""
+        self.logger.info("Recording started...")
         self.frames = []
         self.stop = False
         if seconds > 0:
-            for i in range(0, int((self.rate / self.chunk) * seconds)):
+            for _ in range(0, int((self.rate / self.chunk) * seconds)):
+                if self.stop:
+                    break
                 data = self.stream.read(self.chunk)
                 self.frames.append(data)
         else:
-            print("Keep recording until stop signal is sent")
-            download_thread = threading.Thread(
-                target=self.unlimited_record, name="Recorder"
-            )
-            download_thread.start()
-        print("Recording stopped")
+            self.logger.info("Recording indefinitely until interrupted (Ctrl+C)...")
+            threading.Thread(target=self._unlimited_record, daemon=True).start()
+            try:
+                while not self.stop:
+                    pass
+            except KeyboardInterrupt:
+                self.stop = True
+        self.logger.info("Recording stopped.")
 
-    def unlimited_record(self):
-        while self.stop is False:
+    def _unlimited_record(self) -> None:
+        """Thread for unlimited recording."""
+        while not self.stop:
             data = self.stream.read(self.chunk)
             self.frames.append(data)
 
-    def stop_stream(self):
+    def stop_stream(self) -> None:
+        """Stop and close the audio stream."""
         self.stop = True
-        self.stream.stop_stream()
-        self.stream.close()
+        if self.stream:
+            self.stream.stop_stream()
+            self.stream.close()
         self.pyaudio_instance.terminate()
 
-    def save_stream(self):
-        wave_file = wave.open(self.file, "wb")
-        wave_file.setnchannels(self.channels)
-        wave_file.setsampwidth(self.pyaudio_instance.get_sample_size(self.format))
-        wave_file.setframerate(self.rate)
-        wave_file.writeframes(b"".join(self.frames))
-        wave_file.close()
+    def save_stream(self) -> None:
+        """Save the recorded frames to a WAV file."""
+        if not self.frames:
+            self.logger.warning("No audio frames to save.")
+            return
+        with wave.open(str(self.file_path), "wb") as wave_file:
+            wave_file.setnchannels(self.channels)
+            wave_file.setsampwidth(self.pyaudio_instance.get_sample_size(self.format))
+            wave_file.setframerate(self.rate)
+            wave_file.writeframes(b"".join(self.frames))
+        self.logger.info(f"Audio saved to {self.file_path}")
 
-    def transcribe(self, language="en"):
-        self.output = None
+    def transcribe(
+        self,
+        language: Optional[str] = None,
+        task: str = "transcribe",
+        fp16: bool = True,
+        word_timestamps: bool = False,
+        temperature: float = 0.0,
+        initial_prompt: Optional[str] = None,
+        verbose: bool = False,
+    ) -> dict:
+        """Transcribe the audio file using Whisper."""
+        if task == "translate" and self.model.name.startswith("turbo"):
+            raise ValueError(
+                "Turbo model does not support translation. Use a multilingual model like 'medium' or 'large'."
+            )
+
         start_time = datetime.datetime.now()
-        print(f"Started: {start_time}\nTranscribing: {self.file}")
-        self.output = self.model.transcribe(self.file, language=language)
+        self.logger.info(
+            f"Started transcription at {start_time} for file: {self.file_path}"
+        )
+
+        options = whisper.DecodingOptions(
+            language=language,
+            task=task,
+            fp16=fp16,
+            word_timestamps=word_timestamps,
+            temperature=temperature,
+            prompt=initial_prompt,
+        )
+
+        result = self.model.transcribe(
+            str(self.file_path), **options.__dict__, verbose=verbose
+        )
+
         end_time = datetime.datetime.now()
-        print(f"Ended: {end_time}\nTime Elapsed: {end_time - start_time}")
-        print(f"Output: \n{self.output}")
-        for segment in self.output["segments"]:
-            second = int(segment["start"])
-            second = second - (second % 5)
-            print(f"Second: {second} - Segment: \n{segment}\n\n")
+        self.logger.info(
+            f"Ended transcription at {end_time}. Time elapsed: {end_time - start_time}"
+        )
+        if verbose:
+            self.logger.info(f"Transcription result: {result['text']}")
 
-    def export_text(self):
-        with open(
-            os.path.join(self.directory, f"{self.title}.txt"), "w", encoding="utf-8"
-        ) as txt:
-            self.write_txt(self.output["segments"], file=txt)
+        return result
 
-        with open(
-            os.path.join(self.directory, f"{self.title}.vtt"), "w", encoding="utf-8"
-        ) as vtt:
-            self.write_vtt(self.output["segments"], file=vtt)
-
-        with open(
-            os.path.join(self.directory, f"{self.title}.srt"), "w", encoding="utf-8"
-        ) as srt:
-            self.write_srt(self.output["segments"], file=srt)
+    def export(
+        self,
+        result: dict,
+        formats: List[str],
+    ) -> None:
+        """Export transcription to specified formats."""
+        segments = result["segments"]
+        for fmt in formats:
+            export_path = self.directory / f"{self.title}.{fmt}"
+            if fmt == "txt":
+                with open(export_path, "w", encoding="utf-8") as f:
+                    self._write_txt(segments, f)
+            elif fmt == "vtt":
+                with open(export_path, "w", encoding="utf-8") as f:
+                    self._write_vtt(segments, f)
+            elif fmt == "srt":
+                with open(export_path, "w", encoding="utf-8") as f:
+                    self._write_srt(segments, f)
+            elif fmt == "json":
+                with open(export_path, "w", encoding="utf-8") as f:
+                    json.dump(result, f, indent=4, ensure_ascii=False)
+            else:
+                self.logger.warning(f"Unsupported export format: {fmt}")
+            self.logger.info(f"Exported to {export_path}")
 
     @staticmethod
-    def srt_format_timestamp(seconds: float):
+    def _srt_format_timestamp(seconds: float) -> str:
+        """Format timestamp for SRT."""
         assert seconds >= 0, "non-negative timestamp expected"
         milliseconds = round(seconds * 1000.0)
-
         hours = milliseconds // 3_600_000
         milliseconds -= hours * 3_600_000
-
         minutes = milliseconds // 60_000
         milliseconds -= minutes * 60_000
+        seconds_int = milliseconds // 1_000
+        milliseconds -= seconds_int * 1_000
+        return f"{hours:02d}:{minutes:02d}:{seconds_int:02d},{milliseconds:03d}"
 
-        seconds = milliseconds // 1_000
-        milliseconds -= seconds * 1_000
-
-        return f"{hours}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
-
-    def write_srt(self, transcript: Iterator[dict], file: TextIO):
+    def _write_srt(self, transcript: Iterator[dict], file: TextIO) -> None:
+        """Write SRT file."""
         count = 0
         for segment in transcript:
             count += 1
             print(
                 f"{count}\n"
-                f"{self.srt_format_timestamp(segment['start'])} --> {self.srt_format_timestamp(segment['end'])}\n"
+                f"{self._srt_format_timestamp(segment['start'])} --> {self._srt_format_timestamp(segment['end'])}\n"
                 f"{segment['text'].replace('-->', '->').strip()}\n",
                 file=file,
                 flush=True,
             )
 
     @staticmethod
-    def write_txt(transcript: Iterator[dict], file: TextIO):
+    def _write_txt(transcript: Iterator[dict], file: TextIO) -> None:
+        """Write TXT file."""
         for segment in transcript:
             print(segment["text"].strip(), file=file, flush=True)
 
-    def write_vtt(self, transcript: Iterator[dict], file: TextIO):
+    @staticmethod
+    def _write_vtt(transcript: Iterator[dict], file: TextIO) -> None:
+        """Write VTT file."""
         print("WEBVTT\n", file=file)
         for segment in transcript:
             print(
-                f"{self.format_timestamp(segment['start'])} --> {self.format_timestamp(segment['end'])}\n"
+                f"{AudioTranscriber._format_timestamp(segment['start'])} --> {AudioTranscriber._format_timestamp(segment['end'])}\n"
                 f"{segment['text'].strip().replace('-->', '->')}\n",
                 file=file,
                 flush=True,
             )
 
     @staticmethod
-    def format_timestamp(
+    def _format_timestamp(
         seconds: float, always_include_hours: bool = False, decimal_marker: str = "."
-    ):
+    ) -> str:
+        """Format timestamp for VTT."""
         assert seconds >= 0, "non-negative timestamp expected"
         milliseconds = round(seconds * 1000.0)
-
         hours = milliseconds // 3_600_000
         milliseconds -= hours * 3_600_000
-
         minutes = milliseconds // 60_000
         milliseconds -= minutes * 60_000
-
-        seconds = milliseconds // 1_000
-        milliseconds -= seconds * 1_000
-
+        seconds_int = milliseconds // 1_000
+        milliseconds -= seconds_int * 1_000
         hours_marker = f"{hours:02d}:" if always_include_hours or hours > 0 else ""
-        return f"{hours_marker}{minutes:02d}:{seconds:02d}{decimal_marker}{milliseconds:03d}"
+        return f"{hours_marker}{minutes:02d}:{seconds_int:02d}{decimal_marker}{milliseconds:03d}"
 
 
-def usage():
-    print(
-        "Usage: \n"
-        "-h | --help      [ See usage for script ]\n"
-        "-b | --bitrate   [ Bitrate to use during recording ]\n"
-        "-c | --channels  [ Number of channels to use during recording ]\n"
-        "-d | --directory [ Directory to save recording ]\n"
-        "-e | --export    [ Export txt, srt, & vtt ]\n"
-        "-f | --file      [ File to transcribe ]\n"
-        "-l | --language  [ Language to transcribe <'en', 'fa', 'es', 'zh'> ]\n"
-        "-m | --model     [ Model to use: <tiny, base, small, medium, large> ]\n"
-        "-n | --name      [ Name of recording ]\n"
-        "-r | --record    [ Specify number of seconds to record to record from microphone ]\n"
-        "\n"
-        "audio-transcriber --file '~/Downloads/Federal_Reserve.mp4' --model 'large'\n"
-        "audio-transcriber --record 60 --directory '~/Downloads/' --name 'my_recording.wav' --model 'tiny'\n"
+def setup_logging(
+    verbose: bool = False, log_file: Optional[str] = None
+) -> logging.Logger:
+    """Set up logging configuration."""
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO if verbose else logging.WARNING)
+
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO if verbose else logging.WARNING)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    # File handler if specified
+    if log_file:
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
+    return logger
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Audio Transcriber: Record and transcribe audio using OpenAI Whisper.",
+        epilog="Examples:\n"
+        "  python audio_transcriber.py --file path/to/audio.mp3 --model large --task translate --language ja\n"
+        "  python audio_transcriber.py --record 60 --directory ./recordings --name my_recording.wav --verbose",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    parser.add_argument(
+        "--model",
+        default="base",
+        choices=[
+            "tiny",
+            "base",
+            "small",
+            "medium",
+            "large",
+            "turbo",
+            "tiny.en",
+            "base.en",
+            "small.en",
+            "medium.en",
+        ],
+        help="Whisper model to use (default: base)",
+    )
+    parser.add_argument(
+        "--channels", type=int, default=1, help="Number of audio channels (default: 1)"
+    )
+    parser.add_argument(
+        "--rate",
+        type=int,
+        default=16000,
+        help="Sample rate for recording (default: 16000)",
+    )
+    parser.add_argument(
+        "--directory",
+        type=Path,
+        default=Path.cwd(),
+        help="Directory to save recordings/exports (default: current dir)",
+    )
+    parser.add_argument(
+        "--name",
+        default="output.wav",
+        help="Name of the output file (default: output.wav)",
+    )
+    parser.add_argument(
+        "--file",
+        type=Path,
+        nargs="*",
+        help="Path(s) to audio file(s) to transcribe (skips recording)",
+    )
+    parser.add_argument(
+        "--record",
+        type=int,
+        default=0,
+        help="Seconds to record (0 for unlimited until Ctrl+C; default: 0)",
+    )
+    parser.add_argument(
+        "--device", type=int, help="Input device index (default: system default)"
+    )
+    parser.add_argument(
+        "--language", help="Language code (e.g., 'en', 'fr'; auto-detected if omitted)"
+    )
+    parser.add_argument(
+        "--task",
+        default="transcribe",
+        choices=["transcribe", "translate"],
+        help="Task: transcribe or translate to English (default: transcribe)",
+    )
+    parser.add_argument(
+        "--fp16",
+        action="store_true",
+        help="Use FP16 for faster inference (default: False)",
+    )
+    parser.add_argument(
+        "--word-timestamps",
+        action="store_true",
+        help="Include word-level timestamps in output (default: False)",
+    )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="Temperature for sampling diversity (default: 0.0)",
+    )
+    parser.add_argument(
+        "--initial-prompt", help="Initial text prompt to guide transcription"
+    )
+    parser.add_argument(
+        "--export",
+        nargs="*",
+        choices=["txt", "vtt", "srt", "json"],
+        default=[],
+        help="Export formats (e.g., --export txt srt)",
+    )
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+    parser.add_argument("--log-file", help="Path to log file")
 
+    args = parser.parse_args()
 
-def audio_transcriber(argv):
-    model = "tiny"
-    channels = 1
-    rate = 44100
-    file_name = "output.wav"
-    directory = os.curdir
-    export_flag = False
-    file = None
-    seconds = 0
-    language = "en"
+    logger = setup_logging(args.verbose, args.log_file)
 
-    try:
-        opts, args = getopt.getopt(
-            argv,
-            "hb:c:d:ef:l:m:n:r:",
-            [
-                "help",
-                "bitrate=",
-                "channels=",
-                "directory=",
-                "export",
-                "file=",
-                "language=",
-                "model=",
-                "name=",
-                "record=",
-            ],
-        )
-    except getopt.GetoptError:
-        usage()
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif opt in ("-b", "--bitrate"):
-            rate = arg
-        elif opt in ("-c", "--channels"):
-            channels = arg
-        elif opt in ("-d", "--directory"):
-            directory = arg
-        elif opt in ("-e", "--export"):
-            export_flag = True
-        elif opt in ("-f", "--file"):
-            if os.path.isfile(arg):
-                file = arg
-            else:
-                print(f"File {arg} does not exist")
-                usage()
-                sys.exit(2)
-        elif opt in ("-l", "--language"):
-            language = arg
-        elif opt in ("-m", "--model"):
-            if model in ["tiny", "base", "small", "medium", "large"]:
-                model = arg
-            else:
-                usage()
-                sys.exit(2)
-        elif opt in ("-n", "--name"):
-            file_name = arg
-        elif opt in ("-r", "--record"):
-            seconds = arg
-
-    if file:
-        audio_transcribe = AudioTranscriber(
-            model=model, channels=channels, rate=rate, file=file
-        )
+    if args.file:
+        # Batch transcription
+        for file_path in args.file:
+            if not file_path.exists():
+                logger.error(f"File not found: {file_path}")
+                sys.exit(1)
+            transcriber = AudioTranscriber(
+                model=args.model,
+                channels=args.channels,
+                rate=args.rate,
+                file=file_path,
+                device=args.device,
+                logger=logger,
+            )
+            result = transcriber.transcribe(
+                language=args.language,
+                task=args.task,
+                fp16=args.fp16,
+                word_timestamps=args.word_timestamps,
+                temperature=args.temperature,
+                initial_prompt=args.initial_prompt,
+                verbose=args.verbose,
+            )
+            if args.export:
+                transcriber.export(result, args.export)
     else:
-        audio_transcribe = AudioTranscriber(
-            model=model,
-            channels=channels,
-            rate=rate,
-            file_name=file_name,
-            directory=directory,
+        # Recording mode
+        transcriber = AudioTranscriber(
+            model=args.model,
+            channels=args.channels,
+            rate=args.rate,
+            file_name=args.name,
+            directory=args.directory,
+            device=args.device,
+            logger=logger,
         )
-        audio_transcribe.initiate_stream()
-        audio_transcribe.record(seconds=seconds)
-        audio_transcribe.stop_stream()
-        audio_transcribe.save_stream()
-
-    audio_transcribe.transcribe(language=language)
-
-    if export_flag:
-        audio_transcribe.export_text()
-
-
-def main():
-    if len(sys.argv) < 2:
-        usage()
-        sys.exit(2)
-    audio_transcriber(sys.argv[1:])
+        transcriber.initiate_stream()
+        transcriber.record(seconds=args.record)
+        transcriber.stop_stream()
+        transcriber.save_stream()
+        result = transcriber.transcribe(
+            language=args.language,
+            task=args.task,
+            fp16=args.fp16,
+            word_timestamps=args.word_timestamps,
+            temperature=args.temperature,
+            initial_prompt=args.initial_prompt,
+            verbose=args.verbose,
+        )
+        if args.export:
+            transcriber.export(result, args.export)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        usage()
-        sys.exit(2)
-    audio_transcriber(sys.argv[1:])
+    main()

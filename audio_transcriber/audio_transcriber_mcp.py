@@ -1,327 +1,200 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # coding: utf-8
 
-import whisper
-import sys
-import os
-import threading
 import getopt
-import pyaudio
-import wave
-import datetime
-from typing import Iterator, TextIO
+import os
+import sys
+from typing import List, Optional
+from pathlib import Path
+from audio_transcriber import AudioTranscriber, setup_logging
+from fastmcp import FastMCP, Context
+from pydantic import Field
+
+# Initialize logging for MCP server (logs to file, verbose for details)
+logger = setup_logging(verbose=True, log_file="audio_transcriber_mcp.log")
+
+mcp = FastMCP(name="AudioTranscriberServer")
+
+# Environment variables for defaults
+environment_model = os.environ.get("WHISPER_MODEL", "base")
+environment_directory = os.environ.get(
+    "TRANSCRIBE_DIRECTORY", str(Path.home() / "Downloads")
+)
 
 
-class AudioTranscriber:
-    def __init__(
-        self,
-        model: str = "base",
-        channels: int = 1,
-        rate: int = 44100,
-        file_name: str = "output.wav",
-        directory: str = os.curdir,
-        file: str = "",
-    ):
-        self.chunk = 1024
-        self.format = pyaudio.paInt16
-        self.channels = channels
-        self.rate = rate
-        self.pyaudio_instance = pyaudio.PyAudio()
-        self.stream = None
-        self.frames = []
-        self.file_name = file_name
-        self.title = os.path.split(self.file_name)[0]
-        self.directory = directory
-        self.file = None
-        self.output = None
-        if file != "":
-            self.set_file(file)
-        else:
-            self.set_file(os.path.join(self.directory, self.file_name))
-        self.stop = False
-        self.model = whisper.load_model(model)
-
-    def initiate_stream(self):
-        self.stream = self.pyaudio_instance.open(
-            format=self.format,
-            channels=self.channels,
-            rate=self.rate,
-            input=True,
-            frames_per_buffer=self.chunk,
-        )
-
-    def set_file(self, file: str):
-        self.file = file
-        self.file_name = os.path.basename(file)
-        self.directory = os.path.dirname(file)
-        self.title = os.path.splitext(self.file_name)[0]
-        if self.directory == "":
-            self.directory = os.curdir
-
-    def set_file_name(self, file_name: str):
-        self.file_name = file_name
-        self.set_file(os.path.join(self.directory, self.file_name))
-        self.title = os.path.split(self.file_name)[0]
-
-    def set_directory(self, directory: str):
-        self.directory = directory
-        self.set_file(os.path.join(self.directory, self.file_name))
-
-    def set_rate(self, rate: int):
-        self.rate = rate
-
-    def set_channels(self, channels: int):
-        self.channels = channels
-
-    def set_model(self, model: str):
-        if model in ["tiny", "base", "small", "medium", "large"]:
-            self.model = whisper.load_model(model)
-        else:
-            print(
-                "Model does not exist, please choose from: tiny, base, small, medium, or large"
-            )
-
-    def record(self, seconds: int = 0):
-        print("Recording started...")
-        self.frames = []
-        self.stop = False
-        if seconds > 0:
-            for i in range(0, int((self.rate / self.chunk) * seconds)):
-                data = self.stream.read(self.chunk)
-                self.frames.append(data)
-        else:
-            print("Keep recording until stop signal is sent")
-            download_thread = threading.Thread(
-                target=self.unlimited_record, name="Recorder"
-            )
-            download_thread.start()
-        print("Recording stopped")
-
-    def unlimited_record(self):
-        while self.stop is False:
-            data = self.stream.read(self.chunk)
-            self.frames.append(data)
-
-    def stop_stream(self):
-        self.stop = True
-        self.stream.stop_stream()
-        self.stream.close()
-        self.pyaudio_instance.terminate()
-
-    def save_stream(self):
-        wave_file = wave.open(self.file, "wb")
-        wave_file.setnchannels(self.channels)
-        wave_file.setsampwidth(self.pyaudio_instance.get_sample_size(self.format))
-        wave_file.setframerate(self.rate)
-        wave_file.writeframes(b"".join(self.frames))
-        wave_file.close()
-
-    def transcribe(self, language="en"):
-        self.output = None
-        start_time = datetime.datetime.now()
-        print(f"Started: {start_time}\nTranscribing: {self.file}")
-        self.output = self.model.transcribe(self.file, language=language)
-        end_time = datetime.datetime.now()
-        print(f"Ended: {end_time}\nTime Elapsed: {end_time - start_time}")
-        print(f"Output: \n{self.output}")
-        for segment in self.output["segments"]:
-            second = int(segment["start"])
-            second = second - (second % 5)
-            print(f"Second: {second} - Segment: \n{segment}\n\n")
-
-    def export_text(self):
-        with open(
-            os.path.join(self.directory, f"{self.title}.txt"), "w", encoding="utf-8"
-        ) as txt:
-            self.write_txt(self.output["segments"], file=txt)
-
-        with open(
-            os.path.join(self.directory, f"{self.title}.vtt"), "w", encoding="utf-8"
-        ) as vtt:
-            self.write_vtt(self.output["segments"], file=vtt)
-
-        with open(
-            os.path.join(self.directory, f"{self.title}.srt"), "w", encoding="utf-8"
-        ) as srt:
-            self.write_srt(self.output["segments"], file=srt)
-
-    @staticmethod
-    def srt_format_timestamp(seconds: float):
-        assert seconds >= 0, "non-negative timestamp expected"
-        milliseconds = round(seconds * 1000.0)
-
-        hours = milliseconds // 3_600_000
-        milliseconds -= hours * 3_600_000
-
-        minutes = milliseconds // 60_000
-        milliseconds -= minutes * 60_000
-
-        seconds = milliseconds // 1_000
-        milliseconds -= seconds * 1_000
-
-        return f"{hours}:{minutes:02d}:{seconds:02d},{milliseconds:03d}"
-
-    def write_srt(self, transcript: Iterator[dict], file: TextIO):
-        count = 0
-        for segment in transcript:
-            count += 1
-            print(
-                f"{count}\n"
-                f"{self.srt_format_timestamp(segment['start'])} --> {self.srt_format_timestamp(segment['end'])}\n"
-                f"{segment['text'].replace('-->', '->').strip()}\n",
-                file=file,
-                flush=True,
-            )
-
-    @staticmethod
-    def write_txt(transcript: Iterator[dict], file: TextIO):
-        for segment in transcript:
-            print(segment["text"].strip(), file=file, flush=True)
-
-    def write_vtt(self, transcript: Iterator[dict], file: TextIO):
-        print("WEBVTT\n", file=file)
-        for segment in transcript:
-            print(
-                f"{self.format_timestamp(segment['start'])} --> {self.format_timestamp(segment['end'])}\n"
-                f"{segment['text'].strip().replace('-->', '->')}\n",
-                file=file,
-                flush=True,
-            )
-
-    @staticmethod
-    def format_timestamp(
-        seconds: float, always_include_hours: bool = False, decimal_marker: str = "."
-    ):
-        assert seconds >= 0, "non-negative timestamp expected"
-        milliseconds = round(seconds * 1000.0)
-
-        hours = milliseconds // 3_600_000
-        milliseconds -= hours * 3_600_000
-
-        minutes = milliseconds // 60_000
-        milliseconds -= minutes * 60_000
-
-        seconds = milliseconds // 1_000
-        milliseconds -= seconds * 1_000
-
-        hours_marker = f"{hours:02d}:" if always_include_hours or hours > 0 else ""
-        return f"{hours_marker}{minutes:02d}:{seconds:02d}{decimal_marker}{milliseconds:03d}"
-
-
-def usage():
-    print(
-        "Usage: \n"
-        "-h | --help      [ See usage for script ]\n"
-        "-b | --bitrate   [ Bitrate to use during recording ]\n"
-        "-c | --channels  [ Number of channels to use during recording ]\n"
-        "-d | --directory [ Directory to save recording ]\n"
-        "-e | --export    [ Export txt, srt, & vtt ]\n"
-        "-f | --file      [ File to transcribe ]\n"
-        "-l | --language  [ Language to transcribe <'en', 'fa', 'es', 'zh'> ]\n"
-        "-m | --model     [ Model to use: <tiny, base, small, medium, large> ]\n"
-        "-n | --name      [ Name of recording ]\n"
-        "-r | --record    [ Specify number of seconds to record to record from microphone ]\n"
-        "\n"
-        "audio-transcriber --file '~/Downloads/Federal_Reserve.mp4' --model 'large'\n"
-        "audio-transcriber --record 60 --directory '~/Downloads/' --name 'my_recording.wav' --model 'tiny'\n"
+@mcp.tool(
+    annotations={
+        "title": "Transcribe Audio",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+    tags={"audio_processing"},
+)
+async def transcribe_audio(
+    audio_file: Optional[str] = Field(
+        description="Path to the audio file to transcribe. If provided, transcription is performed on this file.",
+        default=None,
+    ),
+    record_seconds: int = Field(
+        description="Number of seconds to record audio from microphone. Must be positive if no audio_file is provided. 0 or negative not supported for recording in this context.",
+        default=0,
+    ),
+    directory: Optional[str] = Field(
+        description="Directory for saving recordings or exports.",
+        default=environment_directory,
+    ),
+    model: str = Field(
+        description="Whisper model to use (e.g., 'base', 'small', 'turbo').",
+        default=environment_model,
+    ),
+    language: Optional[str] = Field(
+        description="Language code for transcription (e.g., 'en', 'fr'). Auto-detected if not specified.",
+        default=None,
+    ),
+    task: str = Field(
+        description="Task to perform: 'transcribe' or 'translate' (to English).",
+        default="transcribe",
+    ),
+    fp16: bool = Field(description="Use FP16 for faster inference.", default=True),
+    word_timestamps: bool = Field(
+        description="Include word-level timestamps in the output.", default=False
+    ),
+    temperature: float = Field(
+        description="Temperature for sampling diversity (0.0 for deterministic).",
+        default=0.0,
+    ),
+    initial_prompt: Optional[str] = Field(
+        description="Initial text prompt to guide the transcription.", default=None
+    ),
+    export_formats: List[str] = Field(
+        description="Formats to export the transcription (e.g., ['txt', 'srt']).",
+        default=None,
+    ),
+    ctx: Context = Field(
+        description="MCP context for progress reporting.", default=None
+    ),
+) -> str:
+    """Transcribes audio from a provided file or by recording from the microphone."""
+    logger.info(
+        f"Starting transcription: audio_file={audio_file}, record_seconds={record_seconds}, "
+        f"directory={directory}, model={model}, language={language}, task={task}"
     )
 
+    try:
+        if not audio_file and record_seconds <= 0:
+            raise ValueError(
+                "Either audio_file must be provided or record_seconds must be positive."
+            )
 
-def audio_transcriber(argv):
-    model = "tiny"
-    channels = 1
-    rate = 44100
-    file_name = "output.wav"
-    directory = os.curdir
-    export_flag = False
-    file = None
-    seconds = 0
-    language = "en"
+        # Create transcriber instance
+        transcriber = AudioTranscriber(
+            model=model,
+            directory=Path(directory),
+            file=audio_file if audio_file else None,
+            logger=logger,
+        )
 
+        # Report initial progress
+        if ctx:
+            await ctx.report_progress(progress=0, total=100)
+            logger.debug("Reported initial progress: 0/100")
+
+        if audio_file:
+            # Validate file existence
+            file_path = Path(audio_file)
+            if not file_path.exists():
+                raise ValueError(f"Audio file not found: {audio_file}")
+        else:
+            # Recording mode (only fixed duration supported)
+            logger.info(f"Starting recording for {record_seconds} seconds.")
+            transcriber.initiate_stream()
+
+            # Coarse progress for recording (sync call, so limited granularity)
+            transcriber.record(seconds=record_seconds)
+            transcriber.stop_stream()
+            transcriber.save_stream()
+
+            if ctx:
+                await ctx.report_progress(
+                    progress=40, total=100
+                )  # Arbitrary midpoint after recording
+                logger.debug("Reported progress after recording: 40/100")
+
+        # Perform transcription
+        logger.info("Starting Whisper transcription.")
+        result = transcriber.transcribe(
+            language=language,
+            task=task,
+            fp16=fp16,
+            word_timestamps=word_timestamps,
+            temperature=temperature,
+            initial_prompt=initial_prompt,
+            verbose=True,  # Enable verbose for logging details
+        )
+
+        if ctx:
+            await ctx.report_progress(progress=90, total=100)
+            logger.debug("Reported progress after transcription: 90/100")
+
+        # Export if requested
+        if export_formats:
+            transcriber.export(result, formats=export_formats)
+            logger.info(f"Exported transcription to formats: {export_formats}")
+
+        # Report completion
+        if ctx:
+            await ctx.report_progress(progress=100, total=100)
+            logger.debug("Reported final progress: 100/100")
+
+        logger.info("Transcription completed successfully.")
+        return result["text"]
+    except Exception as e:
+        logger.error(f"Failed to transcribe audio: {str(e)}")
+        raise RuntimeError(f"Failed to transcribe audio: {str(e)}")
+
+
+def audio_transcriber_mcp(argv):
+    transport = "stdio"
+    host = "0.0.0.0"
+    port = 8000
     try:
         opts, args = getopt.getopt(
             argv,
-            "hb:c:d:ef:l:m:n:r:",
-            [
-                "help",
-                "bitrate=",
-                "channels=",
-                "directory=",
-                "export",
-                "file=",
-                "language=",
-                "model=",
-                "name=",
-                "record=",
-            ],
+            "ht:h:p:",
+            ["help", "transport=", "host=", "port="],
         )
     except getopt.GetoptError:
-        usage()
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
-            usage()
             sys.exit()
-        elif opt in ("-b", "--bitrate"):
-            rate = arg
-        elif opt in ("-c", "--channels"):
-            channels = arg
-        elif opt in ("-d", "--directory"):
-            directory = arg
-        elif opt in ("-e", "--export"):
-            export_flag = True
-        elif opt in ("-f", "--file"):
-            if os.path.isfile(arg):
-                file = arg
-            else:
-                print(f"File {arg} does not exist")
-                usage()
-                sys.exit(2)
-        elif opt in ("-l", "--language"):
-            language = arg
-        elif opt in ("-m", "--model"):
-            if model in ["tiny", "base", "small", "medium", "large"]:
-                model = arg
-            else:
-                usage()
-                sys.exit(2)
-        elif opt in ("-n", "--name"):
-            file_name = arg
-        elif opt in ("-r", "--record"):
-            seconds = arg
-
-    if file:
-        audio_transcribe = AudioTranscriber(
-            model=model, channels=channels, rate=rate, file=file
-        )
+        elif opt in ("-t", "--transport"):
+            transport = arg
+        elif opt in ("-h", "--host"):
+            host = arg
+        elif opt in ("-p", "--port"):
+            try:
+                port = int(arg)
+                if not (0 <= port <= 65535):
+                    print(f"Error: Port {arg} is out of valid range (0-65535).")
+                    sys.exit(1)
+            except ValueError:
+                print(f"Error: Port {arg} is not a valid integer.")
+                sys.exit(1)
+    if transport == "stdio":
+        mcp.run(transport="stdio")
+    elif transport == "http":
+        mcp.run(transport="http", host=host, port=port)
     else:
-        audio_transcribe = AudioTranscriber(
-            model=model,
-            channels=channels,
-            rate=rate,
-            file_name=file_name,
-            directory=directory,
-        )
-        audio_transcribe.initiate_stream()
-        audio_transcribe.record(seconds=seconds)
-        audio_transcribe.stop_stream()
-        audio_transcribe.save_stream()
-
-    audio_transcribe.transcribe(language=language)
-
-    if export_flag:
-        audio_transcribe.export_text()
+        logger.error("Transport not supported")
+        sys.exit(1)
 
 
 def main():
-    if len(sys.argv) < 2:
-        usage()
-        sys.exit(2)
-    audio_transcriber(sys.argv[1:])
+    audio_transcriber_mcp(sys.argv[1:])
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        usage()
-        sys.exit(2)
-    audio_transcriber(sys.argv[1:])
+    audio_transcriber_mcp(sys.argv[1:])

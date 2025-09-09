@@ -79,10 +79,63 @@ audio-transcriber --record 60 --directory '~/Downloads/' --name 'my_recording.wa
 <details>
   <summary><b>Installation Instructions:</b></summary>
 
-Install Python Package
+## Use with AI
+
+Configure `mcp.json`
+
+Recommended: Store secrets in environment variables with lookup in JSON file.
+
+For Testing Only: Plain text storage will also work, although **not** recommended.
+
+```json
+{
+  "mcpServers": {
+    "audio_transcriber": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--with",
+        "audio-transcriber",
+        "audio-transcriber-mcp"
+      ],
+      "env": {
+        "WHISPER_MODEL": "medium",            // Optional
+        "TRANSCRIBE_DIRECTORY": "~/Downloads" // Optional
+      },
+      "timeout": 200000
+    }
+  }
+}
+```
+
+### Deploy MCP Server as a container
+```bash
+docker pull knucklessg1/audio-transcriber:latest
+```
+
+Modify the `compose.yml`
+
+```compose
+services:
+  audio-transcriber:
+    image: knucklessg1/audio-transcriber:latest
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8021
+    ports:
+      - 8021:8021
+```
+
+### Install Python Package
 
 ```bash
 python -m pip install audio-transcriber
+```
+
+or
+
+```bash
+uv pip install --upgrade audio-transcriber
 ```
 
 ##### Ubuntu Dependencies
@@ -97,17 +150,6 @@ apt install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmp
 Use with a GUI through Geniusbot
 
 Visit our [GitHub](https://github.com/Knuckles-Team/geniusbot) for more information
-
-<details>
-  <summary><b>Installation Instructions with Geniusbot:</b></summary>
-
-Install Python Package
-
-```bash
-python -m pip install geniusbot
-```
-
-</details>
 
 <details>
   <summary><b>Repository Owners:</b></summary>
