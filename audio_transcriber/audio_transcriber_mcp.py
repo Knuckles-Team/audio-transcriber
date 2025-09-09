@@ -6,7 +6,7 @@ import os
 import sys
 from typing import List, Optional
 from pathlib import Path
-from audio_transcriber import AudioTranscriber, setup_logging
+from audio_transcriber.audio_transcriber import AudioTranscriber, setup_logging
 from fastmcp import FastMCP, Context
 from pydantic import Field
 

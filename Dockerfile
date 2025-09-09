@@ -9,5 +9,4 @@ RUN apt update \
     && apt install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg -y \
     && pip install uv \
     && uv pip install --system audio-transcriber
-
 ENTRYPOINT exec audio-transcriber-mcp --transport "http" --host "${HOST}" --port "${PORT}"
