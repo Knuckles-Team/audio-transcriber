@@ -1,9 +1,0 @@
-variables:
-  UPSTREAM_REPOSITORY_URL: "https://github.com/Knuckles-Team/audio-transcriber.git"
-  UPSTREAM_BRANCH: "main"
-  DOWNSTREAM_REPOSITORY_PATH: "homelab/python/audio-transcriber"
-  DOWNSTREAM_BRANCH: "main"
-include:
-  project: 'homelab/pipelines/gitlab-pipelines'
-  file:
-    - 'sync_repository.yml'

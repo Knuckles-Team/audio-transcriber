@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=80.9.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audio-transcriber"
+version = "0.5.38"
+description = "Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!"
+readme = "README.md"
+authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: Public Domain",
+    "Environment :: Console",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "torch>=1.13.1",
+    "transformers>=4.25.1",
+    "pyaudio>=0.2.13",
+    "openai-whisper>=20250625",
+    "setuptools-rust>=1.12.0"
+]
+
+[project.scripts]
+audio-transcriber = "audio_transcriber.audio_transcriber:main"
+audio-transcriber-mcp = "audio_transcriber.audio_transcriber_mcp:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools]
+include-package-data = true
+package-data = { "audio_transcriber" = ["audio_transcriber"] }
