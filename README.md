@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/audio-transcriber)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/audio-transcriber)
 
-*Version: 0.5.40*
+*Version: 0.5.41*
 
 Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!
 
@@ -82,11 +82,6 @@ audio-transcriber --record 60 --directory '~/Downloads/' --name 'my_recording.wa
 ## Use with AI
 
 Configure `mcp.json`
-
-Recommended: Store secrets in environment variables with lookup in JSON file.
-
-For Testing Only: Plain text storage will also work, although **not** recommended.
-
 ```json
 {
   "mcpServers": {
@@ -140,7 +135,8 @@ uv pip install --upgrade audio-transcriber
 
 ##### Ubuntu Dependencies
 ```bash
-apt install -y libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg
+sudo apt-get update
+sudo apt-get install libportaudio2 portaudio19-dev
 ```
 
 </details>
