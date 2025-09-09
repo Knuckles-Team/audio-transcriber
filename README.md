@@ -136,7 +136,7 @@ uv pip install --upgrade audio-transcriber
 ##### Ubuntu Dependencies
 ```bash
 sudo apt-get update
-sudo apt-get install libportaudio2 portaudio19-dev
+sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg -y
 ```
 
 </details>

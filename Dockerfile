@@ -5,7 +5,9 @@ ARG PORT=8021
 ENV HOST=${HOST}
 ENV PORT=${PORT}
 ENV PATH="/usr/local/bin:${PATH}"
-RUN pip install uv \
+RUN apt update \
+    && apt install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg -y \
+    && pip install uv \
     && uv pip install --system audio-transcriber
 
 ENTRYPOINT exec audio-transcriber-mcp --transport "http" --host "${HOST}" --port "${PORT}"
