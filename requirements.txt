@@ -3,3 +3,4 @@ transformers>=4.25.1
 pyaudio>=0.2.13
 openai-whisper>=20250625
 setuptools-rust>=1.12.0
+fastmcp>=2.11.3
