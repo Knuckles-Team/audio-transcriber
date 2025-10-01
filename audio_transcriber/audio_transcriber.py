@@ -270,7 +270,7 @@ def setup_logging(
     return logger
 
 
-def main() -> None:
+def audio_transcriber() -> None:
     parser = argparse.ArgumentParser(
         description="Audio Transcriber: Record and transcribe audio using OpenAI Whisper.",
         epilog="Examples:\n"

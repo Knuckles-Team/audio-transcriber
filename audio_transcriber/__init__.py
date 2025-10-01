@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from audio_transcriber.audio_transcriber import (
-    main,
+    audio_transcriber,
     AudioTranscriber,
     setup_logging,
 )
@@ -15,4 +15,4 @@ Transcribe your .wav .mp4 .mp3 .flac files to text using AI!
 """
 
 
-__all__ = ["audio_transcriber_mcp", "main", "AudioTranscriber", "setup_logging"]
+__all__ = ["audio_transcriber_mcp", "audio_transcriber", "AudioTranscriber", "setup_logging"]
