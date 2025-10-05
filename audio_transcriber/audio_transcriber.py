@@ -426,4 +426,4 @@ def audio_transcriber() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    audio_transcriber()
