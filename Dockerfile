@@ -10,5 +10,5 @@ ENV PATH="/usr/local/bin:${PATH}"
 RUN apt update \
     && apt install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg gcc -y \
     && pip install uv \
-    && uv pip install --system audio-transcriber>=0.5.51
+    && uv pip install --system --upgrade audio-transcriber>=0.5.52
 ENTRYPOINT exec audio-transcriber-mcp --transport "${TRANSPORT}" --host "${HOST}" --port "${PORT}"
