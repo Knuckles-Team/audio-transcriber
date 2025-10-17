@@ -48,9 +48,9 @@ ENV EUNOMIA_REMOTE_URL=${EUNOMIA_REMOTE_URL}
 ENV PATH="/usr/local/bin:${PATH}"
 
 RUN apt update \
-    && apt install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg gcc -y \
+    && apt install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg gcc cmake -y \
     && pip install uv \
-    && uv pip install --system --upgrade audio-transcriber>=0.5.54 
+    && uv pip install --system --upgrade audio-transcriber>=0.5.55 
 
 ENTRYPOINT exec audio-transcriber-mcp \
     --transport "${TRANSPORT}" \
