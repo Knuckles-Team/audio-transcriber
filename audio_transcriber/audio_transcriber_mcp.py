@@ -405,7 +405,7 @@ def audio_transcriber_mcp():
     elif args.transport == "sse":
         mcp.run(transport="sse", host=args.host, port=args.port)
     else:
-        logger = logging.getLogger("ContainerManager")
+        logger = logging.getLogger("AudioTranscriber")
         logger.error("Transport not supported")
         sys.exit(1)
 
