@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/audio-transcriber)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/audio-transcriber)
 
-*Version: 0.5.55*
+*Version: 0.5.56*
 
 Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!
 
