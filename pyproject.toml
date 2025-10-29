@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audio-transcriber"
-version = "0.5.57"
+version = "0.5.58"
 description = "Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -18,7 +18,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "fastmcp>=2.12.4",
+    "fastmcp>=2.13.0.2",
     "torch>=2.8.0",
     "transformers>=4.56.1",
     "pyaudio>=0.2.14",
