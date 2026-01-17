@@ -1,4 +1,4 @@
-# Audio-Transcriber
+# Audio-Transcriber - A2A & MCP Server
 
 ![PyPI - Version](https://img.shields.io/pypi/v/audio-transcriber)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
