@@ -1,6 +1,7 @@
 # Audio-Transcriber
 
 ![PyPI - Version](https://img.shields.io/pypi/v/audio-transcriber)
+![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
 ![PyPI - Downloads](https://img.shields.io/pypi/dd/audio-transcriber)
 ![GitHub Repo stars](https://img.shields.io/github/stars/Knuckles-Team/audio-transcriber)
 ![GitHub forks](https://img.shields.io/github/forks/Knuckles-Team/audio-transcriber)
@@ -20,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/audio-transcriber)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/audio-transcriber)
 
-*Version: 0.5.62*
+*Version: 0.5.63*
 
 Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!
 
@@ -34,11 +35,67 @@ Wrapped around [OpenAI Whisper](https://pypi.org/project/openai-whisper)
 <details>
   <summary><b>Usage:</b></summary>
 
+## A2A Agent
+
+### Architecture:
+
+```mermaid
+---
+config:
+  layout: dagre
+---
+flowchart TB
+ subgraph subGraph0["Agent Capabilities"]
+        C["Agent"]
+        B["A2A Server - Uvicorn/FastAPI"]
+        D["MCP Tools"]
+        F["Agent Skills"]
+  end
+    C --> D & F
+    A["User Query"] --> B
+    B --> C
+    D --> E["Platform API"]
+
+     C:::agent
+     B:::server
+     A:::server
+    classDef server fill:#f9f,stroke:#333
+    classDef agent fill:#bbf,stroke:#333,stroke-width:2px
+    style B stroke:#000000,fill:#FFD600
+    style D stroke:#000000,fill:#BBDEFB
+    style F fill:#BBDEFB
+    style A fill:#C8E6C9
+    style subGraph0 fill:#FFF9C4
+```
+
+### Component Interaction Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Server as A2A Server
+    participant Agent as Agent
+    participant Skill as Agent Skills
+    participant MCP as MCP Tools
+
+    User->>Server: Send Query
+    Server->>Agent: Invoke Agent
+    Agent->>Skill: Analyze Skills Available
+    Skill->>Agent: Provide Guidance on Next Steps
+    Agent->>MCP: Invoke Tool
+    MCP-->>Agent: Tool Response Returned
+    Agent-->>Agent: Return Results Summarized
+    Agent-->>Server: Final Response
+    Server-->>User: Output
+```
+
+## Usage
+
 ### CLI
 
-| Short Flag | Long Flag   | Description                                                   |
-|------------|-------------|---------------------------------------------------------------|
-| -h         | --help      | See Usage                                                     |
+| Short Flag | Long Flag        | Description                            |
+|------------|------------------|----------------------------------------|
+| -h         | --help           | See Usage                              |
 | -b         | --bitrate   | Bitrate to use during recording                               |
 | -c         | --channels  | Number of channels to use during recording                    |
 | -d         | --directory | Directory to save recording                                   |
