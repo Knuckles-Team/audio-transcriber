@@ -23,6 +23,8 @@
 
 *Version: 0.5.63*
 
+## Overview
+
 Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!
 
 This repository is actively maintained - Contributions are welcome!
@@ -32,12 +34,17 @@ Contribution Opportunities:
 
 Wrapped around [OpenAI Whisper](https://pypi.org/project/openai-whisper)
 
-<details>
-  <summary><b>Usage:</b></summary>
+## MCP
+
+## MCP Tools
+
+| Function Name      | Description                                                                 | Tag(s)             |
+|:-------------------|:----------------------------------------------------------------------------|:-------------------|
+| `transcribe_audio` | Transcribes audio from a provided file or by recording from the microphone. | `audio_processing` |
 
 ## A2A Agent
 
-### Architecture:
+### Architecture Summary
 
 ```mermaid
 ---
@@ -158,10 +165,7 @@ audio-transcriber-mcp
 audio-transcriber-mcp --transport "http"  --host "0.0.0.0"  --port "8000"
 ```
 
-</details>
-
-<details>
-  <summary><b>Model Information:</b></summary>
+#### Model Information
 
 [Courtesy of and Credits to OpenAI: Whisper.ai](https://github.com/openai/whisper/blob/main/README.md)
 
@@ -286,13 +290,22 @@ Configure `mcp.json`
   }
 }
 ```
+### A2A CLI
 
-</details>
+| Short Flag | Long Flag         | Description                                                            |
+|------------|-------------------|------------------------------------------------------------------------|
+| -h         | --help            | Display help information                                               |
+|            | --host            | Host to bind the server to (default: 0.0.0.0)                          |
+|            | --port            | Port to bind the server to (default: 9000)                             |
+|            | --reload          | Enable auto-reload                                                     |
+|            | --provider        | LLM Provider: 'openai', 'anthropic', 'google', 'huggingface'           |
+|            | --model-id        | LLM Model ID (default: qwen3:4b)                                       |
+|            | --base-url        | LLM Base URL (for OpenAI compatible providers)                         |
+|            | --api-key         | LLM API Key                                                            |
+|            | --mcp-url         | MCP Server URL (default: http://localhost:8000/mcp)                    |
 
-<details>
-  <summary><b>Installation Instructions:</b></summary>
 
-### Install Python Package
+## Install Python Package
 
 ```bash
 python -m pip install audio-transcriber
@@ -310,10 +323,8 @@ sudo apt-get update
 sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 ffmpeg gcc -y
 ```
 
-</details>
 
-<details>
-  <summary><b>Repository Owners:</b></summary>
+## Repository Owners
 
 
 <img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=Knucklessg1&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />

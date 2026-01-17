@@ -1,0 +1,47 @@
+---
+services:
+  audio-transcriber-mcp:
+    image: docker.io/knucklessg1/audio-transcriber:latest
+    # build: . # Debug
+    container_name: audio-transcriber-mcp
+    hostname: audio-transcriber-mcp
+    command: ["audio-transcriber-mcp"]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    environment:
+      - "HOST=0.0.0.0"
+      - "PORT=8014"
+      - "TRANSPORT=streamable-http"
+      - "OPENAI_API_KEY=llama"
+    ports:
+      - "8014:8014"
+
+  audio-transcriber-a2a:
+    image: docker.io/knucklessg1/audio-transcriber:latest
+    # build: . # Debug
+    container_name: audio-transcriber-a2a
+    hostname: audio-transcriber-a2a
+    command: ["audio-transcriber-a2a"]
+    depends_on:
+      - audio-transcriber-mcp
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always
+    environment:
+      - "HOST=0.0.0.0"
+      - "PORT=9014"
+      - "MCP_URL=http://audio-transcriber-mcp:8014/mcp"
+      - "PROVIDER=openai"
+      - "OPENAI_BASE_URL=http://localhost:1234/v1"
+      - "OPENAI_API_KEY=llama"
+      - "MODEL_ID=qwen/qwen3-8b"
+      - "DEBUG=False"
+    ports:
+      - "9014:9014"
