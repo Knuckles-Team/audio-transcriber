@@ -51,6 +51,6 @@ ENV PATH="/usr/local/bin:${PATH}"
 RUN apt update \
     && apt install -y libasound-dev gcc portaudio19-dev \
     && pip install uv \
-    && uv pip install --system audio-transcriber[all]>=0.5.63
+    && uv pip install --system audio-transcriber[all]>=0.5.64
 
 CMD ["audio-transcriber-mcp"]
