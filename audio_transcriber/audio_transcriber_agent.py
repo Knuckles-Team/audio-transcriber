@@ -4,13 +4,12 @@ import os
 import argparse
 import logging
 import uvicorn
-from typing import Optional, Any, List
-from pathlib import Path
+from contextlib import asynccontextmanager
+from typing import Optional, Any
 import json
-import yaml
 
 from fastmcp import Client
-from pydantic_ai import Agent
+from pydantic_ai import Agent, ModelSettings
 from pydantic_ai.mcp import load_mcp_servers
 from pydantic_ai.toolsets.fastmcp import FastMCPToolset
 from pydantic_ai_skills import SkillsToolset
@@ -19,7 +18,19 @@ from pydantic_ai.models.anthropic import AnthropicModel
 from pydantic_ai.models.google import GoogleModel
 from pydantic_ai.models.huggingface import HuggingFaceModel
 from fasta2a import Skill
-from audio_transcriber.utils import to_boolean, to_integer, get_mcp_config_path, get_skills_path, load_skills_from_directory
+from audio_transcriber.utils import (
+    to_boolean,
+    to_integer,
+    get_mcp_config_path,
+    get_skills_path,
+    load_skills_from_directory,
+)
+
+from fastapi import FastAPI, Request
+from starlette.responses import Response, StreamingResponse
+from pydantic import ValidationError
+from pydantic_ai.ui import SSE_CONTENT_TYPE
+from pydantic_ai.ui.ag_ui import AGUIAdapter
 
 # Configure logging
 logging.basicConfig(
@@ -43,15 +54,22 @@ DEFAULT_OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "ollama")
 DEFAULT_MCP_URL = os.getenv("MCP_URL", None)
 DEFAULT_MCP_CONFIG = os.getenv("MCP_CONFIG", get_mcp_config_path())
 # Calculate default skills directory relative to this file
-DEFAULT_SKILLS_DIRECTORY = os.getenv(
-    "SKILLS_DIRECTORY", 
-    get_skills_path()
-)
+DEFAULT_SKILLS_DIRECTORY = os.getenv("SKILLS_DIRECTORY", get_skills_path())
+DEFAULT_ENABLE_WEB_UI = to_boolean(os.getenv("ENABLE_WEB_UI", "False"))
 
 AGENT_NAME = "Audio Transcriber Agent"
-AGENT_DESCRIPTION = (
-    "An intelligent agent for audio transcription and processing."
+AGENT_DESCRIPTION = "An intelligent agent for audio transcription and processing."
+AGENT_SYSTEM_PROMPT = (
+    "You are an Audio Transcription Expert Agent.\n"
+    "You have access to tools for transcribing audio files.\n"
+    "Your responsibilities:\n"
+    "1. Analyze the user's request for audio transcription.\n"
+    "2. Use the available tool `transcribe_audio` and relevant parameters to process the audio.\n"
+    "3. Provide the transcription or processing results clearly.\n"
+    "4. Always be warm, professional, and helpful.\n"
+    "5. Explain your plan in detail before executing.\n"
 )
+
 
 def create_model(
     provider: str = DEFAULT_PROVIDER,
@@ -116,25 +134,19 @@ def create_agent(
 
     logger.info("Initializing Agent...")
 
+    settings = ModelSettings(timeout=3600.0)
+
     return Agent(
         model=model,
-        system_prompt=(
-            "You are an Audio Transcription Expert Agent.\n"
-            "You have access to tools for transcribing audio files.\n"
-            "Your responsibilities:\n"
-            "1. Analyze the user's request for audio transcription.\n"
-            "2. Use the available skills and tools to process the audio.\n"
-            "3. Provide the transcription or processing results clearly.\n"
-            "4. Always be warm, professional, and helpful.\n"
-            "5. Explain your plan in detail before executing.\n"
-        ),
+        system_prompt=AGENT_SYSTEM_PROMPT,
         name=AGENT_NAME,
         toolsets=agent_toolsets,
         deps_type=Any,
+        model_settings=settings,
     )
 
 
-def create_a2a_server(
+def create_agent_server(
     provider: str = DEFAULT_PROVIDER,
     model_id: str = DEFAULT_MODEL_ID,
     base_url: Optional[str] = None,
@@ -145,6 +157,7 @@ def create_a2a_server(
     debug: Optional[bool] = DEFAULT_DEBUG,
     host: Optional[str] = DEFAULT_HOST,
     port: Optional[int] = DEFAULT_PORT,
+    enable_web_ui: bool = DEFAULT_ENABLE_WEB_UI,
 ):
     print(
         f"Starting {AGENT_NAME} with provider={provider}, model={model_id}, mcp={mcp_url} | {mcp_config}"
@@ -176,8 +189,8 @@ def create_a2a_server(
             )
         ]
 
-    # Create A2A App
-    app = agent.to_a2a(
+    # Create A2A app explicitly before main app to bind lifespan
+    a2a_app = agent.to_a2a(
         name=AGENT_NAME,
         description=AGENT_DESCRIPTION,
         version="1.0.0",
@@ -185,23 +198,76 @@ def create_a2a_server(
         debug=debug,
     )
 
-    logger.info(
-        "Starting A2A server with provider=%s, model=%s, mcp_url=%s, mcp_config=%s",
-        provider,
-        model_id,
-        mcp_url,
-        mcp_config,
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        # Trigger A2A (sub-app) startup/shutdown events
+        # This is critical for TaskManager initialization in A2A
+        if hasattr(a2a_app, "router"):
+            async with a2a_app.router.lifespan_context(a2a_app):
+                yield
+        else:
+            yield
+
+    # Create main FastAPI app
+    app = FastAPI(
+        title=f"{AGENT_NAME} - A2A + AG-UI Server",
+        description=AGENT_DESCRIPTION,
+        debug=debug,
+        lifespan=lifespan,
     )
+
+    # Mount A2A as sub-app at /a2a
+    app.mount("/a2a", a2a_app)
+
+    # Add AG-UI endpoint (POST to /ag-ui)
+    @app.post("/ag-ui")
+    async def ag_ui_endpoint(request: Request) -> Response:
+        accept = request.headers.get("accept", SSE_CONTENT_TYPE)
+        try:
+            # Parse incoming AG-UI RunAgentInput from request body
+            run_input = AGUIAdapter.build_run_input(await request.body())
+        except ValidationError as e:
+            return Response(
+                content=json.dumps(e.json()),
+                media_type="application/json",
+                status_code=422,
+            )
+
+        # Create adapter and run the agent → stream AG-UI events
+        adapter = AGUIAdapter(agent=agent, run_input=run_input, accept=accept)
+        event_stream = adapter.run_stream()  # Runs agent, yields events
+        sse_stream = adapter.encode_stream(event_stream)  # Encodes to SSE
+
+        return StreamingResponse(
+            sse_stream,
+            media_type=accept,
+        )
+
+    # Mount Web UI if enabled
+    if enable_web_ui:
+        web_ui = agent.to_web(instructions=AGENT_SYSTEM_PROMPT)
+        app.mount("/", web_ui)
+        logger.info(
+            "Starting server on %s:%s (A2A at /a2a, AG-UI at /ag-ui, Web UI: %s)",
+            host,
+            port,
+            "Enabled at /" if enable_web_ui else "Disabled",
+        )
 
     uvicorn.run(
         app,
         host=host,
         port=port,
+        timeout_keep_alive=1800, # 30 minute timeout
+        timeout_graceful_shutdown=60,
         log_level="debug" if debug else "info",
     )
 
+
 def agent_server():
-    parser = argparse.ArgumentParser(description=f"Run the {AGENT_NAME} A2A Server")
+    parser = argparse.ArgumentParser(
+        description=f"Run the {AGENT_NAME} A2A + AG-UI Server"
+    )
     parser.add_argument(
         "--host", default=DEFAULT_HOST, help="Host to bind the server to"
     )
@@ -234,6 +300,13 @@ def agent_server():
         help="Directory containing agent skills",
     )
 
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        default=DEFAULT_ENABLE_WEB_UI,
+        help="Enable Pydantic AI Web UI",
+    )
+
     args = parser.parse_args()
 
     if args.debug:
@@ -255,7 +328,8 @@ def agent_server():
         logger.debug("Debug mode enabled")
 
     # Create the agent with CLI args
-    create_a2a_server(
+    # Create the agent with CLI args
+    create_agent_server(
         provider=args.provider,
         model_id=args.model_id,
         base_url=args.base_url,
@@ -266,7 +340,9 @@ def agent_server():
         debug=args.debug,
         host=args.host,
         port=args.port,
+        enable_web_ui=args.web,
     )
+
 
 if __name__ == "__main__":
     agent_server()

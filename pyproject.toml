@@ -33,21 +33,21 @@ mcp = [
 ]
 
 a2a = [
-    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a]>=1.32.0",
+    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a,ag-ui,web]>=1.32.0",
     "pydantic-ai-skills",
 ]
 
 all = [
     "fastmcp>=2.13.0.2",
     "eunomia-mcp>=0.3.10",
-    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a]>=1.32.0",
+    "pydantic-ai-slim[fastmcp,openai,anthropic,google,huggingface,a2a,ag-ui,web]>=1.32.0",
     "pydantic-ai-skills",
 ]
 
 [project.scripts]
 audio-transcriber = "audio_transcriber.audio_transcriber:audio_transcriber"
 audio-transcriber-mcp = "audio_transcriber.audio_transcriber_mcp:audio_transcriber_mcp"
-audio-transcriber-a2a = "audio_transcriber.audio_transcriber_a2a:agent_server"
+audio-transcriber-agent = "audio_transcriber.audio_transcriber_agent:agent_server"
 
 [tool.setuptools.package-data]
 audio_transcriber = ["mcp_config.json", "skills/**"]

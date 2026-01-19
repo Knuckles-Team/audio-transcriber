@@ -1,4 +1,4 @@
-# Audio-Transcriber - A2A & MCP Server
+# Audio-Transcriber - A2A | AG-UI | MCP
 
 ![PyPI - Version](https://img.shields.io/pypi/v/audio-transcriber)
 ![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
@@ -291,6 +291,10 @@ Configure `mcp.json`
 }
 ```
 ### A2A CLI
+#### Endpoints
+- **Web UI**: `http://localhost:8000/` (if enabled)
+- **A2A**: `http://localhost:8000/a2a` (Discovery: `/a2a/.well-known/agent.json`)
+- **AG-UI**: `http://localhost:8000/ag-ui` (POST)
 
 | Short Flag | Long Flag         | Description                                                            |
 |------------|-------------------|------------------------------------------------------------------------|
@@ -302,7 +306,9 @@ Configure `mcp.json`
 |            | --model-id        | LLM Model ID (default: qwen3:4b)                                       |
 |            | --base-url        | LLM Base URL (for OpenAI compatible providers)                         |
 |            | --api-key         | LLM API Key                                                            |
+
 |            | --mcp-url         | MCP Server URL (default: http://localhost:8000/mcp)                    |
+|            | --web             | Enable Pydantic AI Web UI                                              | False (Env: ENABLE_WEB_UI) |
 
 
 ## Install Python Package

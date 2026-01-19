@@ -6,6 +6,8 @@ services:
     container_name: audio-transcriber-mcp
     hostname: audio-transcriber-mcp
     command: ["audio-transcriber-mcp"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     logging:
       driver: json-file
       options:
@@ -20,12 +22,14 @@ services:
     ports:
       - "8014:8014"
 
-  audio-transcriber-a2a:
+  audio-transcriber-agent:
     image: docker.io/knucklessg1/audio-transcriber:latest
     # build: . # Debug
-    container_name: audio-transcriber-a2a
-    hostname: audio-transcriber-a2a
-    command: ["audio-transcriber-a2a"]
+    container_name: audio-transcriber-agent
+    hostname: audio-transcriber-agent
+    command: ["audio-transcriber-agent"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - audio-transcriber-mcp
     logging:
@@ -43,5 +47,6 @@ services:
       - "OPENAI_API_KEY=llama"
       - "MODEL_ID=qwen/qwen3-8b"
       - "DEBUG=False"
+      - "ENABLE_WEB_UI=True"
     ports:
       - "9014:9014"
