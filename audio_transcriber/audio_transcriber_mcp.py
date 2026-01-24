@@ -11,6 +11,8 @@ from typing import Optional, List, Union
 import requests
 from pydantic import Field
 from eunomia_mcp.middleware import EunomiaMcpMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 from fastmcp import FastMCP, Context
 from fastmcp.server.auth.oidc_proxy import OIDCProxy
 from fastmcp.server.auth import OAuthProxy, RemoteAuthProvider
@@ -56,6 +58,10 @@ DEFAULT_TRANSCRIBE_DIRECTORY = os.environ.get(
 
 
 def register_tools(mcp: FastMCP):
+    @mcp.custom_route("/health", methods=["GET"])
+    async def health_check(request: Request) -> JSONResponse:
+        return JSONResponse({"status": "OK"})
+
     @mcp.tool(
         annotations={
             "title": "Transcribe Audio",
