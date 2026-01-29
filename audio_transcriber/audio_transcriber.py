@@ -14,6 +14,8 @@ import pyaudio
 import whisper
 import wave
 
+__version__ = "0.5.71"
+
 
 class AudioTranscriber:
     """A class for recording audio and transcribing it using OpenAI's Whisper model."""

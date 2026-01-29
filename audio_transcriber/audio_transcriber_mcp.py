@@ -29,6 +29,8 @@ from audio_transcriber.middlewares import (
     JWTClaimsLoggingMiddleware,
 )
 
+__version__ = "0.5.71"
+
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
 
@@ -231,6 +233,7 @@ def register_prompts(mcp: FastMCP):
 
 
 def audio_transcriber_mcp():
+    print(f"audio_transcriber_mcp v{__version__}")
     parser = argparse.ArgumentParser(
         description="Audio Transcriber MCP - Run in stdio or http mode"
     )
@@ -729,6 +732,7 @@ def audio_transcriber_mcp():
     for mw in middlewares:
         mcp.add_middleware(mw)
 
+    print(f"Audio Transcriber MCP v{__version__}")
     print("\nStarting Audio Transcriber MCP Server")
     print(f"  Transport: {args.transport.upper()}")
     print(f"  Auth: {args.auth_type}")
