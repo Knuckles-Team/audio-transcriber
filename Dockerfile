@@ -51,8 +51,8 @@ ENV HOST=${HOST} \
     UV_COMPILE_BYTECODE=1
 
 RUN apt update \
-    && apt install -y libasound-dev gcc portaudio19-dev \
+    && apt install -y libasound-dev curl gcc portaudio19-dev \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages audio-transcriber[all]>=0.5.72
+    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages audio-transcriber[all]>=0.5.73
 
 CMD ["audio-transcriber-mcp"]
