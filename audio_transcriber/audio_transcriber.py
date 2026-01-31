@@ -14,7 +14,7 @@ import pyaudio
 import whisper
 import wave
 
-__version__ = "0.5.73"
+__version__ = "0.5.74"
 
 
 class AudioTranscriber:
