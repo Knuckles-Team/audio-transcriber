@@ -14,7 +14,7 @@ import pyaudio
 import whisper
 import wave
 
-__version__ = "0.5.75"
+__version__ = "0.5.76"
 
 
 class AudioTranscriber:
@@ -274,6 +274,7 @@ def setup_logging(
 
 def audio_transcriber() -> None:
     parser = argparse.ArgumentParser(
+        add_help=False,
         description="Audio Transcriber: Record and transcribe audio using OpenAI Whisper.",
         epilog="Examples:\n"
         "  python audio_transcriber.py --file path/to/audio.mp3 --model large --task translate --language ja\n"
@@ -370,7 +371,15 @@ def audio_transcriber() -> None:
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     parser.add_argument("--log-file", help="Path to log file")
 
+    parser.add_argument("--help", action="store_true", help="Show usage")
+
     args = parser.parse_args()
+
+    if hasattr(args, "help") and args.help:
+
+        usage()
+
+        sys.exit(0)
 
     logger = setup_logging(args.verbose, args.log_file)
 
@@ -425,6 +434,34 @@ def audio_transcriber() -> None:
         )
         if args.export:
             transcriber.export(result, args.export)
+
+
+def usage():
+    print(
+        f"Audio Transcriber ({__version__}): Audio Transcriber: Record and transcribe audio using OpenAI Whisper.\n\n"
+        "Usage:\n"
+        "--model              [ Whisper model to use (default: base) ]\n"
+        "--channels           [ Number of audio channels (default: 1) ]\n"
+        "--rate               [ Sample rate for recording (default: 16000) ]\n"
+        "--directory          [ Directory to save recordings/exports (default: current dir) ]\n"
+        "--name               [ Name of the output file (default: output.wav) ]\n"
+        "--file               [ Path(s) to audio file(s) to transcribe (skips recording) ]\n"
+        "--record             [ Seconds to record (0 for unlimited until Ctrl+C; default: 0) ]\n"
+        "--device             [ Input device index (default: system default) ]\n"
+        "--language           [ Language code (e.g., 'en', 'fr'; auto-detected if omitted) ]\n"
+        "--task               [ Task: transcribe or translate to English (default: transcribe) ]\n"
+        "--fp16               [ Use FP16 for faster inference (default: False) ]\n"
+        "--word-timestamps    [ Include word-level timestamps in output (default: False) ]\n"
+        "--temperature        [ Temperature for sampling diversity (default: 0.0) ]\n"
+        "--initial-prompt     [ Initial text prompt to guide transcription ]\n"
+        "--export             [ Export formats (e.g., --export txt srt) ]\n"
+        "--verbose            [ Enable verbose output ]\n"
+        "--log-file           [ Path to log file ]\n"
+        "\n"
+        "Examples:\n"
+        "  [Simple]  audio-transcriber \n"
+        '  [Complex] audio-transcriber --model "value" --channels "value" --rate "value" --directory "value" --name "value" --file "value" --record "value" --device "value" --language "value" --task "value" --fp16 --word-timestamps --temperature "value" --initial-prompt "value" --export "value" --verbose --log-file "value"\n'
+    )
 
 
 if __name__ == "__main__":
