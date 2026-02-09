@@ -29,7 +29,7 @@ from audio_transcriber.middlewares import (
     JWTClaimsLoggingMiddleware,
 )
 
-__version__ = "0.5.76"
+__version__ = "0.5.77"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -114,6 +114,10 @@ def register_tools(mcp: FastMCP):
             description="Formats to export the transcription (e.g., ['txt', 'srt']).",
             default=None,
         ),
+        backend: Optional[str] = Field(
+            description="Transcription backend to use: 'faster-whisper' or 'openai-whisper'. Defaults to auto-detect (preferring faster-whisper).",
+            default=None,
+        ),
         ctx: Context = Field(
             description="MCP context for progress reporting.", default=None
         ),
@@ -121,7 +125,7 @@ def register_tools(mcp: FastMCP):
         """Transcribes audio from a provided file or by recording from the microphone."""
         logger.info(
             f"Starting transcription: audio_file={audio_file}, record_seconds={record_seconds}, "
-            f"directory={directory}, model={model}, language={language}, task={task}"
+            f"directory={directory}, model={model}, language={language}, task={task}, backend={backend}"
         )
 
         try:
@@ -136,6 +140,7 @@ def register_tools(mcp: FastMCP):
                 directory=Path(directory),
                 file=audio_file if audio_file else None,
                 logger=logger,
+                backend=backend,
             )
 
             # Report initial progress
