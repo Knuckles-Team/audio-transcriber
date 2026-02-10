@@ -14,7 +14,7 @@ from typing import Iterator, List, Optional, TextIO, Union
 import pyaudio
 import wave
 
-__version__ = "0.5.78"
+__version__ = "0.6.0"
 
 
 class TranscriberBackend(ABC):
