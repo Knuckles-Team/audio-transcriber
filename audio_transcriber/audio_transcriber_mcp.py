@@ -29,7 +29,7 @@ from audio_transcriber.middlewares import (
     JWTClaimsLoggingMiddleware,
 )
 
-__version__ = "0.6.4"
+__version__ = "0.6.5"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -38,7 +38,7 @@ config = {
     "enable_delegation": to_boolean(os.environ.get("ENABLE_DELEGATION", "False")),
     "audience": os.environ.get("AUDIENCE", None),
     "delegated_scopes": os.environ.get("DELEGATED_SCOPES", "api"),
-    "token_endpoint": None,  # Will be fetched dynamically from OIDC config
+    "token_endpoint": None,
     "oidc_client_id": os.environ.get("OIDC_CLIENT_ID", None),
     "oidc_client_secret": os.environ.get("OIDC_CLIENT_SECRET", None),
     "oidc_config_url": os.environ.get("OIDC_CONFIG_URL", None),
@@ -134,7 +134,6 @@ def register_tools(mcp: FastMCP):
                     "Either audio_file must be provided or record_seconds must be positive."
                 )
 
-            # Create transcriber instance
             transcriber = AudioTranscriber(
                 model=model,
                 directory=Path(directory),
@@ -143,33 +142,26 @@ def register_tools(mcp: FastMCP):
                 backend=backend,
             )
 
-            # Report initial progress
             if ctx:
                 await ctx.report_progress(progress=0, total=100)
                 logger.debug("Reported initial progress: 0/100")
 
             if audio_file:
-                # Validate file existence
                 file_path = Path(audio_file)
                 if not file_path.exists():
                     raise ValueError(f"Audio file not found: {audio_file}")
             else:
-                # Recording mode (only fixed duration supported)
                 logger.info(f"Starting recording for {record_seconds} seconds.")
                 transcriber.initiate_stream()
 
-                # Coarse progress for recording (sync call, so limited granularity)
                 transcriber.record(seconds=record_seconds)
                 transcriber.stop_stream()
                 transcriber.save_stream()
 
                 if ctx:
-                    await ctx.report_progress(
-                        progress=40, total=100
-                    )  # Arbitrary midpoint after recording
+                    await ctx.report_progress(progress=40, total=100)
                     logger.debug("Reported progress after recording: 40/100")
 
-            # Perform transcription
             logger.info("Starting Whisper transcription.")
             result = transcriber.transcribe(
                 language=language,
@@ -178,19 +170,17 @@ def register_tools(mcp: FastMCP):
                 word_timestamps=word_timestamps,
                 temperature=temperature,
                 initial_prompt=initial_prompt,
-                verbose=True,  # Enable verbose for logging details
+                verbose=True,
             )
 
             if ctx:
                 await ctx.report_progress(progress=90, total=100)
                 logger.debug("Reported progress after transcription: 90/100")
 
-            # Export if requested
             if export_formats:
                 transcriber.export(result, formats=export_formats)
                 logger.info(f"Exported transcription to formats: {export_formats}")
 
-            # Report completion
             if ctx:
                 await ctx.report_progress(progress=100, total=100)
                 logger.debug("Reported final progress: 100/100")
@@ -203,7 +193,6 @@ def register_tools(mcp: FastMCP):
 
 
 def register_prompts(mcp: FastMCP):
-    # Prompts
     @mcp.prompt
     def transcribe_file_prompt(
         audio_file: str,
@@ -268,7 +257,6 @@ def audio_transcriber_mcp():
         choices=["none", "static", "jwt", "oauth-proxy", "oidc-proxy", "remote-oauth"],
         help="Authentication type for MCP server: 'none' (disabled), 'static' (internal), 'jwt' (external token verification), 'oauth-proxy', 'oidc-proxy', 'remote-oauth' (external) (default: none)",
     )
-    # JWT/Token params
     parser.add_argument(
         "--token-jwks-uri", default=None, help="JWKS URI for JWT verification"
     )
@@ -309,7 +297,6 @@ def audio_transcriber_mcp():
         default=os.getenv("FASTMCP_SERVER_AUTH_JWT_REQUIRED_SCOPES"),
         help="Comma-separated list of required scopes (e.g., audiotranscriber.read,audiotranscriber.write).",
     )
-    # OAuth Proxy params
     parser.add_argument(
         "--oauth-upstream-auth-endpoint",
         default=None,
@@ -333,14 +320,12 @@ def audio_transcriber_mcp():
     parser.add_argument(
         "--oauth-base-url", default=None, help="Base URL for OAuth Proxy"
     )
-    # OIDC Proxy params
     parser.add_argument(
         "--oidc-config-url", default=None, help="OIDC configuration URL"
     )
     parser.add_argument("--oidc-client-id", default=None, help="OIDC client ID")
     parser.add_argument("--oidc-client-secret", default=None, help="OIDC client secret")
     parser.add_argument("--oidc-base-url", default=None, help="Base URL for OIDC Proxy")
-    # Remote OAuth params
     parser.add_argument(
         "--remote-auth-servers",
         default=None,
@@ -349,13 +334,11 @@ def audio_transcriber_mcp():
     parser.add_argument(
         "--remote-base-url", default=None, help="Base URL for Remote OAuth"
     )
-    # Common
     parser.add_argument(
         "--allowed-client-redirect-uris",
         default=None,
         help="Comma-separated list of allowed client redirect URIs",
     )
-    # Eunomia params
     parser.add_argument(
         "--eunomia-type",
         default="none",
@@ -370,7 +353,6 @@ def audio_transcriber_mcp():
     parser.add_argument(
         "--eunomia-remote-url", default=None, help="URL for remote Eunomia server"
     )
-    # Delegation params
     parser.add_argument(
         "--enable-delegation",
         action="store_true",
@@ -441,7 +423,6 @@ def audio_transcriber_mcp():
         print(f"Error: Port {args.port} is out of valid range (0-65535).")
         sys.exit(1)
 
-    # Update config with CLI arguments
     config["enable_delegation"] = args.enable_delegation
     config["audience"] = args.audience or config["audience"]
     config["delegated_scopes"] = args.delegated_scopes or config["delegated_scopes"]
@@ -451,7 +432,6 @@ def audio_transcriber_mcp():
         args.oidc_client_secret or config["oidc_client_secret"]
     )
 
-    # Configure delegation if enabled
     if config["enable_delegation"]:
         if args.auth_type != "oidc-proxy":
             logger.error("Token delegation requires auth-type=oidc-proxy")
@@ -471,7 +451,6 @@ def audio_transcriber_mcp():
             )
             sys.exit(1)
 
-        # Fetch OIDC configuration to get token_endpoint
         try:
             logger.info(
                 "Fetching OIDC configuration",
@@ -496,7 +475,6 @@ def audio_transcriber_mcp():
             )
             sys.exit(1)
 
-    # Set auth based on type
     auth = None
     allowed_uris = (
         args.allowed_client_redirect_uris.split(",")
@@ -514,7 +492,6 @@ def audio_transcriber_mcp():
             }
         )
     elif args.auth_type == "jwt":
-        # Fallback to env vars if not provided via CLI
         jwks_uri = args.token_jwks_uri or os.getenv("FASTMCP_SERVER_AUTH_JWT_JWKS_URI")
         issuer = args.token_issuer or os.getenv("FASTMCP_SERVER_AUTH_JWT_ISSUER")
         audience = args.token_audience or os.getenv("FASTMCP_SERVER_AUTH_JWT_AUDIENCE")
@@ -531,7 +508,6 @@ def audio_transcriber_mcp():
             logger.error("JWT requires --token-issuer and --token-audience")
             sys.exit(1)
 
-        # Load static public key from file if path is given
         if args.token_public_key and os.path.isfile(args.token_public_key):
             try:
                 with open(args.token_public_key, "r") as f:
@@ -542,15 +518,13 @@ def audio_transcriber_mcp():
                 logger.error(f"Failed to read public key file: {e}")
                 sys.exit(1)
         elif args.token_public_key:
-            public_key_pem = args.token_public_key  # Inline PEM
+            public_key_pem = args.token_public_key
 
-        # Validation: Conflicting options
         if jwks_uri and (algorithm or secret_or_key):
             logger.warning(
                 "JWKS mode ignores --token-algorithm and --token-secret/--token-public-key"
             )
 
-        # HMAC mode
         if algorithm and algorithm.startswith("HS"):
             if not secret_or_key:
                 logger.error(f"HMAC algorithm {algorithm} requires --token-secret")
@@ -562,7 +536,6 @@ def audio_transcriber_mcp():
         else:
             public_key = public_key_pem
 
-        # Required scopes
         required_scopes = None
         if args.required_scopes:
             required_scopes = [
@@ -699,7 +672,6 @@ def audio_transcriber_mcp():
             base_url=args.remote_base_url,
         )
 
-    # === 2. Build Middleware List ===
     middlewares: List[
         Union[
             UserTokenMiddleware,
@@ -718,7 +690,7 @@ def audio_transcriber_mcp():
         JWTClaimsLoggingMiddleware(),
     ]
     if config["enable_delegation"] or args.auth_type == "jwt":
-        middlewares.insert(0, UserTokenMiddleware(config=config))  # Must be first
+        middlewares.insert(0, UserTokenMiddleware(config=config))
 
     if args.eunomia_type in ["embedded", "remote"]:
         try:

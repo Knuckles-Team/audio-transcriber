@@ -14,7 +14,7 @@ from typing import Iterator, List, Optional, TextIO, Union
 import pyaudio
 import wave
 
-__version__ = "0.6.4"
+__version__ = "0.6.5"
 
 
 class TranscriberBackend(ABC):
@@ -80,7 +80,7 @@ class FasterWhisperBackend(TranscriberBackend):
         file_path: Union[str, Path],
         language: Optional[str] = None,
         task: str = "transcribe",
-        fp16: bool = True,  # Ignored by faster-whisper translate logic (handled in compute_type) but kept for API compat
+        fp16: bool = True,
         word_timestamps: bool = False,
         temperature: float = 0.0,
         initial_prompt: Optional[str] = None,
@@ -90,26 +90,20 @@ class FasterWhisperBackend(TranscriberBackend):
         if not self.model:
             raise RuntimeError("Model not loaded. Call load_model() first.")
 
-        # faster-whisper specific parameter mapping
-        # segments is a generator
         segments_generator, info = self.model.transcribe(
             str(file_path),
             language=language,
             task=task,
-            beam_size=5,  # Default beam size
+            beam_size=5,
             word_timestamps=word_timestamps,
             temperature=temperature,
             initial_prompt=initial_prompt,
-            condition_on_previous_text=False,  # Often safer default
-            vad_filter=True,  # Enable VAD by default as it's a nice feature of faster-whisper
+            condition_on_previous_text=False,
+            vad_filter=True,
             **kwargs,
         )
 
-        segments = list(segments_generator)  # Execute transcription
-
-        # Convert segments to compatible format if needed, or just return as is
-        # faster-whisper segments differ slightly from openai-whisper dicts
-        # We'll construct a result dict similar to openai-whisper for compatibility
+        segments = list(segments_generator)
 
         result_segments = []
         full_text = []
@@ -191,7 +185,6 @@ class OpenAIWhisperBackend(TranscriberBackend):
             raise RuntimeError("Model not loaded. Call load_model() first.")
 
         if task == "translate" and self.model_name.startswith("turbo"):
-            # This check was in original code
             pass
 
         options = whisper.DecodingOptions(
@@ -215,13 +208,13 @@ class AudioTranscriber:
         self,
         model: str = "base",
         channels: int = 1,
-        rate: int = 16000,  # Whisper recommends 16kHz for better accuracy
+        rate: int = 16000,
         file_name: str = "output.wav",
         directory: Union[str, Path] = Path.cwd(),
         file: Optional[Union[str, Path]] = None,
         device: Optional[int] = None,
         logger: Optional[logging.Logger] = None,
-        backend: Optional[str] = None,  # "faster-whisper" or "openai-whisper"
+        backend: Optional[str] = None,
     ):
         self.chunk = 1024
         self.format = pyaudio.paInt16
@@ -238,13 +231,11 @@ class AudioTranscriber:
         self.logger = logger or logging.getLogger(__name__)
         self._check_ffmpeg()
 
-        # Initialize Backend
         self.backend_instance: Optional[TranscriberBackend] = None
         self._initialize_backend(model, backend)
 
     def _initialize_backend(self, model: str, requested_backend: Optional[str]) -> None:
         """Initialize the transcription backend."""
-        # Try faster-whisper first unless openai-whisper is explicitly requested
         if requested_backend == "openai-whisper":
             try:
                 self.logger.info("Initializing OpenAI Whisper backend (requested)...")
@@ -265,7 +256,6 @@ class AudioTranscriber:
             if requested_backend == "faster-whisper":
                 raise ImportError("faster-whisper requested but not installed.")
 
-        # Fallback to openai-whisper
         try:
             self.logger.info("Falling back to OpenAI Whisper backend...")
             self.backend_instance = OpenAIWhisperBackend(self.logger)
@@ -374,10 +364,6 @@ class AudioTranscriber:
 
         if not self.backend_instance:
             raise RuntimeError("Backend not initialized.")
-
-        # Check for turbo compatibility in wrapper or let backend handle?
-        # The previous code checked: if task == "translate" and self.model.name.startswith("turbo"):
-        # We can implement that in the backends or here if we expose model name.
 
         result = self.backend_instance.transcribe(
             self.file_path,
@@ -492,14 +478,12 @@ def setup_logging(
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO if verbose else logging.WARNING)
 
-    # Console handler
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO if verbose else logging.WARNING)
     formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    # File handler if specified
     if log_file:
         fh = logging.FileHandler(log_file)
         fh.setLevel(logging.INFO)
@@ -629,7 +613,6 @@ def audio_transcriber() -> None:
     logger = setup_logging(args.verbose, args.log_file)
 
     if args.file:
-        # Batch transcription
         for file_path in args.file:
             if not file_path.exists():
                 logger.error(f"File not found: {file_path}")
@@ -655,7 +638,6 @@ def audio_transcriber() -> None:
             if args.export:
                 transcriber.export(result, args.export)
     else:
-        # Recording mode
         transcriber = AudioTranscriber(
             model=args.model,
             channels=args.channels,
