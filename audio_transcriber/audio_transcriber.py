@@ -13,8 +13,9 @@ from typing import Iterator, List, Optional, TextIO, Union
 
 import pyaudio
 import wave
+import asyncio
 
-__version__ = "0.6.10"
+__version__ = "0.6.11"
 
 
 class TranscriberBackend(ABC):
@@ -470,6 +471,73 @@ class AudioTranscriber:
         hours_marker = f"{hours:02d}:" if always_include_hours or hours > 0 else ""
         return f"{hours_marker}{minutes:02d}:{seconds_int:02d}{decimal_marker}{milliseconds:03d}"
 
+    async def interact(self, server_url: str) -> None:
+        """Interact with PersonaPlex server via WebSocket."""
+        from .personaplex_client import PersonaPlexClient
+
+        client = PersonaPlexClient(server_url, self.logger)
+        await client.connect()
+
+        loop = asyncio.get_running_loop()
+        input_queue = asyncio.Queue()
+        self.stop = False
+
+        def input_callback(in_data, frame_count, time_info, status):
+            if self.stop:
+                return (None, pyaudio.paComplete)
+            loop.call_soon_threadsafe(input_queue.put_nowait, in_data)
+            return (None, pyaudio.paContinue)
+
+        # Open input stream
+        input_stream = self.pyaudio_instance.open(
+            format=self.format,
+            channels=self.channels,
+            rate=self.rate,
+            input=True,
+            frames_per_buffer=self.chunk,
+            input_device_index=self.device_index,
+            stream_callback=input_callback,
+        )
+
+        # Open output stream
+        output_stream = self.pyaudio_instance.open(
+            format=self.format,
+            channels=self.channels,
+            rate=self.rate,
+            output=True,
+            frames_per_buffer=self.chunk,
+        )
+
+        input_stream.start_stream()
+        output_stream.start_stream()
+
+        self.logger.info("Interaction started. Speak into the microphone. Press Ctrl+C to stop.")
+
+        async def send_audio_loop():
+            while not self.stop:
+                data = await input_queue.get()
+                await client.send_audio(data)
+
+        async def receive_audio_loop():
+            async for audio_chunk in client.receive_audio():
+                if self.stop:
+                    break
+                # Run blocking write in executor to avoid blocking loop
+                await loop.run_in_executor(None, output_stream.write, audio_chunk)
+
+        try:
+            await asyncio.gather(send_audio_loop(), receive_audio_loop())
+        except KeyboardInterrupt:
+            self.stop = True
+        finally:
+            self.stop = True
+            input_stream.stop_stream()
+            input_stream.close()
+            output_stream.stop_stream()
+            output_stream.close()
+            self.pyaudio_instance.terminate()
+            await client.disconnect()
+
 
 def setup_logging(
     verbose: bool = False, log_file: Optional[str] = None
@@ -599,6 +667,14 @@ def audio_transcriber() -> None:
     )
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     parser.add_argument("--log-file", help="Path to log file")
+    parser.add_argument(
+        "--interact", action="store_true", help="Enable interaction mode (audio-to-audio)"
+    )
+    parser.add_argument(
+        "--server",
+        default="ws://localhost:8998",
+        help="PersonaPlex server URI for interaction (default: ws://localhost:8998)",
+    )
 
     parser.add_argument("--help", action="store_true", help="Show usage")
 
@@ -611,6 +687,20 @@ def audio_transcriber() -> None:
         sys.exit(0)
 
     logger = setup_logging(args.verbose, args.log_file)
+
+    if args.interact:
+        transcriber = AudioTranscriber(
+            model=args.model,
+            channels=args.channels,
+            rate=args.rate,
+            device=args.device,
+            logger=logger,
+        )
+        try:
+            asyncio.run(transcriber.interact(args.server))
+        except KeyboardInterrupt:
+            pass
+        sys.exit(0)
 
     if args.file:
         for file_path in args.file:
