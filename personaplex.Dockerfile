@@ -30,7 +30,7 @@ EXPOSE 8998
 ENV HF_TOKEN=""
 
 # Default command to run the server
-# We use a wrapper script or direct command. 
+# We use a wrapper script or direct command.
 # The user instruction: SSL_DIR=$(mktemp -d); python -m moshi.server --ssl "$SSL_DIR"
 # We can simulate this in CMD
 CMD ["sh", "-c", "SSL_DIR=$(mktemp -d) && python -m moshi.server --ssl \"$SSL_DIR\" --host 0.0.0.0 --port 8998"]

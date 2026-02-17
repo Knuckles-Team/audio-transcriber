@@ -1,9 +1,9 @@
-import asyncio
 import logging
 import json
 import websockets
 import base64
 from typing import Optional, AsyncGenerator
+
 
 class PersonaPlexClient:
     """Client for interacting with the PersonaPlex/Moshi server."""
@@ -31,13 +31,13 @@ class PersonaPlexClient:
 
     async def send_audio(self, audio_data: bytes):
         """Send audio data to the server.
-        
+
         This assumes the server accepts raw bytes or a JSON wrapper.
         For now, we will try sending raw bytes if it's a stream, or investigate protocol.
         """
         if not self.websocket:
             raise RuntimeError("Not connected to PersonaPlex.")
-        
+
         try:
             # Placeholder: sending raw bytes. Adjust based on actual protocol.
             # Moshi/PersonaPlex might expect a specific message format.
@@ -63,7 +63,9 @@ class PersonaPlexClient:
                             yield base64.b64decode(data["audio"])
                         # Handle other message types if needed
                     except json.JSONDecodeError:
-                        self.logger.warning(f"Received non-JSON text message: {message}")
+                        self.logger.warning(
+                            f"Received non-JSON text message: {message}"
+                        )
         except Exception as e:
             self.logger.error(f"Error receiving audio: {e}")
 

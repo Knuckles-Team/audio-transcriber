@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 
 from audio_transcriber.audio_transcriber.personaplex_client import PersonaPlexClient
 
+
 async def main():
     uri = "ws://localhost:8998"
     print(f" attempting to connect to {uri}...")
@@ -18,6 +19,7 @@ async def main():
     except Exception as e:
         print(f"Connection failed: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
