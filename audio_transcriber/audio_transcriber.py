@@ -15,7 +15,7 @@ import pyaudio
 import wave
 import asyncio
 
-__version__ = "0.6.11"
+__version__ = "0.6.12"
 
 
 class TranscriberBackend(ABC):
@@ -511,7 +511,9 @@ class AudioTranscriber:
         input_stream.start_stream()
         output_stream.start_stream()
 
-        self.logger.info("Interaction started. Speak into the microphone. Press Ctrl+C to stop.")
+        self.logger.info(
+            "Interaction started. Speak into the microphone. Press Ctrl+C to stop."
+        )
 
         async def send_audio_loop():
             while not self.stop:
@@ -668,7 +670,9 @@ def audio_transcriber() -> None:
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     parser.add_argument("--log-file", help="Path to log file")
     parser.add_argument(
-        "--interact", action="store_true", help="Enable interaction mode (audio-to-audio)"
+        "--interact",
+        action="store_true",
+        help="Enable interaction mode (audio-to-audio)",
     )
     parser.add_argument(
         "--server",

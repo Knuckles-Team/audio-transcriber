@@ -29,7 +29,7 @@ from audio_transcriber.middlewares import (
     JWTClaimsLoggingMiddleware,
 )
 
-__version__ = "0.6.11"
+__version__ = "0.6.12"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
