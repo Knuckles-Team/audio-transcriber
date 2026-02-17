@@ -15,7 +15,7 @@ import pyaudio
 import wave
 import asyncio
 
-__version__ = "0.6.12"
+__version__ = "0.6.13"
 
 
 class TranscriberBackend(ABC):
@@ -686,7 +686,7 @@ def audio_transcriber() -> None:
 
     if hasattr(args, "help") and args.help:
 
-        usage()
+        parser.print_help()
 
         sys.exit(0)
 
@@ -757,35 +757,6 @@ def audio_transcriber() -> None:
         )
         if args.export:
             transcriber.export(result, args.export)
-
-
-def usage():
-    print(
-        f"Audio Transcriber ({__version__}): Audio Transcriber: Record and transcribe audio using Whisper (Faster-Whisper or OpenAI-Whisper).\n\n"
-        "Usage:\n"
-        "--model              [ Whisper model to use (default: base) ]\n"
-        "--channels           [ Number of audio channels (default: 1) ]\n"
-        "--rate               [ Sample rate for recording (default: 16000) ]\n"
-        "--directory          [ Directory to save recordings/exports (default: current dir) ]\n"
-        "--name               [ Name of the output file (default: output.wav) ]\n"
-        "--file               [ Path(s) to audio file(s) to transcribe (skips recording) ]\n"
-        "--record             [ Seconds to record (0 for unlimited until Ctrl+C; default: 0) ]\n"
-        "--device             [ Input device index (default: system default) ]\n"
-        "--language           [ Language code (e.g., 'en', 'fr'; auto-detected if omitted) ]\n"
-        "--task               [ Task: transcribe or translate to English (default: transcribe) ]\n"
-        "--fp16               [ Use FP16 for faster inference (default: False) ]\n"
-        "--word-timestamps    [ Include word-level timestamps in output (default: False) ]\n"
-        "--temperature        [ Temperature for sampling diversity (default: 0.0) ]\n"
-        "--initial-prompt     [ Initial text prompt to guide transcription ]\n"
-        "--export             [ Export formats (e.g., --export txt srt) ]\n"
-        "--backend            [ Force a specific backend (default: auto-detect, preferring faster-whisper) ]\n"
-        "--verbose            [ Enable verbose output ]\n"
-        "--log-file           [ Path to log file ]\n"
-        "\n"
-        "Examples:\n"
-        "  [Simple]  audio-transcriber \n"
-        '  [Complex] audio-transcriber --model "value" --channels "value" --rate "value" --directory "value" --name "value" --file "value" --record "value" --device "value" --language "value" --task "value" --fp16 --word-timestamps --temperature "value" --initial-prompt "value" --export "value" --backend "value" --verbose --log-file "value"\n'
-    )
 
 
 if __name__ == "__main__":
