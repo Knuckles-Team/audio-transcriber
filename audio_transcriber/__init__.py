@@ -12,8 +12,8 @@ CORE_MODULES = [
 ]
 
 OPTIONAL_MODULES = {
-    "audio_transcriber.audio_transcriber_agent": "a2a",
-    "audio_transcriber.audio_transcriber_mcp": "mcp",
+    "audio_transcriber.agent": "agent",
+    "audio_transcriber.mcp": "mcp",
 }
 
 
@@ -47,12 +47,12 @@ for module_name, extra_name in OPTIONAL_MODULES.items():
     else:
         globals()[f"_{extra_name.upper()}_AVAILABLE"] = False
 
-_MCP_AVAILABLE = OPTIONAL_MODULES.get("audio_transcriber.audio_transcriber_mcp") in [
+_MCP_AVAILABLE = OPTIONAL_MODULES.get("audio_transcriber.mcp") in [
     m.__name__ for m in globals().values() if hasattr(m, "__name__")
 ]
-_A2A_AVAILABLE = "audio_transcriber.audio_transcriber_agent" in globals()
+_AGENT_AVAILABLE = "audio_transcriber.agent" in globals()
 
-__all__.extend(["_MCP_AVAILABLE", "_A2A_AVAILABLE"])
+__all__.extend(["_MCP_AVAILABLE", "_AGENT_AVAILABLE"])
 
 
 """

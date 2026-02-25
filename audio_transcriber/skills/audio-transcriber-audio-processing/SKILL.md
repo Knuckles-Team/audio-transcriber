@@ -1,6 +1,7 @@
 ---
 name: audio-transcriber-audio-processing
 description: Audio Transcriber Audio Processing capabilities for A2A Agent.
+tags: [audio-processing]
 ---
 ### Overview
 This skill provides access to audio_processing operations.
