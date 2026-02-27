@@ -31,7 +31,7 @@ from agent_utilities.middlewares import (
     JWTClaimsLoggingMiddleware,
 )
 
-__version__ = "0.6.19"
+__version__ = "0.6.20"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
