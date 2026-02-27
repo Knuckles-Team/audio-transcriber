@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audio-transcriber"
-version = "0.6.20"
+version = "0.6.21"
 description = "Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -18,7 +18,7 @@ classifiers = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "agent-utilities>=0.2.6",
+    "agent-utilities>=0.2.7",
     "pyaudio>=0.2.14",
     "faster-whisper>=1.2.1",
     "setuptools-rust>=1.12.0",
@@ -30,12 +30,12 @@ local = [
 ]
 
 mcp = [
-    "agent-utilities[mcp]>=0.2.6",
+    "agent-utilities[mcp]>=0.2.7",
     "websockets>=13.0"
 ]
 
 agent = [
-    "agent-utilities[agent,logfire]>=0.2.6",
+    "agent-utilities[agent,logfire]>=0.2.7",
     "websockets>=13.0"
 ]
 
