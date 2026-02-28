@@ -15,7 +15,7 @@ import pyaudio
 import wave
 import asyncio
 
-__version__ = "0.6.21"
+__version__ = "0.6.22"
 
 
 class TranscriberBackend(ABC):
