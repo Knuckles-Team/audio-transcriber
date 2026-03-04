@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # coding: utf-8
 
+from dotenv import load_dotenv, find_dotenv
+from agent_utilities.base_utilities import to_boolean
 import os
 import sys
 import logging
@@ -31,7 +33,7 @@ from agent_utilities.middlewares import (
     JWTClaimsLoggingMiddleware,
 )
 
-__version__ = "0.6.25"
+__version__ = "0.6.26"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -43,11 +45,12 @@ DEFAULT_TRANSCRIBE_DIRECTORY = os.environ.get(
 )
 
 
-def register_tools(mcp: FastMCP):
-    @mcp.custom_route("/health", methods=["GET"])
+def register_misc_tools(mcp: FastMCP):
     async def health_check(request: Request) -> JSONResponse:
         return JSONResponse({"status": "OK"})
 
+
+def register_audio_processing_tools(mcp: FastMCP):
     @mcp.tool(
         annotations={
             "title": "Transcribe Audio",
@@ -211,6 +214,7 @@ def register_prompts(mcp: FastMCP):
 
 
 def mcp_server():
+    load_dotenv(find_dotenv())
     print(f"mcp_server v{__version__}")
     parser = create_mcp_parser()
     parser.description = "Audio Transcriber MCP - Run in stdio or http mode"
@@ -514,7 +518,12 @@ def mcp_server():
             sys.exit(1)
 
     mcp = FastMCP("AudioTranscriber", auth=auth)
-    register_tools(mcp)
+    DEFAULT_MISCTOOL = to_boolean(os.getenv("MISCTOOL", "True"))
+    if DEFAULT_MISCTOOL:
+        register_misc_tools(mcp)
+    DEFAULT_AUDIO_PROCESSINGTOOL = to_boolean(os.getenv("AUDIO_PROCESSINGTOOL", "True"))
+    if DEFAULT_AUDIO_PROCESSINGTOOL:
+        register_audio_processing_tools(mcp)
     register_prompts(mcp)
 
     for mw in middlewares:

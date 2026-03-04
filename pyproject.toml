@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audio-transcriber"
-version = "0.6.25"
+version = "0.6.26"
 description = "Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!"
 readme = "README.md"
 authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
@@ -14,28 +14,25 @@ classifiers = [
     "License :: Public Domain",
     "Environment :: Console",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3",
-]
+    "Programming Language :: Python :: 3"]
 requires-python = ">=3.10"
 dependencies = [
-    "agent-utilities>=0.2.11",
+    "agent-utilities>=0.2.12",
     "pyaudio>=0.2.14",
     "faster-whisper>=1.2.1",
-    "setuptools-rust>=1.12.0",
-]
+    "setuptools-rust>=1.12.0"]
 
 [project.optional-dependencies]
 local = [
-    "openai-whisper>=20250625",
-]
+    "openai-whisper>=20250625"]
 
 mcp = [
-    "agent-utilities[mcp]>=0.2.11",
+    "agent-utilities[mcp]>=0.2.12",
     "websockets>=13.0"
 ]
 
 agent = [
-    "agent-utilities[agent,logfire]>=0.2.11",
+    "agent-utilities[agent,logfire]>=0.2.12",
     "websockets>=13.0"
 ]
 
@@ -49,7 +46,7 @@ audio-transcriber-mcp = "audio_transcriber.mcp:mcp_server"
 audio-transcriber-agent = "audio_transcriber.agent:agent_server"
 
 [tool.setuptools.package-data]
-audio_transcriber = [ "mcp_config.json", "skills/**", "agent/**",]
+audio_transcriber = [ "mcp_config.json", "agent/**"]
 
 [tool.setuptools.packages.find]
 where = ["."]
