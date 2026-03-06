@@ -20,7 +20,7 @@ from agent_utilities.mcp_utilities import (
     config,
 )
 
-__version__ = "0.6.28"
+__version__ = "0.6.29"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
