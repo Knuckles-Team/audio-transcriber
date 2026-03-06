@@ -1,59 +1,27 @@
 ---
 services:
-  audio-transcriber-mcp:
-    image: docker.io/knucklessg1/audio-transcriber:latest
-    # build: . # Debug
-    container_name: audio-transcriber-mcp
-    hostname: audio-transcriber-mcp
-    command: [ "audio-transcriber-mcp" ]
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    restart: always
-    env_file:
-      - .env
-
-    environment:
-      - "PYTHONUNBUFFERED=1"
-      - "HOST=0.0.0.0"
-      - "PORT=8014"
-      - "TRANSPORT=streamable-http"
-      - "LLM_API_KEY=${LLM_API_KEY:-llama}"
-    ports:
-      - "8014:8014"
-    healthcheck:
-      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8014/health')" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-
   audio-transcriber-agent:
-    image: docker.io/knucklessg1/audio-transcriber:latest
-    # build: . # Debug
+    # image: docker.io/knucklessg1/audio-transcriber:latest
+    build:
+      context: .
+      dockerfile: debug.Dockerfile
     container_name: audio-transcriber-agent
     hostname: audio-transcriber-agent
     command: [ "audio-transcriber-agent" ]
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    depends_on:
-      - audio-transcriber-mcp
     logging:
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
     restart: always
-
     environment:
       - "PYTHONUNBUFFERED=1"
       - "HOST=0.0.0.0"
-      - "PORT=9014"
-      - "MCP_URL=http://audio-transcriber-mcp:8014/mcp"
+      - "PORT=9414"
+      - "TRANSPORT=streamable-http"
+      - "LLM_API_KEY=${LLM_API_KEY:-llama}"
       - "PROVIDER=openai"
       - "LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:1234/v1}"
       - "LLM_API_KEY=${LLM_API_KEY:-llama}"
@@ -62,10 +30,29 @@ services:
       - "ENABLE_WEB_UI=True"
       - "ENABLE_OTEL=True"
     ports:
-      - "9014:9014"
+      - "9414:9414"
     healthcheck:
-      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9014/health')" ]
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9414/health')" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
+
+  # WIP
+  faster-whisper:
+    image: lscr.io/linuxserver/faster-whisper:latest
+    container_name: faster-whisper
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - DEBUG= #optional
+      - LOCAL_ONLY= #optional
+      - WHISPER_BEAM=1 #optional
+      - WHISPER_LANG=auto #optional
+      - WHISPER_MODEL=auto #optional
+    volumes:
+      - /path/to/faster-whisper/data:/config
+    ports:
+      - 10300:10300
+    restart: unless-stopped
