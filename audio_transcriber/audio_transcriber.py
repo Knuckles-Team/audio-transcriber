@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# coding: utf-8
+
 
 import argparse
 import datetime
@@ -15,7 +15,7 @@ import pyaudio
 import wave
 import asyncio
 
-__version__ = "0.6.48"
+__version__ = "0.6.49"
 
 
 class TranscriberBackend(ABC):
@@ -488,7 +488,6 @@ class AudioTranscriber:
             loop.call_soon_threadsafe(input_queue.put_nowait, in_data)
             return (None, pyaudio.paContinue)
 
-        # Open input stream
         input_stream = self.pyaudio_instance.open(
             format=self.format,
             channels=self.channels,
@@ -499,7 +498,6 @@ class AudioTranscriber:
             stream_callback=input_callback,
         )
 
-        # Open output stream
         output_stream = self.pyaudio_instance.open(
             format=self.format,
             channels=self.channels,
@@ -524,7 +522,7 @@ class AudioTranscriber:
             async for audio_chunk in client.receive_audio():
                 if self.stop:
                     break
-                # Run blocking write in executor to avoid blocking loop
+
                 await loop.run_in_executor(None, output_stream.write, audio_chunk)
 
         try:

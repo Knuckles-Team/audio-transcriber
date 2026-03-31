@@ -39,8 +39,8 @@ class PersonaPlexClient:
             raise RuntimeError("Not connected to PersonaPlex.")
 
         try:
-            # Placeholder: sending raw bytes. Adjust based on actual protocol.
-            # Moshi/PersonaPlex might expect a specific message format.
+                                                                              
+                                                                       
             await self.websocket.send(audio_data)
         except Exception as e:
             self.logger.error(f"Error sending audio: {e}")
@@ -52,16 +52,16 @@ class PersonaPlexClient:
 
         try:
             async for message in self.websocket:
-                # Placeholder: receiving raw bytes.
+                                                   
                 if isinstance(message, bytes):
                     yield message
                 elif isinstance(message, str):
-                    # Handle text messages or JSON encoded audio
+                                                                
                     try:
                         data = json.loads(message)
                         if "audio" in data:
                             yield base64.b64decode(data["audio"])
-                        # Handle other message types if needed
+                                                              
                     except json.JSONDecodeError:
                         self.logger.warning(
                             f"Received non-JSON text message: {message}"

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# coding: utf-8
+
 
 from dotenv import load_dotenv, find_dotenv
 from agent_utilities.base_utilities import to_boolean
@@ -19,7 +19,7 @@ from agent_utilities.mcp_utilities import (
     create_mcp_server,
 )
 
-__version__ = "0.6.48"
+__version__ = "0.6.49"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)

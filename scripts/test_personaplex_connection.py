@@ -2,7 +2,7 @@ import asyncio
 import sys
 import os
 
-# Add parent directory to path so we can import audio_transcriber
+                                                                 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from audio_transcriber.audio_transcriber.personaplex_client import PersonaPlexClient
