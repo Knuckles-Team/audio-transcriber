@@ -39,8 +39,7 @@ class PersonaPlexClient:
             raise RuntimeError("Not connected to PersonaPlex.")
 
         try:
-                                                                              
-                                                                       
+
             await self.websocket.send(audio_data)
         except Exception as e:
             self.logger.error(f"Error sending audio: {e}")
@@ -52,16 +51,16 @@ class PersonaPlexClient:
 
         try:
             async for message in self.websocket:
-                                                   
+
                 if isinstance(message, bytes):
                     yield message
                 elif isinstance(message, str):
-                                                                
+
                     try:
                         data = json.loads(message)
                         if "audio" in data:
                             yield base64.b64decode(data["audio"])
-                                                              
+
                     except json.JSONDecodeError:
                         self.logger.warning(
                             f"Received non-JSON text message: {message}"
