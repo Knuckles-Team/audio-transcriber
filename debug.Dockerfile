@@ -54,8 +54,13 @@ ENV HOST=${HOST} \
 COPY . /app
 WORKDIR /app
 RUN apt update \
-    && apt install -y ripgrep tree fd-find libasound-dev curl gcc portaudio19-dev \
-    && curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow .[all]
+     && apt install -y ripgrep tree fd-find libasound-dev curl gcc portaudio19-dev \
+     && curl -LsSf https://astral.sh/uv/install.sh | sh \
+     && curl -sS https://starship.rs/install.sh | sh -s -- --yes \
+    && mkdir -p /root/.config \
+    && echo 'eval "$(starship init bash)"' >> /root/.bashrc \ \
+    uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow .[all]
+
+COPY starship.toml /root/.config/starship.toml
 
 CMD ["audio-transcriber-mcp"]
