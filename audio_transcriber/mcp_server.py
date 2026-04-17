@@ -1,3 +1,5 @@
+import os
+
 #!/usr/bin/python
 import warnings
 
@@ -6,6 +8,7 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     try:
         from requests.exceptions import RequestsDependencyWarning
+
         warnings.filterwarnings("ignore", category=RequestsDependencyWarning)
     except ImportError:
         pass
@@ -16,15 +19,12 @@ warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
 from dotenv import load_dotenv, find_dotenv
 from agent_utilities.base_utilities import to_boolean
-import os
 import sys
 import logging
 from pathlib import Path
 from typing import Any, Optional, List
 
 from pydantic import Field
-from starlette.requests import Request
-from starlette.responses import JSONResponse
 from fastmcp import FastMCP, Context
 from fastmcp.utilities.logging import get_logger
 from audio_transcriber.audio_transcriber import AudioTranscriber
@@ -32,7 +32,7 @@ from agent_utilities.mcp_utilities import (
     create_mcp_server,
 )
 
-__version__ = "0.6.54"
+__version__ = "0.6.55"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -45,8 +45,8 @@ DEFAULT_TRANSCRIBE_DIRECTORY = os.environ.get(
 
 
 def register_misc_tools(mcp: FastMCP):
-    async def health_check(request: Request) -> JSONResponse:
-        return JSONResponse({"status": "OK"})
+    pass
+    pass
 
 
 def register_audio_processing_tools(mcp: FastMCP):
@@ -222,9 +222,6 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
         instructions="Audio Transcriber MCP Server - Run Whisper transcription on audio files or microphone input.",
     )
 
-    DEFAULT_MISCTOOL = to_boolean(os.getenv("MISCTOOL", "True"))
-    if DEFAULT_MISCTOOL:
-        register_misc_tools(mcp)
     DEFAULT_AUDIO_PROCESSINGTOOL = to_boolean(os.getenv("AUDIO_PROCESSINGTOOL", "True"))
     if DEFAULT_AUDIO_PROCESSINGTOOL:
         register_audio_processing_tools(mcp)

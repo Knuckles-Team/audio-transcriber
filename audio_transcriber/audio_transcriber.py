@@ -15,7 +15,7 @@ import pyaudio
 import wave
 import asyncio
 
-__version__ = "0.6.54"
+__version__ = "0.6.55"
 
 
 class TranscriberBackend(ABC):
@@ -482,7 +482,7 @@ class AudioTranscriber:
         input_queue = asyncio.Queue()
         self.stop = False
 
-        def input_callback(in_data, frame_count, time_info, status):
+        def input_callback(in_data, _frame_count, _time_info, _status):
             if self.stop:
                 return (None, pyaudio.paComplete)
             loop.call_soon_threadsafe(input_queue.put_nowait, in_data)
