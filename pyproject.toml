@@ -41,7 +41,9 @@ all = [
 ]
 
 [project.scripts]
+audio-transcriber = "audio_transcriber.audio_transcriber:main"
 audio-transcriber-mcp = "audio_transcriber.mcp_server:mcp_server"
+audio-transcriber-agent = "audio_transcriber.agent_server:agent_server"
 
 [tool.setuptools.package-data]
 audio_transcriber = [ "mcp_config.json", "agent_data/**"]
