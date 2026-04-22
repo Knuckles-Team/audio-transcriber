@@ -1,14 +1,15 @@
-import logging
-import json
-import websockets
 import base64
-from typing import Optional, AsyncGenerator
+import json
+import logging
+from collections.abc import AsyncGenerator
+
+import websockets
 
 
 class PersonaPlexClient:
     """Client for interacting with the PersonaPlex/Moshi server."""
 
-    def __init__(self, uri: str, logger: Optional[logging.Logger] = None):
+    def __init__(self, uri: str, logger: logging.Logger | None = None):
         self.uri = uri
         self.logger = logger or logging.getLogger(__name__)
         self.websocket = None
@@ -39,7 +40,6 @@ class PersonaPlexClient:
             raise RuntimeError("Not connected to PersonaPlex.")
 
         try:
-
             await self.websocket.send(audio_data)
         except Exception as e:
             self.logger.error(f"Error sending audio: {e}")
@@ -51,11 +51,9 @@ class PersonaPlexClient:
 
         try:
             async for message in self.websocket:
-
                 if isinstance(message, bytes):
                     yield message
                 elif isinstance(message, str):
-
                     try:
                         data = json.loads(message)
                         if "audio" in data:

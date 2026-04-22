@@ -17,20 +17,21 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
-from dotenv import load_dotenv, find_dotenv
-from agent_utilities.base_utilities import to_boolean
-import sys
 import logging
+import sys
 from pathlib import Path
-from typing import Any, Optional, List
+from typing import Any
 
-from pydantic import Field
-from fastmcp import FastMCP, Context
-from fastmcp.utilities.logging import get_logger
-from audio_transcriber.audio_transcriber import AudioTranscriber
+from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
 )
+from dotenv import find_dotenv, load_dotenv
+from fastmcp import Context, FastMCP
+from fastmcp.utilities.logging import get_logger
+from pydantic import Field
+
+from audio_transcriber.audio_transcriber import AudioTranscriber
 
 __version__ = "0.6.55"
 
@@ -61,7 +62,7 @@ def register_audio_processing_tools(mcp: FastMCP):
         tags={"audio_processing"},
     )
     async def transcribe_audio(
-        audio_file: Optional[str] = Field(
+        audio_file: str | None = Field(
             description="Path to the audio file to transcribe. If provided, transcription is performed on this file.",
             default=None,
         ),
@@ -69,7 +70,7 @@ def register_audio_processing_tools(mcp: FastMCP):
             description="Number of seconds to record audio from microphone. Must be positive if no audio_file is provided. 0 or negative not supported for recording in this context.",
             default=0,
         ),
-        directory: Optional[str] = Field(
+        directory: str | None = Field(
             description="Directory for saving recordings or exports.",
             default=DEFAULT_TRANSCRIBE_DIRECTORY,
         ),
@@ -77,7 +78,7 @@ def register_audio_processing_tools(mcp: FastMCP):
             description="Whisper model to use (e.g., 'base', 'small', 'turbo').",
             default=DEFAULT_WHISPER_MODEL,
         ),
-        language: Optional[str] = Field(
+        language: str | None = Field(
             description="Language code for transcription (e.g., 'en', 'fr'). Auto-detected if not specified.",
             default=None,
         ),
@@ -93,18 +94,18 @@ def register_audio_processing_tools(mcp: FastMCP):
             description="Temperature for sampling diversity (0.0 for deterministic).",
             default=0.0,
         ),
-        initial_prompt: Optional[str] = Field(
+        initial_prompt: str | None = Field(
             description="Initial text prompt to guide the transcription.", default=None
         ),
-        export_formats: List[str] = Field(
+        export_formats: list[str] | None = Field(
             description="Formats to export the transcription (e.g., ['txt', 'srt']).",
             default=None,
         ),
-        backend: Optional[str] = Field(
+        backend: str | None = Field(
             description="Transcription backend to use: 'faster-whisper' or 'openai-whisper'. Defaults to auto-detect (preferring faster-whisper).",
             default=None,
         ),
-        ctx: Context = Field(
+        ctx: Context | None = Field(
             description="MCP context for progress reporting.", default=None
         ),
     ) -> str:
@@ -122,7 +123,7 @@ def register_audio_processing_tools(mcp: FastMCP):
 
             transcriber = AudioTranscriber(
                 model=model,
-                directory=Path(directory),
+                directory=Path(directory) if directory else Path.cwd(),
                 file=audio_file if audio_file else None,
                 logger=logger,
                 backend=backend,
@@ -175,7 +176,7 @@ def register_audio_processing_tools(mcp: FastMCP):
             return result["text"]
         except Exception as e:
             logger.error(f"Failed to transcribe audio: {str(e)}")
-            raise RuntimeError(f"Failed to transcribe audio: {str(e)}")
+            raise RuntimeError(f"Failed to transcribe audio: {str(e)}") from e
 
 
 def register_prompts(mcp: FastMCP):
@@ -229,7 +230,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
 
     for mw in middlewares:
         mcp.add_middleware(mw)
-    registered_tags = []
+    registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
 

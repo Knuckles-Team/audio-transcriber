@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=80.9.0", "wheel"]
+requires = [ "setuptools>=80.9.0", "wheel",]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,49 +7,46 @@ name = "audio-transcriber"
 version = "0.6.55"
 description = "Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!"
 readme = "README.md"
-authors = [{ name = "Audel Rouhi", email = "knucklessg1@gmail.com" }]
-license = { text = "MIT" }
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "License :: Public Domain",
-    "Environment :: Console",
-    "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3"]
+classifiers = [ "Development Status :: 5 - Production/Stable", "License :: Public Domain", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.10"
-dependencies = [
-    "agent-utilities>=0.2.31",
-    "pyaudio>=0.2.14",
-    "faster-whisper>=1.2.1",
-    "setuptools-rust>=1.12.0"]
+dependencies = [ "agent-utilities>=0.2.31", "pyaudio>=0.2.14", "faster-whisper>=1.2.1", "setuptools-rust>=1.12.0",]
+[[project.authors]]
+name = "Audel Rouhi"
+email = "knucklessg1@gmail.com"
+
+[project.license]
+text = "MIT"
 
 [project.optional-dependencies]
-local = [
-    "openai-whisper>=20250625"]
-
-mcp = [
-    "agent-utilities[mcp]>=0.2.31",
-    "websockets>=13.0"
-]
-
-agent = [
-    "agent-utilities[agent,logfire]>=0.2.31",
-    "websockets>=13.0"
-]
-
-all = [
-    "audio-transcriber[mcp,agent]>=0.6.15"
-]
+local = [ "openai-whisper>=20250625",]
+mcp = [ "agent-utilities[mcp]>=0.2.31", "websockets>=13.0",]
+agent = [ "agent-utilities[agent,logfire]>=0.2.31", "websockets>=13.0",]
+all = [ "audio-transcriber[mcp,agent]>=0.6.15",]
+test = [ "pytest", "pytest-asyncio",]
 
 [project.scripts]
 audio-transcriber = "audio_transcriber.audio_transcriber:main"
 audio-transcriber-mcp = "audio_transcriber.mcp_server:mcp_server"
 audio-transcriber-agent = "audio_transcriber.agent_server:agent_server"
 
-[tool.setuptools.package-data]
-audio_transcriber = [ "mcp_config.json", "agent_data/**"]
-
-[tool.setuptools.packages.find]
-where = ["."]
-
 [tool.setuptools]
 include-package-data = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+check_untyped_defs = true
+
+[tool.setuptools.package-data]
+audio_transcriber = [ "mcp_config.json", "agent_data/**",]
+
+[tool.ruff.lint]
+select = [ "E", "F", "I", "UP", "B",]
+ignore = [ "E402", "E501", "B008",]
+
+[tool.setuptools.packages.find]
+where = [ ".",]

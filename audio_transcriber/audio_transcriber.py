@@ -2,18 +2,19 @@
 
 
 import argparse
+import asyncio
 import datetime
 import json
 import logging
 import sys
 import threading
+import wave
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator, List, Optional, TextIO, Union
+from typing import TextIO
 
 import pyaudio
-import wave
-import asyncio
 
 __version__ = "0.6.55"
 
@@ -25,21 +26,21 @@ class TranscriberBackend(ABC):
     def load_model(
         self,
         model_name: str,
-        device: Optional[str] = None,
-        compute_type: Optional[str] = None,
+        device: str | None = None,
+        compute_type: str | None = None,
     ):
         pass
 
     @abstractmethod
     def transcribe(
         self,
-        file_path: Union[str, Path],
-        language: Optional[str] = None,
+        file_path: str | Path,
+        language: str | None = None,
         task: str = "transcribe",
         fp16: bool = True,
         word_timestamps: bool = False,
         temperature: float = 0.0,
-        initial_prompt: Optional[str] = None,
+        initial_prompt: str | None = None,
         verbose: bool = False,
         **kwargs,
     ) -> dict:
@@ -57,8 +58,8 @@ class FasterWhisperBackend(TranscriberBackend):
     def load_model(
         self,
         model_name: str,
-        device: Optional[str] = None,
-        compute_type: Optional[str] = None,
+        device: str | None = None,
+        compute_type: str | None = None,
     ):
         from faster_whisper import WhisperModel
 
@@ -78,13 +79,13 @@ class FasterWhisperBackend(TranscriberBackend):
 
     def transcribe(
         self,
-        file_path: Union[str, Path],
-        language: Optional[str] = None,
+        file_path: str | Path,
+        language: str | None = None,
         task: str = "transcribe",
         fp16: bool = True,
         word_timestamps: bool = False,
         temperature: float = 0.0,
-        initial_prompt: Optional[str] = None,
+        initial_prompt: str | None = None,
         verbose: bool = False,
         **kwargs,
     ) -> dict:
@@ -155,11 +156,11 @@ class OpenAIWhisperBackend(TranscriberBackend):
     def load_model(
         self,
         model_name: str,
-        device: Optional[str] = None,
-        compute_type: Optional[str] = None,
+        device: str | None = None,
+        compute_type: str | None = None,
     ):
-        import whisper
         import torch
+        import whisper
 
         if device is None:
             device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -170,13 +171,13 @@ class OpenAIWhisperBackend(TranscriberBackend):
 
     def transcribe(
         self,
-        file_path: Union[str, Path],
-        language: Optional[str] = None,
+        file_path: str | Path,
+        language: str | None = None,
         task: str = "transcribe",
         fp16: bool = True,
         word_timestamps: bool = False,
         temperature: float = 0.0,
-        initial_prompt: Optional[str] = None,
+        initial_prompt: str | None = None,
         verbose: bool = False,
         **kwargs,
     ) -> dict:
@@ -211,11 +212,11 @@ class AudioTranscriber:
         channels: int = 1,
         rate: int = 16000,
         file_name: str = "output.wav",
-        directory: Union[str, Path] = Path.cwd(),
-        file: Optional[Union[str, Path]] = None,
-        device: Optional[int] = None,
-        logger: Optional[logging.Logger] = None,
-        backend: Optional[str] = None,
+        directory: str | Path = Path.cwd(),
+        file: str | Path | None = None,
+        device: int | None = None,
+        logger: logging.Logger | None = None,
+        backend: str | None = None,
     ):
         self.chunk = 1024
         self.format = pyaudio.paInt16
@@ -223,7 +224,7 @@ class AudioTranscriber:
         self.rate = rate
         self.pyaudio_instance = pyaudio.PyAudio()
         self.stream = None
-        self.frames: List[bytes] = []
+        self.frames: list[bytes] = []
         self.file_path = Path(file) if file else Path(directory) / file_name
         self.title = self.file_path.stem
         self.directory = self.file_path.parent
@@ -232,10 +233,10 @@ class AudioTranscriber:
         self.logger = logger or logging.getLogger(__name__)
         self._check_ffmpeg()
 
-        self.backend_instance: Optional[TranscriberBackend] = None
+        self.backend_instance: TranscriberBackend | None = None
         self._initialize_backend(model, backend)
 
-    def _initialize_backend(self, model: str, requested_backend: Optional[str]) -> None:
+    def _initialize_backend(self, model: str, requested_backend: str | None) -> None:
         """Initialize the transcription backend."""
         if requested_backend == "openai-whisper":
             try:
@@ -255,7 +256,9 @@ class AudioTranscriber:
         except ImportError:
             self.logger.info("faster-whisper not found.")
             if requested_backend == "faster-whisper":
-                raise ImportError("faster-whisper requested but not installed.")
+                raise ImportError(
+                    "faster-whisper requested but not installed."
+                ) from None
 
         try:
             self.logger.info("Falling back to OpenAI Whisper backend...")
@@ -264,13 +267,13 @@ class AudioTranscriber:
         except ImportError:
             raise ImportError(
                 "Neither faster-whisper nor openai-whisper found. Please install one."
-            )
+            ) from None
 
     def _get_default_device(self) -> int:
         """Get the default input device index."""
         try:
             return self.pyaudio_instance.get_default_input_device_info()["index"]
-        except IOError:
+        except OSError:
             self.logger.warning(
                 "No default input device found. Recording may not work."
             )
@@ -309,8 +312,9 @@ class AudioTranscriber:
             for _ in range(0, int((self.rate / self.chunk) * seconds)):
                 if self.stop:
                     break
-                data = self.stream.read(self.chunk)
-                self.frames.append(data)
+                if self.stream:
+                    data = self.stream.read(self.chunk)
+                    self.frames.append(data)
         else:
             self.logger.info("Recording indefinitely until interrupted (Ctrl+C)...")
             threading.Thread(target=self._unlimited_record, daemon=True).start()
@@ -324,8 +328,9 @@ class AudioTranscriber:
     def _unlimited_record(self) -> None:
         """Thread for unlimited recording."""
         while not self.stop:
-            data = self.stream.read(self.chunk)
-            self.frames.append(data)
+            if self.stream:
+                data = self.stream.read(self.chunk)
+                self.frames.append(data)
 
     def stop_stream(self) -> None:
         """Stop and close the audio stream."""
@@ -349,12 +354,12 @@ class AudioTranscriber:
 
     def transcribe(
         self,
-        language: Optional[str] = None,
+        language: str | None = None,
         task: str = "transcribe",
         fp16: bool = True,
         word_timestamps: bool = False,
         temperature: float = 0.0,
-        initial_prompt: Optional[str] = None,
+        initial_prompt: str | None = None,
         verbose: bool = False,
     ) -> dict:
         """Transcribe the audio file using the initialized backend."""
@@ -389,7 +394,7 @@ class AudioTranscriber:
     def export(
         self,
         result: dict,
-        formats: List[str],
+        formats: list[str],
     ) -> None:
         """Export transcription to specified formats."""
         segments = result["segments"]
@@ -479,7 +484,7 @@ class AudioTranscriber:
         await client.connect()
 
         loop = asyncio.get_running_loop()
-        input_queue = asyncio.Queue()
+        input_queue: asyncio.Queue[bytes] = asyncio.Queue()
         self.stop = False
 
         def input_callback(in_data, _frame_count, _time_info, _status):
@@ -539,9 +544,7 @@ class AudioTranscriber:
             await client.disconnect()
 
 
-def setup_logging(
-    verbose: bool = False, log_file: Optional[str] = None
-) -> logging.Logger:
+def setup_logging(verbose: bool = False, log_file: str | None = None) -> logging.Logger:
     """Set up logging configuration."""
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO if verbose else logging.WARNING)
@@ -683,7 +686,6 @@ def audio_transcriber() -> None:
     args = parser.parse_args()
 
     if hasattr(args, "help") and args.help:
-
         parser.print_help()
 
         sys.exit(0)
