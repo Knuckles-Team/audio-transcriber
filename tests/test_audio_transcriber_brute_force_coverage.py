@@ -91,7 +91,7 @@ def test_audio_transcriber_brute_force(mock_audio):
                 obj_name = obj.__class__.__name__
                 for name, method in inspect.getmembers(obj, predicate=inspect.ismethod):
                     if name.startswith("_"): continue
-                    if name in ["record", "interact"] and obj_name == "AudioTranscriber":
+                    if ("interact" in name or "microphone" in name or name == "record") and obj_name == "AudioTranscriber":
                         # Ensure we don't hit the infinite loops
                         continue
                     print(f"Calling {obj_name}.{name}...")
