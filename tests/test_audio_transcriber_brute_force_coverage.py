@@ -35,6 +35,7 @@ def mock_audio():
             dummy_file.unlink()
 
 def test_audio_transcriber_brute_force(mock_audio):
+    _ = mock_audio
     from audio_transcriber.audio_transcriber import AudioTranscriber
     from audio_transcriber.personaplex_client import PersonaPlexClient
 
@@ -115,6 +116,7 @@ def test_audio_transcriber_brute_force(mock_audio):
             dummy_file.unlink()
 
 def test_mcp_server_coverage(mock_audio):
+    _ = mock_audio
     from audio_transcriber.mcp_server import get_mcp_instance
     from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
 
@@ -165,6 +167,7 @@ def test_agent_server_coverage():
             assert mock_s.called
 
 def test_main_coverage(mock_audio):
+    _ = mock_audio
     from audio_transcriber.audio_transcriber import audio_transcriber
     # Test recording flow in main
     with patch("sys.argv", ["audio_transcriber.py", "--record", "1"]), \
@@ -190,6 +193,7 @@ def test_main_coverage(mock_audio):
         if dummy_file.exists(): dummy_file.unlink()
 
 def test_interact_coverage(mock_audio):
+    _ = mock_audio
     from audio_transcriber.audio_transcriber import AudioTranscriber
     with patch("faster_whisper.WhisperModel"), \
          patch("shutil.which", return_value="/usr/bin/ffmpeg"):
@@ -204,7 +208,7 @@ def test_interact_coverage(mock_audio):
 
             # Mock receive_audio to return an empty async iterator
             async def empty_async_iter():
-                if False: yield b""
+                for _ in []: yield b""
             client.receive_audio.return_value = empty_async_iter()
 
             async def run_interact():
