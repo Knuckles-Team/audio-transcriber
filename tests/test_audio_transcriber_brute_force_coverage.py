@@ -36,6 +36,10 @@ def mock_audio():
 
 def test_audio_transcriber_brute_force(mock_audio):
     _ = mock_audio
+    import sys
+    sys.modules['torch'] = MagicMock()
+    sys.modules['whisper'] = MagicMock()
+    sys.modules['faster_whisper'] = MagicMock()
     from audio_transcriber.audio_transcriber import AudioTranscriber
     from audio_transcriber.personaplex_client import PersonaPlexClient
 
@@ -117,6 +121,10 @@ def test_audio_transcriber_brute_force(mock_audio):
 
 def test_mcp_server_coverage(mock_audio):
     _ = mock_audio
+    import sys
+    sys.modules['torch'] = MagicMock()
+    sys.modules['whisper'] = MagicMock()
+    sys.modules['faster_whisper'] = MagicMock()
     from audio_transcriber.mcp_server import get_mcp_instance
     from fastmcp.server.middleware.rate_limiting import RateLimitingMiddleware
 
