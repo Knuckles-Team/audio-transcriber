@@ -25,6 +25,7 @@ from typing import Any
 from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
+    ctx_log,
 )
 from dotenv import find_dotenv, load_dotenv
 from fastmcp import Context, FastMCP
@@ -110,9 +111,12 @@ def register_audio_processing_tools(mcp: FastMCP):
         ),
     ) -> str:
         """Transcribes audio from a provided file or by recording from the microphone."""
-        logger.info(
+        ctx_log(
+            ctx,
+            logger,
+            "info",
             f"Starting transcription: audio_file={audio_file}, record_seconds={record_seconds}, "
-            f"directory={directory}, model={model}, language={language}, task={task}, backend={backend}"
+            f"directory={directory}, model={model}, language={language}, task={task}, backend={backend}",
         )
 
         try:
@@ -131,14 +135,19 @@ def register_audio_processing_tools(mcp: FastMCP):
 
             if ctx:
                 await ctx.report_progress(progress=0, total=100)
-                logger.debug("Reported initial progress: 0/100")
+                ctx_log(ctx, logger, "debug", "Reported initial progress: 0/100")
 
             if audio_file:
                 file_path = Path(audio_file)
                 if not file_path.exists():
                     raise ValueError(f"Audio file not found: {audio_file}")
             else:
-                logger.info(f"Starting recording for {record_seconds} seconds.")
+                ctx_log(
+                    ctx,
+                    logger,
+                    "info",
+                    f"Starting recording for {record_seconds} seconds.",
+                )
                 transcriber.initiate_stream()
 
                 transcriber.record(seconds=record_seconds)
@@ -147,9 +156,14 @@ def register_audio_processing_tools(mcp: FastMCP):
 
                 if ctx:
                     await ctx.report_progress(progress=40, total=100)
-                    logger.debug("Reported progress after recording: 40/100")
+                    ctx_log(
+                        ctx,
+                        logger,
+                        "debug",
+                        "Reported progress after recording: 40/100",
+                    )
 
-            logger.info("Starting Whisper transcription.")
+            ctx_log(ctx, logger, "info", "Starting Whisper transcription.")
             result = transcriber.transcribe(
                 language=language,
                 task=task,
@@ -162,20 +176,30 @@ def register_audio_processing_tools(mcp: FastMCP):
 
             if ctx:
                 await ctx.report_progress(progress=90, total=100)
-                logger.debug("Reported progress after transcription: 90/100")
+                ctx_log(
+                    ctx,
+                    logger,
+                    "debug",
+                    "Reported progress after transcription: 90/100",
+                )
 
             if export_formats:
                 transcriber.export(result, formats=export_formats)
-                logger.info(f"Exported transcription to formats: {export_formats}")
+                ctx_log(
+                    ctx,
+                    logger,
+                    "info",
+                    f"Exported transcription to formats: {export_formats}",
+                )
 
             if ctx:
                 await ctx.report_progress(progress=100, total=100)
-                logger.debug("Reported final progress: 100/100")
+                ctx_log(ctx, logger, "debug", "Reported final progress: 100/100")
 
-            logger.info("Transcription completed successfully.")
+            ctx_log(ctx, logger, "info", "Transcription completed successfully.")
             return result["text"]
         except Exception as e:
-            logger.error(f"Failed to transcribe audio: {str(e)}")
+            ctx_log(ctx, logger, "error", f"Failed to transcribe audio: {str(e)}")
             raise RuntimeError(f"Failed to transcribe audio: {str(e)}") from e
 
 

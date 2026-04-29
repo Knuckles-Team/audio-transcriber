@@ -1,0 +1,22 @@
+{
+    "text": "test",
+    "segments": [
+        {
+            "id": 1,
+            "start": 0.0,
+            "end": 1.0,
+            "text": "test",
+            "tokens": [
+                1
+            ],
+            "seek": 0,
+            "temperature": 0.0,
+            "avg_logprob": 0.0,
+            "compression_ratio": 0.0,
+            "no_speech_prob": 0.0
+        }
+    ],
+    "language": "en",
+    "language_probability": 1.0,
+    "duration": 1.0
+}

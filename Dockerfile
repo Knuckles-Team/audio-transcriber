@@ -52,7 +52,7 @@ ENV HOST=${HOST} \
     UV_COMPILE_BYTECODE=1
 
 RUN apt update \
-     && apt install -y ripgrep tree fd-find libasound-dev curl gcc portaudio19-dev \
+     && apt install -y default-jre ripgrep tree fd-find libasound-dev curl gcc portaudio19-dev \
      && curl -LsSf https://astral.sh/uv/install.sh | sh \
      && curl -sS https://starship.rs/install.sh | sh -s -- --yes \
     && mkdir -p /root/.config \
