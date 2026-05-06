@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/audio-transcriber)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/audio-transcriber)
 
-*Version: 0.9.0*
+*Version: 0.10.0*
 
 ## Overview
 
@@ -338,3 +338,60 @@ sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
 </details>
+
+
+## MCP Configuration Examples
+
+### 1. Standard IO (stdio) Deployment
+
+```json
+{
+  "mcpServers": {
+    "audio-transcriber": {
+      "command": "uv",
+      "args": [
+        "run",
+        "audio-transcriber-mcp"
+      ],
+      "env": {
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "AUDIO_PROCESSINGTOOL": "True",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "TRANSCRIBE_DIRECTORY": "<YOUR_TRANSCRIBE_DIRECTORY>",
+        "WHISPER_MODEL": "<YOUR_WHISPER_MODEL>"
+      }
+    }
+  }
+}
+```
+
+### 2. Streamable HTTP (SSE) Deployment
+
+```json
+{
+  "mcpServers": {
+    "audio-transcriber": {
+      "command": "uv",
+      "args": [
+        "run",
+        "audio-transcriber-mcp",
+        "--transport",
+        "http",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000"
+      ],
+      "env": {
+        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
+        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
+        "AUDIO_PROCESSINGTOOL": "True",
+        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
+        "TRANSCRIBE_DIRECTORY": "<YOUR_TRANSCRIBE_DIRECTORY>",
+        "WHISPER_MODEL": "<YOUR_WHISPER_MODEL>"
+      }
+    }
+  }
+}
+```
