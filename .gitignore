@@ -141,3 +141,4 @@ knowledge_graph.db*
 .repo_graph/
 .ladybug/
 output.*
+dummy.wav

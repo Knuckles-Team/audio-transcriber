@@ -34,7 +34,7 @@ from pydantic import Field
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "0.12.0"
+__version__ = "0.13.0"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
