@@ -21,7 +21,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/audio-transcriber)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/audio-transcriber)
 
-*Version: 0.13.0*
+*Version: 0.14.0*
 
 ## Overview
 
