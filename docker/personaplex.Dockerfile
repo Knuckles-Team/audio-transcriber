@@ -10,18 +10,13 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Clone the repository
+# Clone the repository and install dependencies
 # Using the likely repository URL based on the issue link provided
-RUN git clone https://github.com/NVIDIA/personaplex.git .
-
-# Install dependencies
 # Note: The user mentioned checking issue #2 for Blackwell GPUs, we default to standard installation first
 # but include the upgrade command as an optional step or commented out if needed.
-# Since we are in a docker container, we can just install '.'
-RUN pip install --no-cache-dir ./moshi
-
-# Create directory for SSL certs
-RUN mkdir -p /tmp/ssl
+RUN git clone https://github.com/NVIDIA/personaplex.git . \
+    && pip install --no-cache-dir ./moshi \
+    && mkdir -p /tmp/ssl
 
 # Expose port
 EXPOSE 8998

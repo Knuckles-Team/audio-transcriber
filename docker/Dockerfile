@@ -51,14 +51,14 @@ ENV HOST=${HOST} \
     UV_SYSTEM_PYTHON=1 \
     UV_COMPILE_BYTECODE=1
 
-RUN apt update \
-     && apt install -y default-jre ripgrep tree fd-find libasound-dev curl gcc portaudio19-dev \
+RUN apt-get update \
+     && apt-get install -y default-jre ripgrep tree fd-find libasound-dev curl gcc portaudio19-dev \
      && curl -LsSf https://astral.sh/uv/install.sh | sh \
      && curl -sS https://starship.rs/install.sh | sh -s -- --yes \
     && mkdir -p /root/.config \
-    && echo 'eval "$(starship init bash)"' >> /root/.bashrc \ \
-    uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow audio-transcriber[all]>=0.14.0
+    && echo 'eval "$(starship init bash)"' >> /root/.bashrc \
+    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow audio-transcriber[all]>=0.15.0
 
-COPY starship.toml /root/.config/starship.toml
+COPY docker/starship.toml /root/.config/starship.toml
 
 CMD ["audio-transcriber-mcp"]

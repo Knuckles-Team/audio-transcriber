@@ -1,3 +1,16 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "audio-transcriber": {
+      "command": "uv",
+      "args": [
+        "run",
+        "audio-transcriber-mcp"
+      ],
+      "env": {
+        "AUDIO_PROCESSINGTOOL": "True",
+        "TRANSCRIBE_DIRECTORY": "<YOUR_TRANSCRIBE_DIRECTORY>",
+        "WHISPER_MODEL": "<YOUR_WHISPER_MODEL>"
+      }
+    }
+  }
 }

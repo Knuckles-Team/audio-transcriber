@@ -34,7 +34,7 @@ from pydantic import Field
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "0.14.0"
+__version__ = "0.15.0"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -64,47 +64,47 @@ def register_audio_processing_tools(mcp: FastMCP):
     )
     async def transcribe_audio(
         audio_file: str | None = Field(
-            description="Path to the audio file to transcribe. If provided, transcription is performed on this file.",
             default=None,
+            description="Path to the audio file to transcribe. If provided, transcription is performed on this file.",
         ),
         record_seconds: int = Field(
-            description="Number of seconds to record audio from microphone. Must be positive if no audio_file is provided. 0 or negative not supported for recording in this context.",
             default=0,
+            description="Number of seconds to record audio from microphone. Must be positive if no audio_file is provided. 0 or negative not supported for recording in this context.",
         ),
         directory: str | None = Field(
-            description="Directory for saving recordings or exports.",
             default=DEFAULT_TRANSCRIBE_DIRECTORY,
+            description="Directory for saving recordings or exports.",
         ),
         model: str = Field(
-            description="Whisper model to use (e.g., 'base', 'small', 'turbo').",
             default=DEFAULT_WHISPER_MODEL,
+            description="Whisper model to use (e.g., 'base', 'small', 'turbo').",
         ),
         language: str | None = Field(
-            description="Language code for transcription (e.g., 'en', 'fr'). Auto-detected if not specified.",
             default=None,
+            description="Language code for transcription (e.g., 'en', 'fr'). Auto-detected if not specified.",
         ),
         task: str = Field(
-            description="Task to perform: 'transcribe' or 'translate' (to English).",
             default="transcribe",
+            description="Task to perform: 'transcribe' or 'translate' (to English).",
         ),
-        fp16: bool = Field(description="Use FP16 for faster inference.", default=True),
+        fp16: bool = Field(default=True, description="Use FP16 for faster inference."),
         word_timestamps: bool = Field(
-            description="Include word-level timestamps in the output.", default=False
+            default=False, description="Include word-level timestamps in the output."
         ),
         temperature: float = Field(
-            description="Temperature for sampling diversity (0.0 for deterministic).",
             default=0.0,
+            description="Temperature for sampling diversity (0.0 for deterministic).",
         ),
         initial_prompt: str | None = Field(
-            description="Initial text prompt to guide the transcription.", default=None
+            default=None, description="Initial text prompt to guide the transcription."
         ),
         export_formats: list[str] | None = Field(
-            description="Formats to export the transcription (e.g., ['txt', 'srt']).",
             default=None,
+            description="Formats to export the transcription (e.g., ['txt', 'srt']).",
         ),
         backend: str | None = Field(
-            description="Transcription backend to use: 'faster-whisper' or 'openai-whisper'. Defaults to auto-detect (preferring faster-whisper).",
             default=None,
+            description="Transcription backend to use: 'faster-whisper' or 'openai-whisper'. Defaults to auto-detect (preferring faster-whisper).",
         ),
         ctx: Context | None = Field(
             description="MCP context for progress reporting.", default=None

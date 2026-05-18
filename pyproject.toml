@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audio-transcriber"
-version = "0.14.0"
+version = "0.15.0"
 description = "Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!"
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: Public Domain", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.11, <3.14"
-dependencies = [ "agent-utilities>=0.9.0", "pyaudio>=0.2.14", "faster-whisper>=1.2.1", "setuptools-rust>=1.12.0",]
+dependencies = [ "agent-utilities>=0.11.0", "pyaudio>=0.2.14", "faster-whisper>=1.2.1", "setuptools-rust>=1.12.0",]
 [[project.authors]]
 name = "Audel Rouhi"
 email = "knucklessg1@gmail.com"
@@ -19,10 +19,10 @@ text = "MIT"
 
 [project.optional-dependencies]
 local = [ "openai-whisper>=20250625",]
-mcp = [ "agent-utilities[mcp]>=0.9.0", "websockets>=13.0",]
-agent = [ "agent-utilities[agent,logfire]>=0.9.0", "websockets>=13.0",]
+mcp = [ "agent-utilities[mcp]>=0.11.0", "websockets>=13.0",]
+agent = [ "agent-utilities[agent,logfire]>=0.11.0", "websockets>=13.0",]
 all = [ "audio-transcriber[mcp,agent]>=0.6.15",]
-test = [ "pytest", "pytest-asyncio",]
+test = [ "pytest", "pytest-asyncio", "pytest-cov",]
 
 [project.scripts]
 audio-transcriber = "audio_transcriber.audio_transcriber:main"
@@ -55,3 +55,6 @@ ignore = [ "E402", "E501", "B008",]
 
 [tool.setuptools.packages.find]
 where = [ ".",]
+
+[tool.vulture]
+ignore_names = ["request", "config"]

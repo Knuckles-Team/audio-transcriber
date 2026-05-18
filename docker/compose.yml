@@ -3,8 +3,8 @@ services:
   audio-transcriber-agent:
     # image: docker.io/knucklessg1/audio-transcriber:latest
     build:
-      context: .
-      dockerfile: debug.Dockerfile
+      context: ..
+      dockerfile: docker/debug.Dockerfile
     container_name: audio-transcriber-agent
     hostname: audio-transcriber-agent
     command: [ "audio-transcriber-agent" ]
