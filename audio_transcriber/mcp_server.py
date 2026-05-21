@@ -3,6 +3,10 @@ import os
 #!/usr/bin/python
 import warnings
 
+from fastmcp import Context, FastMCP
+from fastmcp.utilities.logging import get_logger
+from pydantic import Field
+
 # Filter RequestsDependencyWarning early to prevent log spam
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
@@ -28,13 +32,10 @@ from agent_utilities.mcp_utilities import (
     ctx_log,
 )
 from dotenv import find_dotenv, load_dotenv
-from fastmcp import Context, FastMCP
-from fastmcp.utilities.logging import get_logger
-from pydantic import Field
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "0.15.0"
+__version__ = "0.15.1"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)

@@ -354,10 +354,7 @@ sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp
         "audio-transcriber-mcp"
       ],
       "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
         "AUDIO_PROCESSINGTOOL": "True",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
         "TRANSCRIBE_DIRECTORY": "<YOUR_TRANSCRIBE_DIRECTORY>",
         "WHISPER_MODEL": "<YOUR_WHISPER_MODEL>"
       }
@@ -384,10 +381,7 @@ sudo apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp
         "8000"
       ],
       "env": {
-        "AGENT_DESCRIPTION": "<YOUR_AGENT_DESCRIPTION>",
-        "AGENT_SYSTEM_PROMPT": "<YOUR_AGENT_SYSTEM_PROMPT>",
         "AUDIO_PROCESSINGTOOL": "True",
-        "DEFAULT_AGENT_NAME": "<YOUR_DEFAULT_AGENT_NAME>",
         "TRANSCRIBE_DIRECTORY": "<YOUR_TRANSCRIBE_DIRECTORY>",
         "WHISPER_MODEL": "<YOUR_WHISPER_MODEL>"
       }

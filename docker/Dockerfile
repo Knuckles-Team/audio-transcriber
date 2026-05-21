@@ -57,7 +57,7 @@ RUN apt-get update \
      && curl -sS https://starship.rs/install.sh | sh -s -- --yes \
     && mkdir -p /root/.config \
     && echo 'eval "$(starship init bash)"' >> /root/.bashrc \
-    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow audio-transcriber[all]>=0.15.0
+    && uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow audio-transcriber[all]>=0.15.1
 
 COPY docker/starship.toml /root/.config/starship.toml
 
