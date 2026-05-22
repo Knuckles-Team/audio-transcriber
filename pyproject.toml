@@ -22,7 +22,8 @@ local = [ "openai-whisper>=20250625",]
 mcp = [ "agent-utilities[mcp]>=0.11.0", "websockets>=13.0",]
 agent = [ "agent-utilities[agent,logfire]>=0.11.0", "websockets>=13.0",]
 all = [ "audio-transcriber[mcp,agent]>=0.6.15",]
-test = [ "pytest", "pytest-asyncio", "pytest-cov",]
+test = [
+    "pytest-xdist>=3.6.0", "pytest", "pytest-asyncio", "pytest-cov",]
 
 [project.scripts]
 audio-transcriber = "audio_transcriber.audio_transcriber:main"
