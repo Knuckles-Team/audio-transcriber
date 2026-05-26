@@ -1,0 +1,217 @@
+{
+  "feature_id": "code-enhancement-20260522",
+  "title": "Code Enhancement: audio-transcriber",
+  "created": "2026-05-22T21:23:17.493033+00:00",
+  "overview": "Automated code enhancement review for audio-transcriber. Covers 16 analysis domains.",
+  "user_stories": [
+    {
+      "role": "developer",
+      "action": "address Project Analysis findings (grade: C, score: 74)",
+      "value": "improve project project analysis from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Test Coverage findings (grade: D, score: 65)",
+      "value": "improve project test coverage from D to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Architecture & Design Patterns findings (grade: C, score: 70)",
+      "value": "improve project architecture & design patterns from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Concept Traceability findings (grade: F, score: 30)",
+      "value": "improve project concept traceability from F to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Changelog Audit findings (grade: C, score: 75)",
+      "value": "improve project changelog audit from C to at least B (80+)"
+    },
+    {
+      "role": "developer",
+      "action": "address Pytest Quality findings (grade: D, score: 61)",
+      "value": "improve project pytest quality from D to at least B (80+)"
+    }
+  ],
+  "functional_requirements": [
+    {
+      "id": "FR-001",
+      "description": "Needs attention: audio_transcriber.py (763L) \u2014 1 functions with high complexity (worst: AudioTranscriber.export at 24L, CC=6)",
+      "testable": true
+    },
+    {
+      "id": "FR-002",
+      "description": "9 functions with nesting depth >4",
+      "testable": true
+    },
+    {
+      "id": "FR-003",
+      "description": "6 tests without assertions",
+      "testable": true
+    },
+    {
+      "id": "FR-004",
+      "description": "Test suite lacks intent diversity (only one type)",
+      "testable": true
+    },
+    {
+      "id": "FR-005",
+      "description": "14 potential doc-test drift items",
+      "testable": true
+    },
+    {
+      "id": "FR-006",
+      "description": "README.md missing sections: usage|quick start",
+      "testable": true
+    },
+    {
+      "id": "FR-007",
+      "description": "2 broken internal links in README.md",
+      "testable": true
+    },
+    {
+      "id": "FR-008",
+      "description": "README missing: Has a Table of Contents",
+      "testable": true
+    },
+    {
+      "id": "FR-009",
+      "description": "README missing: Has usage examples with code blocks",
+      "testable": true
+    },
+    {
+      "id": "FR-010",
+      "description": "SRP: 1 modules exceed 500 lines (god modules)",
+      "testable": true
+    },
+    {
+      "id": "FR-011",
+      "description": "SRP: 1 classes have >15 methods",
+      "testable": true
+    },
+    {
+      "id": "FR-012",
+      "description": "No discernible layer architecture (no domain/service/adapter separation)",
+      "testable": true
+    },
+    {
+      "id": "FR-013",
+      "description": "Low traceability ratio: 0% concepts fully traced",
+      "testable": true
+    },
+    {
+      "id": "FR-014",
+      "description": "48 test functions missing concept markers",
+      "testable": true
+    },
+    {
+      "id": "FR-015",
+      "description": "25 significant functions (>10 lines) missing concept markers in docstrings",
+      "testable": true
+    },
+    {
+      "id": "FR-016",
+      "description": "Total lint findings: 0 (high/error: 0, medium/warning: 0, low: 0)",
+      "testable": true
+    },
+    {
+      "id": "FR-017",
+      "description": "1/25 pre-commit hooks failed: mypy",
+      "testable": true
+    },
+    {
+      "id": "FR-018",
+      "description": "2 hook(s) may be outdated: ruff-pre-commit, uv-pre-commit",
+      "testable": true
+    },
+    {
+      "id": "FR-019",
+      "description": "1 rogue/throwaway scripts detected (fix_*, validate_*, patch_*, etc.): scripts/validate_a2a_agent.py",
+      "testable": true
+    },
+    {
+      "id": "FR-020",
+      "description": "CHANGELOG.md is missing \u2014 create one following Keep a Changelog format",
+      "testable": true
+    },
+    {
+      "id": "FR-021",
+      "description": "CHANGELOG.md is missing",
+      "testable": true
+    },
+    {
+      "id": "FR-022",
+      "description": "Test directory lacks subdirectory organization (consider unit/, integration/, e2e/)",
+      "testable": true
+    },
+    {
+      "id": "FR-023",
+      "description": "Missing conftest.py for shared fixtures",
+      "testable": true
+    },
+    {
+      "id": "FR-024",
+      "description": "Low fixture usage: only 8% of tests use fixtures",
+      "testable": true
+    },
+    {
+      "id": "FR-025",
+      "description": "No @pytest.mark.parametrize usage \u2014 consider data-driven tests",
+      "testable": true
+    },
+    {
+      "id": "FR-026",
+      "description": "No shared fixtures in conftest.py",
+      "testable": true
+    },
+    {
+      "id": "FR-027",
+      "description": "6 tests have no assertions",
+      "testable": true
+    },
+    {
+      "id": "FR-028",
+      "description": "9 tests have excessive mocking (>5 mocks) \u2014 test behavior, not implementation",
+      "testable": true
+    },
+    {
+      "id": "FR-029",
+      "description": "1 tests exceed 100 lines \u2014 likely doing too much per test",
+      "testable": true
+    },
+    {
+      "id": "FR-030",
+      "description": "Partial env var documentation: 57% coverage",
+      "testable": true
+    },
+    {
+      "id": "FR-031",
+      "description": "Undocumented env vars: AUDIO_PROCESSINGTOOL, AUTH_TYPE, EUNOMIA_POLICY_FILE, EUNOMIA_TYPE, OTEL_EXPORTER_OTLP_ENDPOINT, WHISPER_MODEL",
+      "testable": true
+    },
+    {
+      "id": "FR-032",
+      "description": "1 Python env vars not in .env.example: WHISPER_MODEL",
+      "testable": true
+    }
+  ],
+  "success_criteria": [
+    {
+      "metric": "Overall GPA",
+      "current": 2.81,
+      "target": 3.0
+    },
+    {
+      "metric": "Domains at B or above",
+      "current": 10,
+      "target": 16
+    },
+    {
+      "metric": "Actionable findings",
+      "current": 32,
+      "target": 0
+    }
+  ]
+}

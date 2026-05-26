@@ -12,7 +12,7 @@ import wave
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from pathlib import Path
-from typing import TextIO
+from typing import Any, TextIO
 
 import pyaudio
 
@@ -52,7 +52,7 @@ class FasterWhisperBackend(TranscriberBackend):
 
     def __init__(self, logger: logging.Logger):
         self.logger = logger
-        self.model = None
+        self.model: Any = None
         self.model_name = ""
 
     def load_model(
@@ -150,7 +150,7 @@ class OpenAIWhisperBackend(TranscriberBackend):
 
     def __init__(self, logger: logging.Logger):
         self.logger = logger
-        self.model = None
+        self.model: Any = None
         self.model_name = ""
 
     def load_model(
@@ -223,17 +223,17 @@ class AudioTranscriber:
         self.channels = channels
         self.rate = rate
         self.pyaudio_instance = pyaudio.PyAudio()
-        self.stream = None
+        self.stream: Any = None
         self.frames: list[bytes] = []
         self.file_path = Path(file) if file else Path(directory) / file_name
         self.title = self.file_path.stem
         self.directory = self.file_path.parent
         self.stop = False
-        self.device_index = device or self._get_default_device()
         self.logger = logger or logging.getLogger(__name__)
+        self.device_index = device or self._get_default_device()
         self._check_ffmpeg()
 
-        self.backend_instance: TranscriberBackend | None = None
+        self.backend_instance: Any = None
         self._initialize_backend(model, backend)
 
     def _initialize_backend(self, model: str, requested_backend: str | None) -> None:
@@ -272,7 +272,7 @@ class AudioTranscriber:
     def _get_default_device(self) -> int:
         """Get the default input device index."""
         try:
-            return self.pyaudio_instance.get_default_input_device_info()["index"]
+            return int(self.pyaudio_instance.get_default_input_device_info()["index"])
         except OSError:
             self.logger.warning(
                 "No default input device found. Recording may not work."
@@ -528,7 +528,13 @@ class AudioTranscriber:
                 if self.stop:
                     break
 
-                await loop.run_in_executor(None, output_stream.write, audio_chunk)
+                def make_writer(chunk):
+                    def write():
+                        output_stream.write(chunk)
+
+                    return write
+
+                await loop.run_in_executor(None, make_writer(audio_chunk))
 
         try:
             await asyncio.gather(send_audio_loop(), receive_audio_loop())

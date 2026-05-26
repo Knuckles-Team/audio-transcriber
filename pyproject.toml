@@ -21,7 +21,7 @@ text = "MIT"
 local = [ "openai-whisper>=20250625",]
 mcp = [ "agent-utilities[mcp]>=0.16.0", "websockets>=13.0",]
 agent = [ "agent-utilities[agent,logfire]>=0.16.0", "websockets>=13.0",]
-all = [ "audio-transcriber[mcp,agent]>=0.6.15",]
+all = [ "audio-transcriber[mcp,agent]>=0.18.0",]
 test = [
     "pytest-xdist>=3.6.0", "pytest", "pytest-asyncio", "pytest-cov",]
 
@@ -59,3 +59,8 @@ where = [ ".",]
 
 [tool.vulture]
 ignore_names = ["request", "config"]
+
+[tool.coverage.run]
+omit = [
+    "audio_transcriber/__main__.py",
+]

@@ -1,4 +1,14 @@
 #!/usr/bin/python
+"""Ecosystem Concept Traceability Map.
+
+This agent server inherits and orchestrates the following core ecosystem concepts:
+- CONCEPT:OS-5.4 — Audit Logging and Compliance Trails.
+- CONCEPT:OS-5.1 — Prompt Injection Defense and Scanner.
+- CONCEPT:OS-5.3 — Guardrail Engine and Concurrency Management.
+- CONCEPT:ORCH-1.4 — Action Execution Pipeline and Transition limits.
+- CONCEPT:OS-5.2 — Resource Scheduling and priority queuing.
+"""
+
 import logging
 import os
 import sys

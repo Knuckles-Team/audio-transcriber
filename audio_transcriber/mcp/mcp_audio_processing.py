@@ -1,63 +1,21 @@
-"""Ecosystem Concept Traceability Map.
+"""MCP tools for audio processing operations.
 
-This MCP server inherits and orchestrates the following core ecosystem concepts:
-Audit Logging and Compliance Trails.
-Prompt Injection Defense and Scanner.
-Guardrail Engine and Concurrency Management.
-Action Execution Pipeline and Transition limits.
-Resource Scheduling and priority queuing.
+Auto-generated from mcp_server.py during ecosystem standardization.
 """
 
-import os
+from pathlib import Path
 
-#!/usr/bin/python
-import warnings
-
+from agent_utilities.mcp_utilities import ctx_log
 from fastmcp import Context, FastMCP
-from fastmcp.utilities.logging import get_logger
 from pydantic import Field
 
-# Filter RequestsDependencyWarning early to prevent log spam
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    try:
-        from requests.exceptions import RequestsDependencyWarning
-
-        warnings.filterwarnings("ignore", category=RequestsDependencyWarning)
-    except ImportError:
-        pass
-
-# General urllib3/chardet mismatch warnings
-warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
-warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
-
-import logging
-import sys
-from pathlib import Path
-from typing import Any
-
-from agent_utilities.base_utilities import to_boolean
-from agent_utilities.mcp_utilities import (
-    create_mcp_server,
-    ctx_log,
-)
-from dotenv import find_dotenv, load_dotenv
-
 from audio_transcriber.audio_transcriber import AudioTranscriber
-
-__version__ = "0.18.0"
-
-logger = get_logger(name="TokenMiddleware")
-logger.setLevel(logging.DEBUG)
-
-DEFAULT_WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "base")
-DEFAULT_TRANSCRIBE_DIRECTORY = os.environ.get(
-    "TRANSCRIBE_DIRECTORY", str(Path.home() / "Downloads")
+from audio_transcriber.mcp_server import (
+    DEFAULT_TRANSCRIBE_DIRECTORY,
+    DEFAULT_WHISPER_MODEL,
+    logger,
 )
 
-def register_misc_tools(mcp: FastMCP):
-    pass
-    pass
 
 def register_audio_processing_tools(mcp: FastMCP):
     @mcp.tool(
@@ -209,77 +167,3 @@ def register_audio_processing_tools(mcp: FastMCP):
         except Exception as e:
             ctx_log(ctx, logger, "error", f"Failed to transcribe audio: {str(e)}")
             raise RuntimeError(f"Failed to transcribe audio: {str(e)}") from e
-
-def register_prompts(mcp: FastMCP):
-    @mcp.prompt
-    def transcribe_file_prompt(
-        audio_file: str,
-        language: str = "",
-        model: str = "base",
-    ) -> str:
-        """
-        Generates a prompt for transcribing a specific audio file.
-        """
-        return f"Transcribe the audio file '{audio_file}'. Language: '{language}', Model: '{model}'. Use the `transcribe_audio` tool with `audio_file`."
-
-    @mcp.prompt
-    def record_and_transcribe_prompt(
-        record_seconds: int,
-        language: str = "",
-        model: str = "base",
-    ) -> str:
-        """
-        Generates a prompt for recording from the microphone and transcribing.
-        """
-        return f"Record audio for {record_seconds} seconds and transcribe it. Language: '{language}', Model: '{model}'. Use the `transcribe_audio` tool with `record_seconds`."
-
-    @mcp.prompt
-    def translate_audio_prompt(
-        audio_file: str,
-        model: str = "base",
-    ) -> str:
-        """
-        Generates a prompt for transcribing an audio file and translating it to English.
-        """
-        return f"Transcribe and translate the audio file '{audio_file}' to English. Model: '{model}'. Use the `transcribe_audio` tool with `task='translate'`."
-
-def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
-    """Initialize and return the MCP instance, args, and middlewares."""
-    load_dotenv(find_dotenv())
-
-    args, mcp, middlewares = create_mcp_server(
-        name="Audio Transcriber",
-        version=__version__,
-        instructions="Audio Transcriber MCP Server - Run Whisper transcription on audio files or microphone input.",
-    )
-
-    DEFAULT_AUDIO_PROCESSINGTOOL = to_boolean(os.getenv("AUDIO_PROCESSINGTOOL", "True"))
-    if DEFAULT_AUDIO_PROCESSINGTOOL:
-        register_audio_processing_tools(mcp)
-    register_prompts(mcp)
-
-    for mw in middlewares:
-        mcp.add_middleware(mw)
-    registered_tags: list[str] = []
-    return mcp, args, middlewares, registered_tags
-
-def mcp_server() -> None:
-    mcp, args, middlewares, registered_tags = get_mcp_instance()
-    print(f"{'audio-transcriber'} MCP v{__version__}", file=sys.stderr)
-    print("\nStarting MCP Server", file=sys.stderr)
-    print(f"  Transport: {args.transport.upper()}", file=sys.stderr)
-    print(f"  Auth: {args.auth_type}", file=sys.stderr)
-    print(f"  Dynamic Tags Loaded: {len(set(registered_tags))}", file=sys.stderr)
-
-    if args.transport == "stdio":
-        mcp.run(transport="stdio")
-    elif args.transport == "streamable-http":
-        mcp.run(transport="streamable-http", host=args.host, port=args.port)
-    elif args.transport == "sse":
-        mcp.run(transport="sse", host=args.host, port=args.port)
-    else:
-        logger.error("Invalid transport", extra={"transport": args.transport})
-        sys.exit(1)
-
-if __name__ == "__main__":
-    mcp_server()

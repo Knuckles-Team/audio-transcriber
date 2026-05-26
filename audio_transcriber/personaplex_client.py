@@ -2,6 +2,7 @@ import base64
 import json
 import logging
 from collections.abc import AsyncGenerator
+from typing import Any
 
 import websockets
 
@@ -12,7 +13,7 @@ class PersonaPlexClient:
     def __init__(self, uri: str, logger: logging.Logger | None = None):
         self.uri = uri
         self.logger = logger or logging.getLogger(__name__)
-        self.websocket = None
+        self.websocket: Any = None
 
     async def connect(self):
         """Connect to the PersonaPlex server."""
