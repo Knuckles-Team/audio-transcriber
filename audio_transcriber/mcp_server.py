@@ -55,9 +55,11 @@ DEFAULT_TRANSCRIBE_DIRECTORY = os.environ.get(
     "TRANSCRIBE_DIRECTORY", str(Path.home() / "Downloads")
 )
 
+
 def register_misc_tools(mcp: FastMCP):
     pass
     pass
+
 
 def register_audio_processing_tools(mcp: FastMCP):
     @mcp.tool(
@@ -210,6 +212,7 @@ def register_audio_processing_tools(mcp: FastMCP):
             ctx_log(ctx, logger, "error", f"Failed to transcribe audio: {str(e)}")
             raise RuntimeError(f"Failed to transcribe audio: {str(e)}") from e
 
+
 def register_prompts(mcp: FastMCP):
     @mcp.prompt
     def transcribe_file_prompt(
@@ -243,6 +246,7 @@ def register_prompts(mcp: FastMCP):
         """
         return f"Transcribe and translate the audio file '{audio_file}' to English. Model: '{model}'. Use the `transcribe_audio` tool with `task='translate'`."
 
+
 def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     """Initialize and return the MCP instance, args, and middlewares."""
     load_dotenv(find_dotenv())
@@ -263,6 +267,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
+
 def mcp_server() -> None:
     mcp, args, middlewares, registered_tags = get_mcp_instance()
     print(f"{'audio-transcriber'} MCP v{__version__}", file=sys.stderr)
@@ -280,6 +285,7 @@ def mcp_server() -> None:
     else:
         logger.error("Invalid transport", extra={"transport": args.transport})
         sys.exit(1)
+
 
 if __name__ == "__main__":
     mcp_server()
