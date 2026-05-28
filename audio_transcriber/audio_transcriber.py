@@ -16,7 +16,7 @@ from typing import Any, TextIO
 
 import pyaudio
 
-__version__ = "0.20.0"
+__version__ = "0.21.0"
 
 
 class TranscriberBackend(ABC):
