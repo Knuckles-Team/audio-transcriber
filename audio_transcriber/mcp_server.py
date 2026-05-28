@@ -45,14 +45,16 @@ from dotenv import find_dotenv, load_dotenv
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "0.18.0"
+__version__ = "0.19.0"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
 
 DEFAULT_WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "base")
+from agent_utilities.core import paths
+
 DEFAULT_TRANSCRIBE_DIRECTORY = os.environ.get(
-    "TRANSCRIBE_DIRECTORY", str(Path.home() / "Downloads")
+    "TRANSCRIBE_DIRECTORY", str(paths.data_dir() / "audio-transcriber")
 )
 
 

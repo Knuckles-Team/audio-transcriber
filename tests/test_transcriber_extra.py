@@ -267,7 +267,11 @@ def test_record_keyboard_interrupt():
 
         original_stop = getattr(AudioTranscriber, "stop", None)
         try:
-            setattr(AudioTranscriber, "stop", property(StopMock().get_stop, StopMock().set_stop))
+            setattr(
+                AudioTranscriber,
+                "stop",
+                property(StopMock().get_stop, StopMock().set_stop),
+            )
             trans.record(seconds=0)
         finally:
             if original_stop is not None:
