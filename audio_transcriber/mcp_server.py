@@ -45,7 +45,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "0.27.0"
+__version__ = "0.27.2"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
