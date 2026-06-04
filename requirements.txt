@@ -1,4 +1,4 @@
-agent-utilities>=0.6.2
+agent-utilities>=0.40.0
 pyaudio>=0.2.14
 faster-whisper>=1.2.1
 setuptools-rust>=1.12.0

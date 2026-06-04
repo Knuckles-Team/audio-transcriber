@@ -260,4 +260,18 @@ def test_main_coverage(mock_audio):
 
 @pytest.mark.skip(reason="Hangs indefinitely due to asyncio loop")
 def test_interact_coverage(mock_audio):
-    pass
+    from audio_transcriber.audio_transcriber import audio_transcriber
+
+    # Test interact flow in main
+    with (
+        patch("sys.argv", ["audio_transcriber.py", "--interact"]),
+        patch("audio_transcriber.audio_transcriber.AudioTranscriber") as mock_at,
+        patch("asyncio.run") as mock_run
+    ):
+        try:
+            audio_transcriber()
+        except SystemExit:
+            pass
+
+        assert mock_at.called
+        assert mock_run.called

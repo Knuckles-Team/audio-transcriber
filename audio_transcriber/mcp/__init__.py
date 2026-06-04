@@ -5,9 +5,7 @@ Each domain has its own module with a register_*_tools function.
 """
 
 from audio_transcriber.mcp.mcp_audio_processing import register_audio_processing_tools
-from audio_transcriber.mcp.mcp_misc import register_misc_tools
 
 __all__ = [
     "register_audio_processing_tools",
-    "register_misc_tools",
 ]

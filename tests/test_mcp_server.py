@@ -6,7 +6,6 @@ import pytest
 from fastmcp import FastMCP, Context
 
 from audio_transcriber.mcp_server import (
-    register_misc_tools,
     register_audio_processing_tools,
     register_prompts,
     get_mcp_instance,
@@ -41,11 +40,6 @@ class MockMCP:
     def add_middleware(self, mw):
         self.middlewares.append(mw)
 
-
-def test_register_misc_tools():
-    mcp = MockMCP()
-    register_misc_tools(mcp)
-    assert len(mcp.tools) == 0
 
 
 def test_get_mcp_instance():

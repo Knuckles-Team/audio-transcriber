@@ -45,7 +45,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "0.28.0"
+__version__ = "0.29.0"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -56,11 +56,6 @@ from agent_utilities.core import paths
 DEFAULT_TRANSCRIBE_DIRECTORY = os.environ.get(
     "TRANSCRIBE_DIRECTORY", str(paths.data_dir() / "audio-transcriber")
 )
-
-
-def register_misc_tools(mcp: FastMCP):
-    pass
-    pass
 
 
 def register_audio_processing_tools(mcp: FastMCP):
@@ -249,6 +244,14 @@ def register_prompts(mcp: FastMCP):
         return f"Transcribe and translate the audio file '{audio_file}' to English. Model: '{model}'. Use the `transcribe_audio` tool with `task='translate'`."
 
 
+def register_misc_tools(mcp: FastMCP):
+    """Register miscellaneous tools like health check."""
+
+    @mcp.tool()
+    async def health_check() -> dict:
+        return {"status": "OK"}
+
+
 def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     """Initialize and return the MCP instance, args, and middlewares."""
     load_dotenv(find_dotenv())
@@ -263,6 +266,7 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     if DEFAULT_AUDIO_PROCESSINGTOOL:
         register_audio_processing_tools(mcp)
     register_prompts(mcp)
+    register_misc_tools(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)

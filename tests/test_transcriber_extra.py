@@ -263,7 +263,7 @@ def test_record_keyboard_interrupt():
                 return False
 
             def set_stop(self, obj, val):
-                pass
+                self._stop = val
 
         original_stop = getattr(AudioTranscriber, "stop", None)
         try:
