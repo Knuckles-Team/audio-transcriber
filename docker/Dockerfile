@@ -30,7 +30,7 @@ WORKDIR /app
 COPY . /app
 
 # Compile and install package in-place
-RUN uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow audio-transcriber[all]>=0.31.0
+RUN uv pip install --system --upgrade --verbose --no-cache --break-system-packages --prerelease=allow audio-transcriber[all]>=0.32.0
 
 COPY docker/starship.toml /root/.config/starship.toml
 
