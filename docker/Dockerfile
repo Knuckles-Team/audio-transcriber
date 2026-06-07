@@ -8,7 +8,8 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_SYSTEM_PYTHON=1 \
     UV_HTTP_TIMEOUT=3600
 RUN --mount=type=cache,target=/root/.cache/uv \
-    pip install --no-cache-dir uv \
+    apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir uv \
     && uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[all]>=0.32.0
 
 FROM python:3.11-slim
