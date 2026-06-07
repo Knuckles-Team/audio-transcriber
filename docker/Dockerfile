@@ -8,7 +8,7 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_SYSTEM_PYTHON=1 \
     UV_HTTP_TIMEOUT=3600
 RUN --mount=type=cache,target=/root/.cache/uv \
-    apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/* \
+    apt-get update && apt-get install -y --no-install-recommends build-essential portaudio19-dev && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir uv \
     && uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[all]>=0.32.0
 
@@ -30,7 +30,9 @@ ENV HOST=${HOST} \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy
 
-# Install base dependencies, uv, and starship shell prompt
+# pyaudio loads the portaudio shared lib at runtime (not part of /usr/local)
+RUN apt-get update && apt-get install -y --no-install-recommends libportaudio2 \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/local /usr/local
 
 CMD ["audio-transcriber-mcp"]
