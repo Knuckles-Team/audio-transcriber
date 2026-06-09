@@ -22,6 +22,10 @@
 
 *Version: 0.32.0*
 
+> **Documentation** — Installation, deployment, and usage across the CLI, Python API,
+> MCP server, and A2A agent are maintained in the
+> [official documentation](https://knuckles-team.github.io/audio-transcriber/).
+
 ---
 
 ## Overview
@@ -302,6 +306,22 @@ python -m pip install audio-transcriber[all]
 
 ![GitHub followers](https://img.shields.io/github/followers/Knucklessg1)
 ![GitHub User's stars](https://img.shields.io/github/stars/Knucklessg1)
+
+---
+
+## Documentation
+
+The complete documentation is published as the
+[official documentation site](https://knuckles-team.github.io/audio-transcriber/) and
+is the recommended reference for installation, deployment, and day-to-day operation.
+
+| Page | Contents |
+|---|---|
+| [Installation](https://knuckles-team.github.io/audio-transcriber/installation/) | pip, source, extras, prebuilt Docker image |
+| [Deployment](https://knuckles-team.github.io/audio-transcriber/deployment/) | run the MCP server and agent, Compose, Caddy + Technitium, env config |
+| [Usage](https://knuckles-team.github.io/audio-transcriber/usage/) | the MCP tool, the `AudioTranscriber` API, the CLI |
+| [Overview](https://knuckles-team.github.io/audio-transcriber/overview/) | capability summary and ecosystem role |
+| [Concepts](https://knuckles-team.github.io/audio-transcriber/concepts/) | concept registry (`CONCEPT:AUDIO-*`) |
 
 ---
 
