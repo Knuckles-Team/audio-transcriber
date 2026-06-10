@@ -10,7 +10,7 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_HTTP_TIMEOUT=3600
 RUN --mount=type=cache,target=/root/.cache/uv \
     apt-get update && apt-get install -y --no-install-recommends build-essential portaudio19-dev && rm -rf /var/lib/apt/lists/* \
-    && uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[all]>=0.32.0
+    && uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[all]>=0.33.0
 
 FROM python:3.11-slim
 
