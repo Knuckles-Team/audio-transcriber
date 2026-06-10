@@ -10,11 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://knuckles-team.github.io/audio-transcriber/concepts/">
+        <link rel="canonical" href="https://knuckles-team.github.io/audio-transcriber/usage/">
       
       
-        <link rel="prev" href="../usage/">
+        <link rel="prev" href="../deployment/">
       
+      
+        <link rel="next" href="../concepts/">
       
       
         
@@ -25,7 +27,7 @@
     
     
       
-        <title>Concepts - audio-transcriber</title>
+        <title>Usage (API / CLI / MCP) - audio-transcriber</title>
       
     
     
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#concept-registry-audio-transcriber" class="md-skip">
+        <a href="#usage-api-cli-mcp" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Concepts
+              Usage (API / CLI / MCP)
             
           </span>
         </div>
@@ -308,9 +310,11 @@
   
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../usage/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
         
   
   
@@ -327,11 +331,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../concepts/" class="md-tabs__link">
         
   
   
@@ -507,33 +509,6 @@
       
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../usage/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Usage (API / CLI / MCP)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -553,7 +528,7 @@
   <span class="md-ellipsis">
     
   
-    Concepts
+    Usage (API / CLI / MCP)
   
 
     
@@ -571,7 +546,7 @@
   <span class="md-ellipsis">
     
   
-    Concepts
+    Usage (API / CLI / MCP)
   
 
     
@@ -597,10 +572,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#project-specific-concepts" class="md-nav__link">
+  <a href="#as-an-mcp-server" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Project-Specific Concepts
+        As an MCP server
       
     </span>
   </a>
@@ -608,10 +583,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cross-project-references-from-agent-utilities" class="md-nav__link">
+  <a href="#as-a-python-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Cross-Project References (from agent-utilities)
+        As a Python API
       
     </span>
   </a>
@@ -619,13 +594,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#synergy-with-agent-utilities" class="md-nav__link">
+  <a href="#as-a-cli" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Synergy with agent-utilities
+        As a CLI
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="As a CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -633,6 +625,33 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -664,10 +683,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#project-specific-concepts" class="md-nav__link">
+  <a href="#as-an-mcp-server" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Project-Specific Concepts
+        As an MCP server
       
     </span>
   </a>
@@ -675,10 +694,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cross-project-references-from-agent-utilities" class="md-nav__link">
+  <a href="#as-a-python-api" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Cross-Project References (from agent-utilities)
+        As a Python API
       
     </span>
   </a>
@@ -686,13 +705,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#synergy-with-agent-utilities" class="md-nav__link">
+  <a href="#as-a-cli" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Synergy with agent-utilities
+        As a CLI
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="As a CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -716,84 +752,180 @@
   
 
 
-<h1 id="concept-registry-audio-transcriber">Concept Registry — audio-transcriber<a class="headerlink" href="#concept-registry-audio-transcriber" title="Permanent link">&para;</a></h1>
-<blockquote>
-<p><strong>Prefix</strong>: <code>CONCEPT:AUDIO-*</code>
-<strong>Version</strong>: 0.18.0
-<strong>Bridge</strong>: <a href="https://github.com/Knuckles-Team/agent-utilities/blob/main/docs/concepts.md"><code>CONCEPT:ECO-4.0</code></a> (Unified Toolkit Ingestion)</p>
-</blockquote>
-<hr />
-<h2 id="project-specific-concepts">Project-Specific Concepts<a class="headerlink" href="#project-specific-concepts" title="Permanent link">&para;</a></h2>
+<h1 id="usage-api-cli-mcp">Usage — API / CLI / MCP<a class="headerlink" href="#usage-api-cli-mcp" title="Permanent link">&para;</a></h1>
+<p><code>audio-transcriber</code> exposes the same capability three ways: as an <strong>MCP tool</strong> an
+agent calls, as a <strong>Python API</strong> (<code>AudioTranscriber</code>) you import, and as a <strong>CLI</strong>.</p>
+<h2 id="as-an-mcp-server">As an MCP server<a class="headerlink" href="#as-an-mcp-server" title="Permanent link">&para;</a></h2>
+<p>Once <a href="../deployment/">deployed</a>, the server registers the audio-processing tool set.
+Tool registration is gated by <code>AUDIO_PROCESSINGTOOL</code> (default <code>True</code>).</p>
 <table>
 <thead>
 <tr>
-<th>Concept ID</th>
-<th>Name</th>
+<th>Tool</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>CONCEPT:AUDIO-001</code></td>
-<td>Audio Processing Operations</td>
-<td>MCP tool domain <code>audio_processing</code> — Action-routed dynamic tool registration</td>
-</tr>
-<tr>
-<td><code>CONCEPT:AUDIO-002</code></td>
-<td>Misc Operations</td>
-<td>MCP tool domain <code>misc</code> — Action-routed dynamic tool registration</td>
+<td><code>transcribe_audio</code></td>
+<td>Transcribe a provided audio file, or record from the microphone for a number of seconds and transcribe the recording.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="cross-project-references-from-agent-utilities">Cross-Project References (from agent-utilities)<a class="headerlink" href="#cross-project-references-from-agent-utilities" title="Permanent link">&para;</a></h2>
+<p>Example agent prompts that map onto this tool:</p>
+<ul>
+<li><em>"Transcribe <code>~/Downloads/meeting.mp4</code> with the <code>base</code> model"</em> → <code>transcribe_audio</code></li>
+<li><em>"Record 30 seconds from the microphone and transcribe it"</em> → <code>transcribe_audio</code></li>
+<li><em>"Transcribe and translate this French clip to English"</em> → <code>transcribe_audio</code> (<code>task="translate"</code>)</li>
+</ul>
+<h2 id="as-a-python-api">As a Python API<a class="headerlink" href="#as-a-python-api" title="Permanent link">&para;</a></h2>
+<p><code>AudioTranscriber</code> records microphone audio, transcribes local media files, and
+exports the result to <code>txt</code> / <code>srt</code> / <code>vtt</code> / <code>json</code>. The Whisper model is loaded
+locally — the fast <code>faster-whisper</code> backend is used by default, with an
+<code>openai-whisper</code> fallback.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">audio_transcriber.audio_transcriber</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioTranscriber</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Transcribe an existing file</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">transcriber</span> <span class="o">=</span> <span class="n">AudioTranscriber</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;base&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="s2">&quot;~/Downloads/meeting.mp4&quot;</span><span class="p">)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">result</span> <span class="o">=</span> <span class="n">transcriber</span><span class="o">.</span><span class="n">transcribe</span><span class="p">(</span><span class="n">language</span><span class="o">=</span><span class="s2">&quot;en&quot;</span><span class="p">)</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># Export to multiple formats next to the source file</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">transcriber</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">formats</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;txt&quot;</span><span class="p">,</span> <span class="s2">&quot;srt&quot;</span><span class="p">,</span> <span class="s2">&quot;vtt&quot;</span><span class="p">,</span> <span class="s2">&quot;json&quot;</span><span class="p">])</span>
+</span></code></pre></div>
+<p>Record from the microphone, then transcribe:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">transcriber</span> <span class="o">=</span> <span class="n">AudioTranscriber</span><span class="p">(</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;tiny&quot;</span><span class="p">,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;my_recording.wav&quot;</span><span class="p">,</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;~/Downloads&quot;</span><span class="p">,</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">)</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">transcriber</span><span class="o">.</span><span class="n">initiate_stream</span><span class="p">()</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">transcriber</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>        <span class="c1"># capture 30 seconds</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">transcriber</span><span class="o">.</span><span class="n">stop_stream</span><span class="p">()</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">transcriber</span><span class="o">.</span><span class="n">save_stream</span><span class="p">()</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">result</span> <span class="o">=</span> <span class="n">transcriber</span><span class="o">.</span><span class="n">transcribe</span><span class="p">()</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+</span></code></pre></div>
+<h2 id="as-a-cli">As a CLI<a class="headerlink" href="#as-a-cli" title="Permanent link">&para;</a></h2>
+<p>The <code>audio-transcriber</code> console script transcribes files and records audio directly:</p>
 <table>
 <thead>
 <tr>
-<th>Concept ID</th>
-<th>Name</th>
-<th>Origin</th>
+<th>Short</th>
+<th>Long</th>
+<th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>CONCEPT:ECO-4.0</code></td>
-<td>Unified Toolkit Ingestion</td>
-<td>agent-utilities</td>
+<td><code>-f</code></td>
+<td><code>--file</code></td>
+<td>File to transcribe</td>
 </tr>
 <tr>
-<td><code>CONCEPT:ORCH-1.2</code></td>
-<td>Confidence-Gated Router</td>
-<td>agent-utilities</td>
+<td><code>-m</code></td>
+<td><code>--model</code></td>
+<td>Model: <code>tiny</code>, <code>base</code>, <code>small</code>, <code>medium</code>, <code>large</code></td>
 </tr>
 <tr>
-<td><code>CONCEPT:OS-5.1</code></td>
-<td>Prompt Injection Defense</td>
-<td>agent-utilities</td>
+<td><code>-l</code></td>
+<td><code>--language</code></td>
+<td>Language to transcribe</td>
 </tr>
 <tr>
-<td><code>CONCEPT:OS-5.2</code></td>
-<td>Cognitive Scheduler</td>
-<td>agent-utilities</td>
+<td><code>-e</code></td>
+<td><code>--export</code></td>
+<td>Export <code>txt</code>, <code>srt</code>, and <code>vtt</code> files</td>
 </tr>
 <tr>
-<td><code>CONCEPT:OS-5.3</code></td>
-<td>Guardrail Engine</td>
-<td>agent-utilities</td>
+<td><code>-r</code></td>
+<td><code>--record</code></td>
+<td>Seconds to record from the microphone</td>
 </tr>
 <tr>
-<td><code>CONCEPT:OS-5.4</code></td>
-<td>Audit Logging</td>
-<td>agent-utilities</td>
+<td><code>-d</code></td>
+<td><code>--directory</code></td>
+<td>Directory to save the recording</td>
 </tr>
 <tr>
-<td><code>CONCEPT:KG-2.0</code></td>
-<td>Knowledge Graph Core</td>
-<td>agent-utilities</td>
+<td><code>-n</code></td>
+<td><code>--name</code></td>
+<td>Name of the recording</td>
+</tr>
+<tr>
+<td><code>-b</code></td>
+<td><code>--bitrate</code></td>
+<td>Bitrate to use during recording</td>
+</tr>
+<tr>
+<td><code>-c</code></td>
+<td><code>--channels</code></td>
+<td>Number of channels to use during recording</td>
 </tr>
 </tbody>
 </table>
-<h2 id="synergy-with-agent-utilities">Synergy with agent-utilities<a class="headerlink" href="#synergy-with-agent-utilities" title="Permanent link">&para;</a></h2>
-<p>This project integrates with <code>agent-utilities</code> via <code>CONCEPT:ECO-4.0</code> (Unified Toolkit Ingestion). The <code>audio_transcriber</code> MCP server registers its tools with the agent-utilities FastMCP middleware, enabling automatic discovery, telemetry, and Knowledge Graph ingestion of all AUDIO-* concepts.</p>
+<p>Transcribe a file with the large model:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>audio-transcriber<span class="w"> </span>--file<span class="w"> </span><span class="s1">&#39;~/Downloads/Federal_Reserve.mp4&#39;</span><span class="w"> </span>--model<span class="w"> </span>large<span class="w"> </span>--export
+</span></code></pre></div>
+<p>Record 60 seconds and transcribe with the tiny model:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>audio-transcriber<span class="w"> </span>--record<span class="w"> </span><span class="m">60</span><span class="w"> </span>--directory<span class="w"> </span><span class="s1">&#39;~/Downloads/&#39;</span><span class="w"> </span>--name<span class="w"> </span><span class="s1">&#39;my_recording.wav&#39;</span><span class="w"> </span>--model<span class="w"> </span>tiny
+</span></code></pre></div>
+<h3 id="model-reference">Model reference<a class="headerlink" href="#model-reference" title="Permanent link">&para;</a></h3>
+<p>Whisper model sizes (courtesy of <a href="https://github.com/openai/whisper">OpenAI Whisper</a>):</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Size</th>
+<th style="text-align: center;">Parameters</th>
+<th style="text-align: center;">English-only</th>
+<th style="text-align: center;">Multilingual</th>
+<th style="text-align: center;">Required VRAM</th>
+<th style="text-align: center;">Relative speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">tiny</td>
+<td style="text-align: center;">39 M</td>
+<td style="text-align: center;"><code>tiny.en</code></td>
+<td style="text-align: center;"><code>tiny</code></td>
+<td style="text-align: center;">~1 GB</td>
+<td style="text-align: center;">~32x</td>
+</tr>
+<tr>
+<td style="text-align: center;">base</td>
+<td style="text-align: center;">74 M</td>
+<td style="text-align: center;"><code>base.en</code></td>
+<td style="text-align: center;"><code>base</code></td>
+<td style="text-align: center;">~1 GB</td>
+<td style="text-align: center;">~16x</td>
+</tr>
+<tr>
+<td style="text-align: center;">small</td>
+<td style="text-align: center;">244 M</td>
+<td style="text-align: center;"><code>small.en</code></td>
+<td style="text-align: center;"><code>small</code></td>
+<td style="text-align: center;">~2 GB</td>
+<td style="text-align: center;">~6x</td>
+</tr>
+<tr>
+<td style="text-align: center;">medium</td>
+<td style="text-align: center;">769 M</td>
+<td style="text-align: center;"><code>medium.en</code></td>
+<td style="text-align: center;"><code>medium</code></td>
+<td style="text-align: center;">~5 GB</td>
+<td style="text-align: center;">~2x</td>
+</tr>
+<tr>
+<td style="text-align: center;">large</td>
+<td style="text-align: center;">1550 M</td>
+<td style="text-align: center;">N/A</td>
+<td style="text-align: center;"><code>large</code></td>
+<td style="text-align: center;">~10 GB</td>
+<td style="text-align: center;">1x</td>
+</tr>
+</tbody>
+</table>
 
 
 
@@ -831,7 +963,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../usage/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Usage (API / CLI / MCP)">
+          <a href="../deployment/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Deployment">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -841,11 +973,27 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Usage (API / CLI / MCP)
+                Deployment
               </div>
             </div>
           </a>
         
+        
+          
+          <a href="../concepts/" class="md-footer__link md-footer__link--next" aria-label="Next: Concepts">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Concepts
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
         
       </nav>
     
