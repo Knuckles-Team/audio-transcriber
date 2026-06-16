@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/audio-transcriber)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/audio-transcriber)
 
-*Version: 0.33.2*
+*Version: 0.34.0*
 
 > **Documentation** — Installation, deployment, and usage across the CLI, Python API,
 > MCP server, and A2A agent are maintained in the
