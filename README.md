@@ -56,10 +56,11 @@ Detailed instructions on how to use the underlying API wrappers, extended schema
 This server utilizes dynamic Action-Routed tools to optimize token overhead and maximize IDE compatibility.
 
 ### Available MCP Tools
-| Tool Module | Toggle Env Var | Enabled by Default | Description & Nested Methods |
-|-------------|----------------|--------------------|------------------------------|
-| **Misc** | `MISC_TOOL` | `True` | Manage audio transcriber misc operations. |
-| **Audio Processing** | `AUDIO_PROCESSING_TOOL` | `True` | Transcribes audio from a provided file or by recording from the microphone. |
+
+The table below is auto-generated from the live server — do not edit by hand.
+
+<!-- MCP-TOOLS-TABLE:START -->
+<!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
 
