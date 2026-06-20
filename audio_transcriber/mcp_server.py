@@ -8,8 +8,6 @@ Action Execution Pipeline and Transition limits.
 Resource Scheduling and priority queuing.
 """
 
-import os
-
 #!/usr/bin/python
 import warnings
 
@@ -36,11 +34,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from agent_utilities.base_utilities import to_boolean
+from agent_utilities.core.config import setting
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
     ctx_log,
     load_config,
+    register_tool_surface,
 )
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
@@ -50,12 +49,17 @@ __version__ = "0.35.0"
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
 
-DEFAULT_WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "base")
+DEFAULT_WHISPER_MODEL = setting("WHISPER_MODEL", "base")
 from agent_utilities.core import paths
 
-DEFAULT_TRANSCRIBE_DIRECTORY = os.environ.get(
+DEFAULT_TRANSCRIBE_DIRECTORY = setting(
     "TRANSCRIBE_DIRECTORY", str(paths.data_dir() / "audio-transcriber")
 )
+
+
+def get_client() -> AudioTranscriber:
+    """Return an AudioTranscriber instance (verbose-tier client dependency)."""
+    return AudioTranscriber(model=DEFAULT_WHISPER_MODEL, logger=logger)
 
 
 def register_audio_processing_tools(mcp: FastMCP):
@@ -262,15 +266,17 @@ def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
         instructions="Audio Transcriber MCP Server - Run Whisper transcription on audio files or microphone input.",
     )
 
-    DEFAULT_AUDIO_PROCESSINGTOOL = to_boolean(os.getenv("AUDIO_PROCESSINGTOOL", "True"))
-    if DEFAULT_AUDIO_PROCESSINGTOOL:
-        register_audio_processing_tools(mcp)
+    registered_tags = register_tool_surface(
+        mcp,
+        client_cls=AudioTranscriber,
+        get_client=get_client,
+        service="audio-transcriber",
+        tools_module=sys.modules[__name__],
+    )
     register_prompts(mcp)
-    register_misc_tools(mcp)
 
     for mw in middlewares:
         mcp.add_middleware(mw)
-    registered_tags: list[str] = []
     return mcp, args, middlewares, registered_tags
 
 
