@@ -60,6 +60,13 @@ This server utilizes dynamic Action-Routed tools to optimize token overhead and 
 The table below is auto-generated from the live server — do not edit by hand.
 
 <!-- MCP-TOOLS-TABLE:START -->
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `health_check` | `MISCTOOL` |  |
+| `transcribe_audio` | `AUDIO_PROCESSINGTOOL` | Transcribes audio from a provided file or by recording from the microphone. |
+
+_2 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
