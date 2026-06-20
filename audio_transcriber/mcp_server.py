@@ -40,8 +40,8 @@ from agent_utilities.base_utilities import to_boolean
 from agent_utilities.mcp_utilities import (
     create_mcp_server,
     ctx_log,
+    load_config,
 )
-from dotenv import find_dotenv, load_dotenv
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
@@ -254,7 +254,7 @@ def register_misc_tools(mcp: FastMCP):
 
 def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     """Initialize and return the MCP instance, args, and middlewares."""
-    load_dotenv(find_dotenv())
+    load_config()
 
     args, mcp, middlewares = create_mcp_server(
         name="Audio Transcriber",
