@@ -1,1 +1,1 @@
-include README.md include requirements.txt recursive-include audio_transcriber *.py
+include README.md include requirements.txt recursive-include audio_transcriber *.py *.json *.md *.yaml *.yml

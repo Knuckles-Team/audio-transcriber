@@ -30,6 +30,12 @@ audio-transcriber = "audio_transcriber.audio_transcriber:main"
 audio-transcriber-mcp = "audio_transcriber.mcp_server:mcp_server"
 audio-transcriber-agent = "audio_transcriber.agent_server:agent_server"
 
+[project.entry-points."agent_utilities.skill_providers"]
+audio-transcriber = "audio_transcriber.skills"
+
+[project.entry-points."agent_utilities.prompt_providers"]
+audio-transcriber = "audio_transcriber.prompts"
+
 [tool.setuptools]
 include-package-data = true
 
@@ -48,7 +54,7 @@ dev = [
 ]
 
 [tool.setuptools.package-data]
-audio_transcriber = [ "mcp_config.json", "agent_data/**",]
+audio_transcriber = [ "mcp_config.json", "agent_data/**", "prompts/**", "skills/**",]
 
 [tool.ruff.lint]
 select = [ "E", "F", "I", "UP", "B",]
