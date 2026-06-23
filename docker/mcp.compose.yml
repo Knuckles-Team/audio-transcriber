@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   audio-transcriber-mcp:
-    image: knucklessg1/audio-transcriber:latest
+    image: knucklessg1/audio-transcriber:mcp
     container_name: audio-transcriber-mcp
     hostname: audio-transcriber-mcp
     restart: always
