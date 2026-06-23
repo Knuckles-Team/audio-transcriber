@@ -1,24 +1,45 @@
 # syntax=docker/dockerfile:1
-# Slim multi-stage build: install in a builder, ship only /usr/local. Cuts the
-# pushed image ~43% (no default-jre/dev-tools/source) so layer pushes finish well
-# inside the registry's blob-upload window even under concurrency.
-FROM python:3.11-slim AS builder
+# Two right-sized images from ONE Dockerfile, selected by build --target. Both are
+# slim multi-stage (build in a builder, ship only /usr/local — no dev-tools/source):
+#
+#   --target agent  (DEFAULT)  installs audio-transcriber[agent] = the FULL runtime
+#                              (agent-utilities[agent]: engine + pydantic-ai + dspy +
+#                              skills). Because [agent] also includes [mcp], this image
+#                              can run EITHER the agent OR the mcp server. Push as the
+#                              default tags: latest / main / <version>.
+#
+#   --target mcp               installs audio-transcriber[mcp]   = MCP-server tooling ONLY
+#                              (agent-utilities[mcp]: fastmcp/fastapi — NO engine,
+#                              pydantic-ai, dspy, llama-index, tree-sitter). The slim
+#                              variant. Push as the :mcp / :mcp-<version> tag.
+#
+#   docker build --target agent -t audio-transcriber:latest .
+#   docker build --target mcp   -t audio-transcriber:mcp    .
+FROM python:3.11-slim AS builder-base
 COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /uvx /bin/
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     UV_SYSTEM_PYTHON=1 \
     UV_HTTP_TIMEOUT=3600
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Slim MCP-only dependency closure.
+FROM builder-base AS builder-mcp
 RUN --mount=type=cache,target=/root/.cache/uv \
-    apt-get update && apt-get install -y --no-install-recommends build-essential portaudio19-dev && rm -rf /var/lib/apt/lists/* \
-    && uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[all]>=0.35.0
+    uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[mcp]>=0.35.0
 
-FROM python:3.11-slim
+# Full agent runtime dependency closure.
+FROM builder-base AS builder-agent
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[agent]>=0.35.0
 
+FROM python:3.11-slim AS runtime-base
 ARG HOST=0.0.0.0
 ARG PORT=8000
 ARG TRANSPORT="stdio"
 ARG AUTH_TYPE="none"
-
 ENV HOST=${HOST} \
     PORT=${PORT} \
     TRANSPORT=${TRANSPORT} \
@@ -30,9 +51,12 @@ ENV HOST=${HOST} \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy
 
-# pyaudio loads the portaudio shared lib at runtime (not part of /usr/local)
-RUN apt-get update && apt-get install -y --no-install-recommends libportaudio2 \
-    && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /usr/local /usr/local
-
+# Slim image: MCP server only.
+FROM runtime-base AS mcp
+COPY --from=builder-mcp /usr/local /usr/local
 CMD ["audio-transcriber-mcp"]
+
+# Full image (DEFAULT target): agent runtime; can also run the mcp server.
+FROM runtime-base AS agent
+COPY --from=builder-agent /usr/local /usr/local
+CMD ["audio-transcriber-agent"]
