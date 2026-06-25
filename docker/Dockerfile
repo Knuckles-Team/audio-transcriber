@@ -22,7 +22,7 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_SYSTEM_PYTHON=1 \
     UV_HTTP_TIMEOUT=3600
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential \
+    && apt-get install -y --no-install-recommends build-essential portaudio19-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Slim MCP-only dependency closure.
@@ -50,6 +50,12 @@ ENV HOST=${HOST} \
     UV_SYSTEM_PYTHON=1 \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy
+
+# PyAudio (a core dep) links against PortAudio at runtime; install the shared
+# library so `import pyaudio` works in the final images.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libportaudio2 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Slim image: MCP server only.
 FROM runtime-base AS mcp
