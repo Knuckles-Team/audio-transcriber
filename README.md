@@ -94,6 +94,14 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
 
 ### MCP Configuration Examples
 
+> **Install the slim `[mcp]` extra.** All examples below install
+> `audio-transcriber[mcp]` — the MCP-server extra that pulls only the FastMCP /
+> FastAPI tooling (`agent-utilities[mcp]`). It deliberately **excludes** the heavy
+> agent runtime (the epistemic-graph engine, `pydantic-ai`, `dspy`, `llama-index`,
+> `tree-sitter`), so `uvx`/container installs are dramatically smaller and faster.
+> Use the full `[agent]` extra only when you need the integrated Pydantic AI agent
+> (see [Installation](#installation)).
+
 #### stdio Transport (Recommended for local IDEs e.g., Cursor, Claude Desktop)
 Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
 
@@ -104,7 +112,7 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
       "command": "uvx",
       "args": [
         "--from",
-        "audio-transcriber",
+        "audio-transcriber[mcp]",
         "audio-transcriber-mcp"
       ],
       "env": {
@@ -127,7 +135,7 @@ Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx
       "command": "uvx",
       "args": [
         "--from",
-        "audio-transcriber",
+        "audio-transcriber[mcp]",
         "audio-transcriber-mcp"
       ],
       "env": {
@@ -166,8 +174,15 @@ docker run -d \
   -e AUDIO_TRANSCRIPTOR_API_KEY="your_value" \
   -e LANGSMITH_DEFAULT_SYSTEM_PROMPT="your_value" \
   -e OPENROUTER_API_KEY="your_value" \
-  knucklessg1/audio-transcriber:latest
+  knucklessg1/audio-transcriber:mcp
 ```
+
+> The `:mcp` tag is the **slim MCP-server image** (built from
+> `docker/Dockerfile --target mcp`, installing `audio-transcriber[mcp]`). The default
+> `:latest` tag is the **full agent image** (`--target agent`, `audio-transcriber[agent]`)
+> which also bundles the Pydantic AI agent and the epistemic-graph engine — use it
+> when you run `audio-transcriber-agent` (the agent), not just the MCP server. See
+> [Container images](#container-images-mcp-vs-agent).
 
 ---
 
@@ -211,7 +226,7 @@ version: '3.8'
 
 services:
   audio-transcriber-mcp:
-    image: knucklessg1/audio-transcriber:latest
+    image: knucklessg1/audio-transcriber:mcp
     container_name: audio-transcriber-mcp
     hostname: audio-transcriber-mcp
     restart: always
@@ -293,33 +308,109 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 
 ---
 
-## Environment Variables Reference
+## Environment Variables
 
-The following environment variables configure the runtime behavior of the agent, MCP server, and underlying dependencies:
+Every variable the server reads, grouped by purpose.
 
-| Environment Variable | Description | Default / Example |
-|----------------------|-------------|-------------------|
-| `AUDIO_PROCESSING_TOOL` | Toggle the audio processing tool module. | `True` |
-| `AUDIO_PROCESSINGTOOL` | Boolean flag for enabling internal audio processing tools. | `True` |
-| `AUTH_TYPE` | Security authentication type to apply (e.g., `jwt`, `none`). | `none` |
-| `EUNOMIA_POLICY_FILE` | Path to the Eunomia security guardrail policies JSON file. | `mcp_policies.json` |
-| `EUNOMIA_TYPE` | Eunomia guardrail deployment type (e.g., `none`, `embedded`, `remote`). | `none` |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | OpenTelemetry collector endpoint for exporting traces. | `http://localhost:4317` |
-| `WHISPER_MODEL` | Standard OpenAI Whisper model to use for local transcription (e.g., `base`, `tiny`, `small`). | `base` |
+### Transcription / Credentials
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `AUDIO_TRANSCRIPTOR_API_KEY` | API key for the transcription backend | — |
+| `OPENROUTER_API_KEY` | OpenRouter API key (LLM provider) | — |
+| `LANGSMITH_DEFAULT_SYSTEM_PROMPT` | Default system prompt for LangSmith tracing | — |
+| `WHISPER_MODEL` | Local OpenAI Whisper model (e.g. `base`, `tiny`, `small`) | `base` |
+
+### MCP server / transport
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `TRANSPORT` | `stdio`, `streamable-http`, or `sse` | `stdio` |
+| `HOST` | Bind host (HTTP transports) | `0.0.0.0` |
+| `PORT` | Bind port (HTTP transports) | `8000` |
+| `MCP_TOOL_MODE` | Tool surface: `condensed`, `verbose`, or `both` | `condensed` |
+| `MCP_ENABLED_TOOLS` / `MCP_DISABLED_TOOLS` | Comma-separated tool allow/deny list | — |
+| `MCP_ENABLED_TAGS` / `MCP_DISABLED_TAGS` | Comma-separated tag allow/deny list | — |
+| `DEBUG` | Verbose logging | `False` |
+| `PYTHONUNBUFFERED` | Unbuffered stdout (recommended in containers) | `1` |
+
+### Tool toggles
+Each action-routed tool can be disabled individually via its toggle env var (set to `false`).
+See the [Available MCP Tools](#available-mcp-tools) table above for the authoritative names.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MISCTOOL` | Toggle the miscellaneous / health-check tool | `True` |
+| `AUDIO_PROCESSINGTOOL` | Toggle the audio-processing (transcription) tool | `True` |
+
+### Telemetry & governance
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ENABLE_OTEL` | Enable OpenTelemetry export | `True` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP collector endpoint | — |
+| `OTEL_EXPORTER_OTLP_PUBLIC_KEY` / `OTEL_EXPORTER_OTLP_SECRET_KEY` | OTLP auth keys | — |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | OTLP protocol (e.g. `http/protobuf`) | — |
+| `EUNOMIA_TYPE` | Authorization mode: `none`, `embedded`, `remote` | `none` |
+| `EUNOMIA_POLICY_FILE` | Embedded policy file | `mcp_policies.json` |
+| `EUNOMIA_REMOTE_URL` | Remote Eunomia server URL | — |
+
+### Agent CLI (full `[agent]` runtime only)
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MCP_URL` | URL of the MCP server the agent connects to | `http://localhost:8000/mcp` |
+| `PROVIDER` | LLM provider (e.g. `openai`) | `openai` |
+| `MODEL_ID` | Model id (e.g. `gpt-4o`) | `gpt-4o` |
+| `ENABLE_WEB_UI` | Serve the AG-UI web interface | `True` |
+
+See [`.env.example`](.env.example) for a copy-paste starting point.
 
 ---
 
 ## Installation
 
-Install the Python package locally:
+Pick the extra that matches what you want to run:
+
+| Extra | Installs | Use when |
+|-------|----------|----------|
+| `audio-transcriber[mcp]` | Slim MCP server only (`agent-utilities[mcp]` — FastMCP/FastAPI) | You only run the **MCP server** (smallest install / image) |
+| `audio-transcriber[agent]` | Full agent runtime (`agent-utilities[agent,logfire]` — Pydantic AI + the epistemic-graph engine) | You run the **integrated agent** |
+| `audio-transcriber[all]` | Everything (`mcp` + `agent`) | Development / both surfaces |
 
 ```bash
-# Using uv (highly recommended)
-uv pip install audio-transcriber[all]
+# MCP server only (recommended for tool hosting — slim deps)
+uv pip install "audio-transcriber[mcp]"
 
-# Using standard pip
-python -m pip install audio-transcriber[all]
+# Full agent runtime (Pydantic AI + epistemic-graph engine)
+uv pip install "audio-transcriber[agent]"
+
+# Everything (development)
+uv pip install "audio-transcriber[all]"      # or: python -m pip install "audio-transcriber[all]"
 ```
+
+### Container images (`:mcp` vs `:agent`)
+
+One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+
+| Image tag | Build target | Contents | Entrypoint |
+|-----------|--------------|----------|------------|
+| `knucklessg1/audio-transcriber:mcp` | `--target mcp` | `audio-transcriber[mcp]` — **slim**, no engine/`pydantic-ai`/`dspy`/`llama-index`/`tree-sitter` | `audio-transcriber-mcp` |
+| `knucklessg1/audio-transcriber:latest` | `--target agent` (default) | `audio-transcriber[agent]` — **full** agent runtime + epistemic-graph engine | `audio-transcriber-agent` |
+
+```bash
+docker build --target mcp   -t knucklessg1/audio-transcriber:mcp    docker/   # slim MCP server
+docker build --target agent -t knucklessg1/audio-transcriber:latest docker/   # full agent
+```
+
+`docker/mcp.compose.yml` runs the slim `:mcp` server; `docker/agent.compose.yml` runs the
+agent (`:latest`) with a co-located `:mcp` sidecar.
+
+### Knowledge-graph database (`epistemic-graph`)
+
+The **full agent** (`[agent]` / `:latest`) embeds the **epistemic-graph** engine (pulled in
+transitively via `agent-utilities[agent]`). For production — or to share one knowledge graph
+across multiple agents — run **epistemic-graph as its own database container** and point the
+agent at it instead of embedding it. Deployment recipes (single-node + Raft HA), connection
+config, and the full database architecture (with diagrams) are documented in the
+[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
+The slim `[mcp]` server does **not** require the database.
 
 ---
 
