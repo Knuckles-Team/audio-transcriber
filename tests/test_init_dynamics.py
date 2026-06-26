@@ -8,11 +8,31 @@ PKG_NAME = __name__.rsplit(".", 1)[0] if "." in __name__ else None
 
 
 def _get_pkg_name():
-    """Derive package name from test location."""
-    import pathlib
+    """Derive the importable package name.
 
-    test_dir = pathlib.Path(__file__).resolve().parent
-    project_dir = test_dir.parent
+    Prefer the canonical ``[project].name`` from ``pyproject.toml`` (robust to the
+    checkout/worktree directory name), then fall back to the importable package
+    directory, and finally to the project directory name.
+    """
+    import pathlib
+    import tomllib
+
+    project_dir = pathlib.Path(__file__).resolve().parent.parent
+
+    pyproject = project_dir / "pyproject.toml"
+    if pyproject.is_file():
+        try:
+            data = tomllib.loads(pyproject.read_text(encoding="utf-8"))
+            name = (data.get("project") or {}).get("name")
+            if name:
+                return name.replace("-", "_")
+        except (OSError, tomllib.TOMLDecodeError):
+            pass
+
+    for child in sorted(project_dir.iterdir()):
+        if child.is_dir() and (child / "__init__.py").is_file():
+            return child.name
+
     return project_dir.name.replace("-", "_")
 
 
