@@ -61,12 +61,31 @@ The table below is auto-generated from the live server — do not edit by hand.
 
 <!-- MCP-TOOLS-TABLE:START -->
 
+#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
 | `health_check` | `MISCTOOL` |  |
 | `transcribe_audio` | `AUDIO_PROCESSINGTOOL` | Transcribes audio from a provided file or by recording from the microphone. |
 
-_2 action-routed tools (default `MCP_TOOL_MODE=condensed`). Each is enabled unless its toggle is set false; set `MCP_TOOL_MODE=verbose` (or `both`) for the 1:1 per-operation surface. Auto-generated — do not edit._
+#### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
+
+<details>
+<summary>7 per-operation tools — one per public API method (click to expand)</summary>
+
+| MCP Tool | Toggle Env Var | Description |
+|----------|----------------|-------------|
+| `audio_transcriber_export` | `AUDIO_TRANSCRIBERTOOL` | Export transcription to specified formats. |
+| `audio_transcriber_initiate_stream` | `AUDIO_TRANSCRIBERTOOL` | Initiate the audio input stream. |
+| `audio_transcriber_interact` | `AUDIO_TRANSCRIBERTOOL` | Interact with PersonaPlex server via WebSocket. |
+| `audio_transcriber_record` | `AUDIO_TRANSCRIBERTOOL` | Record audio for a specified duration or until stopped. |
+| `audio_transcriber_save_stream` | `AUDIO_TRANSCRIBERTOOL` | Save the recorded frames to a WAV file. |
+| `audio_transcriber_stop_stream` | `AUDIO_TRANSCRIBERTOOL` | Stop and close the audio stream. |
+| `audio_transcriber_transcribe` | `AUDIO_TRANSCRIBERTOOL` | Transcribe the audio file using the initialized backend. |
+
+</details>
+
+_2 action-routed tool(s) (default) · 7 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/mcp.md](docs/mcp.md).
@@ -116,9 +135,10 @@ Configure your IDE's `mcp.json` to launch the MCP server via `uvx`:
         "audio-transcriber-mcp"
       ],
       "env": {
-        "AUDIO_TRANSCRIPTOR_API_KEY": "your_audio_transcriptor_api_key_here",
-        "LANGSMITH_DEFAULT_SYSTEM_PROMPT": "your_langsmith_default_system_prompt_here",
-        "OPENROUTER_API_KEY": "your_openrouter_api_key_here"
+        "MCP_TOOL_MODE": "condensed",
+        "AUDIO_PROCESSINGTOOL": "True",
+        "TRANSCRIBE_DIRECTORY": "/path/to/transcribe_directory",
+        "WHISPER_MODEL": "base"
       }
     }
   }
@@ -142,9 +162,10 @@ Configure your client's `mcp.json` to launch the Streamable-HTTP server via `uvx
         "TRANSPORT": "streamable-http",
         "HOST": "0.0.0.0",
         "PORT": "8000",
-        "AUDIO_TRANSCRIPTOR_API_KEY": "your_audio_transcriptor_api_key_here",
-        "LANGSMITH_DEFAULT_SYSTEM_PROMPT": "your_langsmith_default_system_prompt_here",
-        "OPENROUTER_API_KEY": "your_openrouter_api_key_here"
+        "MCP_TOOL_MODE": "condensed",
+        "AUDIO_PROCESSINGTOOL": "True",
+        "TRANSCRIBE_DIRECTORY": "/path/to/transcribe_directory",
+        "WHISPER_MODEL": "base"
       }
     }
   }
@@ -171,9 +192,8 @@ docker run -d \
   -p 8000:8000 \
   -e TRANSPORT=streamable-http \
   -e PORT=8000 \
-  -e AUDIO_TRANSCRIPTOR_API_KEY="your_value" \
-  -e LANGSMITH_DEFAULT_SYSTEM_PROMPT="your_value" \
-  -e OPENROUTER_API_KEY="your_value" \
+  -e WHISPER_MODEL="base" \
+  -e TRANSCRIBE_DIRECTORY="/path/to/transcribe_directory" \
   knucklessg1/audio-transcriber:mcp
 ```
 
@@ -209,10 +229,9 @@ This repository features a fully integrated Pydantic AI Graph Agent. It communic
 To start the interactive command-line agent:
 
 ```bash
-# Set credentials
-export AUDIO_TRANSCRIPTOR_API_KEY="your_value"
-export LANGSMITH_DEFAULT_SYSTEM_PROMPT="your_value"
-export OPENROUTER_API_KEY="your_value"
+# Configure transcription (optional)
+export WHISPER_MODEL="base"
+export TRANSCRIBE_DIRECTORY="/path/to/transcribe_directory"
 
 # Run the agent server
 audio-transcriber-agent --provider openai --model-id gpt-4o
@@ -327,9 +346,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `EUNOMIA_TYPE` | `none` | options: none, embedded, remote |
 | `EUNOMIA_POLICY_FILE` | `mcp_policies.json` |  |
 | `EUNOMIA_REMOTE_URL` | `http://eunomia-server:8000` |  |
-| `AUDIO_TRANSCRIPTOR_API_KEY` | `your_api_key_here` |  |
-| `LANGSMITH_DEFAULT_SYSTEM_PROMPT` | `""` |  |
-| `OPENROUTER_API_KEY` | `your_openrouter_api_key_here` |  |
+| `TRANSCRIBE_DIRECTORY` | `/path/to/transcribe_directory` | Directory where transcripts are written (defaults to the data dir under audio-transcriber) |
 | `MISCTOOL` | `True` |  |
 | `AUDIO_PROCESSINGTOOL` | `True` |  |
 | `WHISPER_MODEL` | `base` | Standard OpenAI Whisper model to use for local transcription (e.g., base, tiny, small) |
@@ -353,19 +370,17 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_17 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_15 package + 14 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 
 Every variable the server reads, grouped by purpose.
 
-### Transcription / Credentials
+### Transcription
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `AUDIO_TRANSCRIPTOR_API_KEY` | API key for the transcription backend | — |
-| `OPENROUTER_API_KEY` | OpenRouter API key (LLM provider) | — |
-| `LANGSMITH_DEFAULT_SYSTEM_PROMPT` | Default system prompt for LangSmith tracing | — |
 | `WHISPER_MODEL` | Local OpenAI Whisper model (e.g. `base`, `tiny`, `small`) | `base` |
+| `TRANSCRIBE_DIRECTORY` | Directory where transcripts are written | data dir |
 
 ### MCP server / transport
 | Variable | Description | Default |

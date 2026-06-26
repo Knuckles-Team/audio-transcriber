@@ -7,8 +7,6 @@ services:
     hostname: personaplex
     ports:
       - "8998:8998"
-    environment:
-      - HF_TOKEN=${HF_TOKEN}
     volumes:
       - ./mcp/huggingface_cache:/root/.cache/huggingface
     deploy:
