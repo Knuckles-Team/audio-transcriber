@@ -28,12 +28,12 @@ RUN apt-get update \
 # Slim MCP-only dependency closure.
 FROM builder-base AS builder-mcp
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[mcp]>=0.35.0
+    uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[mcp]>=1.0.0
 
 # Full agent runtime dependency closure.
 FROM builder-base AS builder-agent
 RUN --mount=type=cache,target=/root/.cache/uv \
-    uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[agent]>=0.35.0
+    uv pip install --system --upgrade --break-system-packages --prerelease=allow audio-transcriber[agent]>=1.0.0
 
 FROM python:3.11-slim AS runtime-base
 ARG HOST=0.0.0.0

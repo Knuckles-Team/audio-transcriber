@@ -44,7 +44,7 @@ from agent_utilities.mcp_utilities import (
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "0.35.0"
+__version__ = "1.0.0"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
