@@ -9,8 +9,8 @@
       "env": {
         "MCP_TOOL_MODE": "condensed",
         "AUDIO_PROCESSINGTOOL": "True",
-        "TRANSCRIBE_DIRECTORY": "<YOUR_TRANSCRIBE_DIRECTORY>",
-        "WHISPER_MODEL": "<YOUR_WHISPER_MODEL>"
+        "MISCTOOL": "True",
+        "WHISPER_MODEL": "base"
       }
     }
   }
