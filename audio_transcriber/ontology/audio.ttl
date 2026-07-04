@@ -1,0 +1,96 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix : <http://knuckles.team/kg#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Audio-transcription ontology — Whisper transcription of audio/video into text. All
+# classes and properties live in the shared `:` (kg#) namespace; only the owl:Ontology
+# node gets the per-package IRI. Backs the audio-transcriber MCP surface (transcribe_audio /
+# audio_ingest_transcription). The raw audio is stored as a shared :MediaAsset/:Blob; the
+# transcription text is a shared :Document; only the segment breakdown is new here.
+
+# --- new classes ---
+
+:Transcript a owl:Class ;
+    rdfs:subClassOf :Document ;
+    rdfs:label "Transcript" ;
+    rdfs:comment "The full text transcription of an audio/video asset produced by Whisper. Ingested as a shared :Document (semantic-search fodder) carrying language, duration and model provenance." .
+
+:TranscriptSegment a owl:Class ;
+    rdfs:label "Transcript Segment" ;
+    rdfs:comment "A single timestamped span of a Transcript (Whisper segment) with its start/end time and text." .
+
+# --- links (owl:ObjectProperty) — ranges reuse shared classes, never redefined ---
+
+:transcribedFrom a owl:ObjectProperty ;
+    rdfs:label "transcribed from" ;
+    rdfs:comment "Links a Transcript to the source audio/video :MediaAsset it was transcribed from." ;
+    rdfs:domain :Transcript ;
+    rdfs:range :MediaAsset .
+
+:segmentOf a owl:ObjectProperty ;
+    rdfs:label "segment of" ;
+    rdfs:comment "Links a TranscriptSegment to the Transcript it belongs to." ;
+    rdfs:domain :TranscriptSegment ;
+    rdfs:range :Transcript .
+
+:spokenBy a owl:ObjectProperty ;
+    rdfs:label "spoken by" ;
+    rdfs:comment "Links a Transcript or TranscriptSegment to the Person (speaker) attributed to it." ;
+    rdfs:range :Person .
+
+# --- fields (owl:DatatypeProperty) ---
+
+:language a owl:DatatypeProperty ;
+    rdfs:label "language" ;
+    rdfs:comment "Detected or specified language code of the transcription (e.g. 'en', 'fr')." ;
+    rdfs:range xsd:string .
+
+:languageProbability a owl:DatatypeProperty ;
+    rdfs:label "language probability" ;
+    rdfs:comment "Confidence (0..1) of the detected transcription language." ;
+    rdfs:range xsd:float .
+
+:duration a owl:DatatypeProperty ;
+    rdfs:label "duration" ;
+    rdfs:comment "Duration in seconds of the transcribed audio." ;
+    rdfs:range xsd:float .
+
+:whisperModel a owl:DatatypeProperty ;
+    rdfs:label "whisper model" ;
+    rdfs:comment "Whisper model that produced the transcription (e.g. 'base', 'large-v3')." ;
+    rdfs:range xsd:string .
+
+:task a owl:DatatypeProperty ;
+    rdfs:label "task" ;
+    rdfs:comment "Whisper task performed: 'transcribe' or 'translate' (to English)." ;
+    rdfs:range xsd:string .
+
+:startTime a owl:DatatypeProperty ;
+    rdfs:label "start time" ;
+    rdfs:comment "Start offset in seconds of a TranscriptSegment within its audio." ;
+    rdfs:domain :TranscriptSegment ;
+    rdfs:range xsd:float .
+
+:endTime a owl:DatatypeProperty ;
+    rdfs:label "end time" ;
+    rdfs:comment "End offset in seconds of a TranscriptSegment within its audio." ;
+    rdfs:domain :TranscriptSegment ;
+    rdfs:range xsd:float .
+
+:noSpeechProb a owl:DatatypeProperty ;
+    rdfs:label "no-speech probability" ;
+    rdfs:comment "Whisper probability (0..1) that a TranscriptSegment contains no speech." ;
+    rdfs:domain :TranscriptSegment ;
+    rdfs:range xsd:float .
+
+<http://knuckles.team/kg/audio> a owl:Ontology ;
+    rdfs:label "Audio Transcription Ontology" ;
+    rdfs:comment """Audio/video transcription domain model — Whisper transcripts and their
+    timestamped segments, transcribed from a shared :MediaAsset blob and carried as a shared
+    :Document, with language/duration/model provenance — federated into the agent-utilities
+    knowledge-graph hub.""" ;
+    owl:imports <http://knuckles.team/kg> .

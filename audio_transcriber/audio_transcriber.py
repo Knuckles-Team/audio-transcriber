@@ -14,7 +14,13 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any, TextIO
 
-import pyaudio
+try:
+    import pyaudio
+except ModuleNotFoundError:  # pragma: no cover - audio hardware lib is optional
+    # pyaudio is only needed for microphone recording / audio-to-audio interaction.
+    # File transcription and knowledge-graph ingestion work without it, so keep the
+    # module importable when the native PortAudio library is absent.
+    pyaudio = None  # type: ignore[assignment]
 
 __version__ = "1.0.1"
 
@@ -217,7 +223,10 @@ class AudioTranscriber:
         device: int | None = None,
         logger: logging.Logger | None = None,
         backend: str | None = None,
+        ingest_to_kg: bool = True,
     ):
+        self.ingest_to_kg = ingest_to_kg
+        self.last_kg_result: dict | None = None
         self.chunk = 1024
         self.format = pyaudio.paInt16
         self.channels = channels
@@ -389,7 +398,32 @@ class AudioTranscriber:
         if verbose:
             self.logger.info(f"Transcription result: {result.get('text', '')}")
 
+        self._maybe_ingest_kg(result, task=task)
+
         return result
+
+    def _maybe_ingest_kg(self, result: dict, *, task: str = "transcribe") -> None:
+        """Natively push the transcription into the epistemic-graph knowledge graph.
+
+        Default-on and best-effort: no-ops when ``ingest_to_kg`` is off or no live
+        engine is reachable. On success records ``self.last_kg_result``
+        (``{transcript_id, asset, documents, entities}``).
+        CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        """
+        if not self.ingest_to_kg or not result:
+            return
+        try:
+            from audio_transcriber.kg_ingest import ingest_transcription
+
+            self.last_kg_result = ingest_transcription(
+                result,
+                audio_path=str(self.file_path) if self.file_path else None,
+                name=self.title,
+                model=getattr(self.backend_instance, "model_name", None),
+                task=task,
+            )
+        except Exception as e:  # noqa: BLE001 — KG ingestion is never fatal
+            self.logger.debug(f"KG ingest skipped: {e}")
 
     def export(
         self,

@@ -255,6 +255,73 @@ def register_misc_tools(mcp: FastMCP):
     async def health_check() -> dict:
         return {"status": "OK"}
 
+    @mcp.tool(tags={"misc", "kg"})
+    async def audio_ingest_transcription(
+        audio_file: str = Field(
+            description="Path to the audio/video file to transcribe and ingest.",
+        ),
+        model: str = Field(
+            default=DEFAULT_WHISPER_MODEL,
+            description="Whisper model to use (e.g., 'base', 'small', 'large-v3').",
+        ),
+        language: str | None = Field(
+            default=None,
+            description="Language code (e.g. 'en'); auto-detected if omitted.",
+        ),
+        task: str = Field(
+            default="transcribe",
+            description="Whisper task: 'transcribe' or 'translate' (to English).",
+        ),
+        ctx: Context | None = Field(
+            default=None, description="MCP context for progress reporting."
+        ),
+    ) -> dict:
+        """Transcribe an audio file and natively ingest it into the knowledge graph.
+
+        Runs Whisper on ``audio_file`` and pushes the result across modalities: the raw
+        audio as a shared ``:MediaAsset`` blob, the transcript text as a ``:Document``,
+        and the Whisper segments as ``:TranscriptSegment`` nodes. Best-effort: the
+        ``ingested`` key is ``None`` when no engine is reachable.
+        CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+        """
+        from pathlib import Path
+
+        from audio_transcriber.kg_ingest import _ext_id
+
+        if not audio_file or not Path(audio_file).exists():
+            raise ValueError(f"Audio file not found: {audio_file}")
+
+        transcriber = AudioTranscriber(
+            model=model,
+            file=audio_file,
+            logger=logger,
+            ingest_to_kg=True,
+        )
+        result = transcriber.transcribe(language=language, task=task)
+
+        text = (result.get("text") or "").strip()
+        kg = transcriber.last_kg_result
+        transcript_id = (
+            kg["transcript_id"]
+            if kg
+            else f"audio:transcript:{_ext_id(transcriber.title)}"
+        )
+        documents = [
+            {
+                "id": transcript_id,
+                "title": transcriber.title,
+                "text": text,
+                "language": result.get("language"),
+                "duration": result.get("duration"),
+            }
+        ]
+        return {
+            "audio_file": audio_file,
+            "transcript": text,
+            "documents": documents,
+            "ingested": kg,
+        }
+
 
 def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
     """Initialize and return the MCP instance, args, and middlewares."""
