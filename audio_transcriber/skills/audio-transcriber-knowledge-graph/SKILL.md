@@ -1,5 +1,6 @@
 ---
 name: audio-transcriber-knowledge-graph
+skill_type: skill
 description: >-
   Native knowledge-graph ingestion of Whisper transcripts on the audio-transcriber
   MCP server — transcribe an audio/video file and push it into the epistemic-graph in

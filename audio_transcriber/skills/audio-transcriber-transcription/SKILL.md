@@ -1,5 +1,6 @@
 ---
 name: audio-transcriber-transcription
+skill_type: skill
 description: >-
   Speech-to-text on the audio-transcriber MCP server — run Whisper (faster-whisper,
   falling back to openai-whisper) over a local audio/video file or a microphone
