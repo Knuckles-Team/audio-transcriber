@@ -1,5 +1,6 @@
 ---
 name: audio-transcriber-operations
+skill_type: skill
 description: >-
   Operate audio-transcriber through its governed MCP and GraphOS capabilities, including audio transcriber knowledge graph, audio transcriber transcription. Use when a request requires this provider's read, change, automation, ingestion, troubleshooting, or evidence workflows.
 ---
