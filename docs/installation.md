@@ -57,14 +57,14 @@ uv run audio-transcriber-mcp
 
 ## Prebuilt Docker image
 
-A slim image is published on every release (entrypoint `audio-transcriber-mcp`):
+A MCP-serving image is published on every release (entrypoint `audio-transcriber-mcp`):
 
 ```bash
-docker pull knucklessg1/audio-transcriber:latest
+docker pull example/audio-transcriber@sha256:<digest>
 
 docker run --rm -i \
   -e WHISPER_MODEL=base \
-  knucklessg1/audio-transcriber:latest        # stdio transport (default)
+  example/audio-transcriber@sha256:<digest>        # stdio transport (default)
 ```
 
 For an HTTP server with a published port, see [Deployment](deployment.md).

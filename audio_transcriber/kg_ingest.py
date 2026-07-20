@@ -4,18 +4,16 @@ CONCEPT:AU-KG.ingest.enterprise-source-extractor. audio-transcriber is a *produc
 after Whisper transcribes an audio/video file it natively pushes the result into the ONE
 epistemic-graph engine across every modality that applies (the "maximum ingestion" bar):
 
-* **blob**  — the raw audio bytes → shared ``:MediaAsset``/``:Blob`` (``audio_transcriber.kg_media``)
+* **blob**  — the raw audio bytes → shared ``:AssetOccurrence``/``:Blob`` (``audio_transcriber.kg_media``)
 * **document** — the transcript text → shared ``:Document`` (``ingest_documents``); the hub
   chunks/embeds it for semantic search
 * **typed nodes** — the Whisper segments → ``:TranscriptSegment`` nodes (``ingest_entities``),
   linked ``:segmentOf`` the transcript and ``:transcribedFrom`` the audio asset
 
-All three ride the lightweight engine client via the shared
-``agent_utilities.knowledge_graph.memory.native_ingest`` primitive; when that primitive is
-not yet installed we fall back to a self-contained txn writer with the same shape. Everything
-is dependency-/engine-guarded: with no KG stack or no reachable engine every entry point
-**no-ops** (returns ``None``), so the transcriber runs with zero KG infrastructure. Node ids
-follow ``audio:<class>:<externalId>`` and ``type`` matches the classes federated by
+All three ride the required
+``agent_utilities.knowledge_graph.memory.native_ingest`` transaction primitive. Engine
+failures are explicit and no partial write is acknowledged. Node ids follow
+``audio:<class>:<externalId>`` and ``node_type`` matches the classes federated by
 ``audio_transcriber.ontology`` (``audio.ttl``).
 """
 
@@ -23,80 +21,19 @@ from __future__ import annotations
 
 import logging
 import re
-import time
 from typing import Any
+
+from agent_utilities.knowledge_graph.memory.native_ingest import (
+    ingest_documents as _native_ingest_documents,
+)
+from agent_utilities.knowledge_graph.memory.native_ingest import (
+    ingest_entities as _native_ingest_entities,
+)
 
 logger = logging.getLogger("AudioTranscriber.kg")
 
 _SOURCE = "audio-transcriber"
 _DOMAIN = "audio"
-_DEFAULT_GRAPH = "__commons__"
-
-
-# --------------------------------------------------------------------------- #
-# Low-level write path: prefer the shared primitive, else a self-contained txn.
-# --------------------------------------------------------------------------- #
-def _native_client() -> tuple[Any | None, str]:
-    """Return ``(engine_client, graph_name)`` or ``(None, "")`` when unavailable."""
-    try:
-        from agent_utilities.knowledge_graph.core.graph_compute import (
-            GraphComputeEngine,
-        )
-    except Exception as e:  # noqa: BLE001 — KG stack absent
-        logger.debug("KG ingest unavailable (import): %s", e)
-        return None, ""
-    try:
-        engine = GraphComputeEngine()
-        client = getattr(engine, "_client", None)
-        if client is None:
-            return None, ""
-        return client, (getattr(engine, "graph_name", None) or _DEFAULT_GRAPH)
-    except Exception as e:  # noqa: BLE001 — engine unreachable
-        logger.debug("KG ingest: engine unreachable: %s", e)
-        return None, ""
-
-
-def _fallback_write_nodes(
-    client: Any,
-    graph: str,
-    nodes: list[dict[str, Any]],
-    relationships: list[dict[str, Any]] | None,
-    *,
-    source: str,
-    domain: str,
-) -> dict[str, int] | None:
-    """Self-contained txn writer used when the shared primitive is not installed."""
-    nodes = [n for n in nodes if n.get("id")]
-    if not nodes:
-        return None
-    try:
-        txn = client.txn.begin(graph=graph)
-        for node in nodes:
-            props = {k: v for k, v in node.items() if k != "id" and v is not None}
-            props.setdefault("source", source)
-            props.setdefault("domain", domain)
-            client.txn.add_node(txn, node["id"], props)
-        committed = client.txn.commit(txn)
-    except Exception as e:  # noqa: BLE001 — engine/txn failure is non-fatal
-        logger.warning("KG ingest: txn failed: %s", e)
-        return None
-    if not committed:
-        logger.warning("KG ingest: txn not committed (conflict)")
-        return None
-
-    edges = 0
-    for rel in relationships or []:
-        try:
-            client.edges.add(
-                rel["source"], rel["target"], {"type": rel.get("type", "RELATED")}
-            )
-            edges += 1
-        except Exception as e:  # noqa: BLE001 — pure edge link, best-effort
-            logger.debug("KG ingest: edge skipped: %s", e)
-    logger.info("KG ingest[%s]: wrote %d nodes, %d edges", domain, len(nodes), edges)
-    return {"nodes": len(nodes), "edges": edges}
-
-
 def ingest_entities(
     entities: list[dict[str, Any]],
     relationships: list[dict[str, Any]] | None = None,
@@ -105,35 +42,19 @@ def ingest_entities(
     domain: str = _DOMAIN,
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
+) -> dict[str, int]:
     """Write typed OWL nodes (+ edges) into the engine (``:TranscriptSegment`` …).
 
-    ``entities``: ``[{"id":..., "type":<owl:Class>, ...props}]``.
-    ``relationships``: ``[{"source":id, "target":id, "type":<link>}]``.
-    Returns ``{"nodes":n, "edges":m}`` or ``None``. ``client``/``graph`` may be injected.
+    ``entities`` use ``node_type`` and relationships use ``relationship``.
+    ``client``/``graph`` may be injected for isolated validation.
     """
-    if not entities:
-        return None
-    # Prefer the shared primitive when both it and (if injected) no test client apply.
-    if client is None:
-        try:
-            from agent_utilities.knowledge_graph.memory import native_ingest
-
-            return native_ingest.ingest_entities(
-                entities, relationships, source=source, domain=domain, graph=graph
-            )
-        except Exception as e:  # noqa: BLE001 — primitive absent; self-contained path
-            logger.debug("native_ingest.ingest_entities unavailable: %s", e)
-        client, graph = _native_client()
-    if client is None:
-        return None
-    return _fallback_write_nodes(
-        client,
-        graph or _DEFAULT_GRAPH,
+    return _native_ingest_entities(
         entities,
         relationships,
         source=source,
         domain=domain,
+        client=client,
+        graph=graph,
     )
 
 
@@ -144,42 +65,18 @@ def ingest_documents(
     domain: str = _DOMAIN,
     client: Any | None = None,
     graph: str | None = None,
-) -> dict[str, int] | None:
+) -> dict[str, int]:
     """Write transcript text records as shared ``:Document`` nodes (search fodder).
 
     Each doc: ``{"id":..., "text":..., "title"?:..., "source_uri"?:..., ...props}``.
-    Returns ``{"nodes":n, "edges":0}`` or ``None``. ``client``/``graph`` may be injected.
+    ``client``/``graph`` may be injected for isolated validation.
     """
-    if not documents:
-        return None
-    if client is None:
-        try:
-            from agent_utilities.knowledge_graph.memory import native_ingest
-
-            return native_ingest.ingest_documents(
-                documents, source=source, domain=domain, graph=graph
-            )
-        except Exception as e:  # noqa: BLE001 — primitive absent; self-contained path
-            logger.debug("native_ingest.ingest_documents unavailable: %s", e)
-        client, graph = _native_client()
-    if client is None:
-        return None
-
-    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    nodes: list[dict[str, Any]] = []
-    for doc in documents:
-        did = doc.get("id")
-        text = doc.get("text") or doc.get("content")
-        if not did or not text:
-            continue
-        node = {k: v for k, v in doc.items() if k != "content" and v is not None}
-        node["id"] = did
-        node["type"] = "Document"
-        node["text"] = text
-        node.setdefault("created_at", now)
-        nodes.append(node)
-    return _fallback_write_nodes(
-        client, graph or _DEFAULT_GRAPH, nodes, None, source=source, domain=domain
+    return _native_ingest_documents(
+        documents,
+        source=source,
+        domain=domain,
+        client=client,
+        graph=graph,
     )
 
 
@@ -214,7 +111,7 @@ def ingest_transcription(
 ) -> dict[str, Any] | None:
     """Ingest a Whisper ``result`` across all modalities and link them.
 
-    1. store the audio bytes as a shared ``:MediaAsset`` blob (best-effort),
+    1. store the audio bytes as a shared ``:AssetOccurrence`` blob (best-effort),
     2. write the transcript text as a shared ``:Document`` (``audio:transcript:<ext>``),
     3. write each Whisper segment as a ``:TranscriptSegment`` typed node linked
        ``:segmentOf`` the transcript and the transcript ``:transcribedFrom`` the asset.
@@ -245,7 +142,7 @@ def ingest_transcription(
         "source_uri": audio_path,
     }
 
-    # 1) blob — the raw audio bytes as a :MediaAsset.
+    # 1) blob — the raw audio bytes as a :AssetOccurrence.
     asset: dict[str, Any] | None = None
     if audio_path:
         from audio_transcriber.kg_media import ingest_audio_file
@@ -283,7 +180,7 @@ def ingest_transcription(
         entities.append(
             {
                 "id": seg_id,
-                "type": "TranscriptSegment",
+                "node_type": "TranscriptSegment",
                 "text": (seg.get("text") or "").strip(),
                 "startTime": seg.get("start"),
                 "endTime": seg.get("end"),
@@ -291,7 +188,7 @@ def ingest_transcription(
             }
         )
         relationships.append(
-            {"source": seg_id, "target": transcript_id, "type": "segmentOf"}
+            {"source": seg_id, "target": transcript_id, "relationship": "segmentOf"}
         )
     entities_result = ingest_entities(
         entities, relationships, source=source, client=client, graph=graph

@@ -2,14 +2,13 @@
 
 CONCEPT:AU-KG.ingest.list-durable-media. When a live epistemic-graph engine is
 reachable, the audio file that was transcribed is stored as a content-addressed
-**blob** with a shared ``:MediaAsset`` graph node (carrying its Whisper metadata) in
+**blob** with a shared ``:AssetOccurrence`` graph node (carrying its Whisper metadata) in
 ONE cross-modal ACID commit, via the agent-utilities ``MediaStore``. This makes the raw
 audio bytes — not just a filesystem path — durable, deduped, and queryable inside the
 knowledge graph, so a ``:Transcript`` can point back at it via ``:transcribedFrom``.
 
-Entirely best-effort and dependency-guarded: if agent-utilities' KG stack or a live
-engine is not present, every entry point here **no-ops** (returns ``None``), so the
-transcriber keeps working with zero KG infrastructure.
+The required native media store fails closed when the authoritative engine is unavailable;
+the connector never reports an uncommitted blob as ingested.
 """
 
 from __future__ import annotations
@@ -19,11 +18,13 @@ import mimetypes
 import os
 from typing import Any
 
+from agent_utilities.knowledge_graph.memory.native_ingest import media_store
+
 logger = logging.getLogger("AudioTranscriber.kg")
 
 _SOURCE = "audio-transcriber"
 
-# Whisper/transcription info keys worth carrying onto the :MediaAsset node.
+# Whisper/transcription info keys worth carrying onto the :AssetOccurrence node.
 _INFO_FIELDS = (
     "language",
     "language_probability",
@@ -34,35 +35,9 @@ _INFO_FIELDS = (
 )
 
 
-def _media_store() -> Any | None:
-    """Return a ``MediaStore`` over a live engine, or ``None`` when unavailable.
-
-    Prefers the shared ``native_ingest.media_store`` primitive; falls back to building
-    a ``MediaStore`` directly when that primitive is not yet installed.
-    """
-    try:
-        from agent_utilities.knowledge_graph.memory.native_ingest import media_store
-
-        return media_store()
-    except Exception as e:  # noqa: BLE001 — primitive absent; try direct build
-        logger.debug("native_ingest.media_store unavailable: %s", e)
-    try:
-        from agent_utilities.knowledge_graph.core.graph_compute import (
-            GraphComputeEngine,
-        )
-        from agent_utilities.knowledge_graph.memory.media_store import MediaStore
-    except Exception as e:  # noqa: BLE001 — agent-utilities KG stack absent
-        logger.debug("KG media ingest unavailable (import): %s", e)
-        return None
-    try:
-        engine = GraphComputeEngine()
-        if getattr(engine, "_client", None) is None:
-            logger.debug("KG media ingest: no live engine client")
-            return None
-        return MediaStore(engine)
-    except Exception as e:  # noqa: BLE001 — no reachable engine
-        logger.debug("KG media ingest: engine unreachable: %s", e)
-        return None
+def _media_store() -> Any:
+    """Return the authoritative native media store."""
+    return media_store()
 
 
 def ingest_audio_file(
@@ -72,7 +47,7 @@ def ingest_audio_file(
     source: str = _SOURCE,
     media_store: Any | None = None,
 ) -> dict[str, Any] | None:
-    """Store a transcribed audio file as a blob + ``:MediaAsset`` in the graph.
+    """Store a transcribed audio file as a blob + ``:AssetOccurrence`` in the graph.
 
     Returns ``{asset_id, digest, size_bytes, media_type}`` on success, or ``None``
     when there is no engine, no file, or the store failed (never raises).
@@ -92,7 +67,7 @@ def ingest_audio_file(
         with open(file_path, "rb") as fh:
             data = fh.read()
     except OSError as e:
-        logger.warning("KG media ingest: cannot read %s: %s", file_path, e)
+        logger.warning("Operation failed: error_type=%s", type(e).__name__)
         return None
 
     extra = {k: info[k] for k in _INFO_FIELDS if info.get(k) is not None}
@@ -108,7 +83,7 @@ def ingest_audio_file(
             extra=extra,
         )
     except Exception as e:  # noqa: BLE001 — engine/store failure is non-fatal
-        logger.warning("KG media ingest: store_media failed: %s", e)
+        logger.warning("Operation failed: error_type=%s", type(e).__name__)
         return None
     if stored is None:
         return None

@@ -18,11 +18,11 @@ class PersonaPlexClient:
     async def connect(self):
         """Connect to the PersonaPlex server."""
         try:
-            self.logger.info(f"Connecting to PersonaPlex at {self.uri}...")
+            self.logger.info("Connecting to configured PersonaPlex service")
             self.websocket = await websockets.connect(self.uri)
             self.logger.info("Connected to PersonaPlex.")
         except Exception as e:
-            self.logger.error(f"Failed to connect to PersonaPlex: {e}")
+            self.logger.error("Operation failed: error_type=%s", type(e).__name__)
             raise
 
     async def disconnect(self):
@@ -43,7 +43,7 @@ class PersonaPlexClient:
         try:
             await self.websocket.send(audio_data)
         except Exception as e:
-            self.logger.error(f"Error sending audio: {e}")
+            self.logger.error("Operation failed: error_type=%s", type(e).__name__)
 
     async def receive_audio(self) -> AsyncGenerator[bytes, None]:
         """Receive audio data from the server."""
@@ -65,7 +65,7 @@ class PersonaPlexClient:
                             f"Received non-JSON text message: {message}"
                         )
         except Exception as e:
-            self.logger.error(f"Error receiving audio: {e}")
+            self.logger.error("Operation failed: error_type=%s", type(e).__name__)
 
     async def stream_audio(self, audio_iterator: AsyncGenerator[bytes, None]):
         """Stream audio from an iterator to the server."""

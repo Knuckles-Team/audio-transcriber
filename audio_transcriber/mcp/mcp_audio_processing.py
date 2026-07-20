@@ -5,7 +5,7 @@ Auto-generated from mcp_server.py during ecosystem standardization.
 
 from pathlib import Path
 
-from agent_utilities.mcp_utilities import ctx_log
+from agent_utilities.mcp.context_helpers import ctx_log
 from fastmcp import Context, FastMCP
 from pydantic import Field
 
@@ -106,7 +106,7 @@ def register_audio_processing_tools(mcp: FastMCP):
             if audio_file:
                 file_path = Path(audio_file)
                 if not file_path.exists():
-                    raise ValueError(f"Audio file not found: {audio_file}")
+                    raise ValueError("Configured audio file was not found")
             else:
                 ctx_log(
                     ctx,
@@ -165,5 +165,5 @@ def register_audio_processing_tools(mcp: FastMCP):
             ctx_log(ctx, logger, "info", "Transcription completed successfully.")
             return result["text"]
         except Exception as e:
-            ctx_log(ctx, logger, "error", f"Failed to transcribe audio: {str(e)}")
-            raise RuntimeError(f"Failed to transcribe audio: {str(e)}") from e
+            ctx_log(ctx, logger, "error", f"Failed to transcribe audio: {type(e).__name__}")
+            raise RuntimeError(f"Failed to transcribe audio: {type(e).__name__}") from e

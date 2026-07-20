@@ -1,0 +1,6 @@
+{
+  "connector": "audio-transcriber",
+  "current_ontology_source": "audio",
+  "migrations": [],
+  "schema_version": "1"
+}

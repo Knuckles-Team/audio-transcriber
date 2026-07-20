@@ -1,0 +1,20 @@
+schema_version: '1'
+connector: audio-transcriber
+ontology_source: audio
+sync:
+- preset: audio-transcripts
+  server: audio-transcriber
+  tool: audio_ingest_transcription
+  action: transcribe
+  records_path: documents
+  id_field: id
+  title_field: title
+  text_field: text
+  updated_field: created_at
+  doc_type: transcript
+  tool_schema_sha256: 63365388ea53ca6abe45ba7292418e2d8bf0bd45743f0df4cd96dc2ab26367f6
+governance:
+  default_acl: quarantine
+  identity: opaque-reference
+  tenant: required-at-materialization
+  provenance: required-at-materialization

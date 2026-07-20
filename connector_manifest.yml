@@ -8,7 +8,7 @@ resources:
   relations:
   - name: transcribedFrom
     label: transcribed from
-    target: MediaAsset
+    target: AssetOccurrence
     lpg_rel_type: ''
 - name: TranscriptSegment
   label: Transcript Segment
@@ -71,6 +71,7 @@ sync:
   updated_field: created_at
   pagination: null
   doc_type: transcript
+  tool_schema_sha256: 63365388ea53ca6abe45ba7292418e2d8bf0bd45743f0df4cd96dc2ab26367f6
   raw:
     server: audio-transcriber
     tool: audio_ingest_transcription
@@ -83,16 +84,19 @@ sync:
     doc_type: transcript
 provenance:
   generated_by: scripts/generate_connector_manifests.py
-  generated_at: '2026-07-09T00:00:00Z'
+  generated_at: '2026-07-18T00:00:00Z'
   source_artifacts:
   - audio_transcriber/connectors/mcp_source_presets.json
+  - audio_transcriber/connectors/tool_schema_fingerprints.json
   - audio_transcriber/ontology/audio.ttl
   integrity:
     algorithm: urdna2015-sha256
-    hash: 4094f9a4755bf89cf2bdffae8bb23967e4d50ed2ed468b59b5af97420844e659
+    hash: d95ce2eab76d36a6f049b6908af6230b770efdae6bcc3c53db9ee77ac2ffc27f
     triple_count: 43
   signer: ontology-manifest-generator
-  signature: 9758b9647c5c690c90f829b4bfb9481705664a91c9b44980ed8825cf49015dd4
+  signature_algorithm: ed25519
+  signing_public_key: q0Cp7bmQMqJhbofGKKw8xXC6KbFzukBDDke0UYVi8y4
+  signature: zrGcMqljCS5xmO5dVzMdgw9ApN_J1DVp-slW0GpbCGvTbzvFdQ-JgFizTQZZfYhKnPHnYC_pW0OA1hMkFVXGDw
 policy:
   pii_fields: {}
   tenant_boundary: null

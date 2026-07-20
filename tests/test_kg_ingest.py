@@ -10,6 +10,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import pytest
+from agent_utilities.knowledge_graph.memory.native_ingest import NativeIngestError
+
 from audio_transcriber.kg_ingest import (
     ingest_documents,
     ingest_entities,
@@ -20,6 +23,7 @@ from audio_transcriber.kg_ingest import (
 class _FakeTxn:
     def __init__(self):
         self.nodes = {}
+        self.edges = []
         self.committed = False
 
     def begin(self, graph=None):
@@ -29,23 +33,17 @@ class _FakeTxn:
     def add_node(self, txn, node_id, props):
         self.nodes[node_id] = props
 
+    def add_edge(self, txn, source, target, props):
+        self.edges.append((source, target, props))
+
     def commit(self, txn):
         self.committed = True
         return True
 
 
-class _FakeEdges:
-    def __init__(self):
-        self.edges = []
-
-    def add(self, src, dst, props):
-        self.edges.append((src, dst, props))
-
-
 class _FakeClient:
     def __init__(self):
         self.txn = _FakeTxn()
-        self.edges = _FakeEdges()
 
 
 @dataclass
@@ -79,13 +77,13 @@ def test_ingest_entities_writes_nodes_and_edges():
     c = _FakeClient()
     res = ingest_entities(
         [
-            {"id": "audio:segment:x:0", "type": "TranscriptSegment", "text": "hi"},
+            {"id": "audio:segment:x:0", "node_type": "TranscriptSegment", "text": "hi"},
         ],
         [
             {
                 "source": "audio:segment:x:0",
                 "target": "audio:transcript:x",
-                "type": "segmentOf",
+                "relationship": "segmentOf",
             }
         ],
         client=c,
@@ -94,11 +92,11 @@ def test_ingest_entities_writes_nodes_and_edges():
     assert res == {"nodes": 1, "edges": 1}
     assert c.txn.committed is True
     node = c.txn.nodes["audio:segment:x:0"]
-    assert node["type"] == "TranscriptSegment"
+    assert node["node_type"] == "TranscriptSegment"
     assert node["source"] == "audio-transcriber"
     assert node["domain"] == "audio"
-    assert c.edges.edges == [
-        ("audio:segment:x:0", "audio:transcript:x", {"type": "segmentOf"})
+    assert c.txn.edges == [
+        ("audio:segment:x:0", "audio:transcript:x", {"relationship": "segmentOf"})
     ]
 
 
@@ -111,7 +109,7 @@ def test_ingest_documents_writes_document_node():
     )
     assert res == {"nodes": 1, "edges": 0}
     node = c.txn.nodes["audio:transcript:x"]
-    assert node["type"] == "Document"
+    assert node["node_type"] == "Document"
     assert node["text"] == "hello world"
     assert "created_at" in node
 
@@ -140,17 +138,17 @@ def test_ingest_transcription_maps_all_modalities(tmp_path):
     assert res["entities"] == {"nodes": 2, "edges": 2}
     # transcript document carries provenance + link to the asset
     doc = c.txn.nodes["audio:transcript:my-talk"]
-    assert doc["type"] == "Document"
+    assert doc["node_type"] == "Document"
     assert doc["text"] == "hello world"
     assert doc["transcribedFrom"] == "media:aa"
     assert doc["whisper_model"] == "base"
     # segments typed + linked
-    assert c.txn.nodes["audio:segment:my-talk:0"]["type"] == "TranscriptSegment"
+    assert c.txn.nodes["audio:segment:my-talk:0"]["node_type"] == "TranscriptSegment"
     assert (
         "audio:segment:my-talk:1",
         "audio:transcript:my-talk",
-        {"type": "segmentOf"},
-    ) in c.edges.edges
+        {"relationship": "segmentOf"},
+    ) in c.txn.edges
 
 
 def test_ingest_transcription_noops_on_empty_text():
@@ -158,12 +156,11 @@ def test_ingest_transcription_noops_on_empty_text():
     assert ingest_transcription({}, client=_FakeClient()) is None
 
 
-def test_ingest_noops_without_engine():
-    # No injected client + no reachable engine -> clean no-op.
-    assert ingest_entities([{"id": "a", "type": "TranscriptSegment"}]) is None
-    assert ingest_documents([{"id": "a", "text": "t"}]) is None
+def test_retired_structural_alias_is_rejected():
+    with pytest.raises(NativeIngestError, match="canonical node_type"):
+        ingest_entities([{"id": "a", "type": "TranscriptSegment"}], client=_FakeClient())
 
 
-def test_ingest_empty_is_noop():
-    assert ingest_entities([], client=_FakeClient()) is None
-    assert ingest_documents([], client=_FakeClient()) is None
+def test_empty_native_ingest_is_rejected():
+    with pytest.raises(NativeIngestError, match="at least one entity"):
+        ingest_entities([], client=_FakeClient())

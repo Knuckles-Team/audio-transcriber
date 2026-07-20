@@ -23,7 +23,7 @@
       "transcribe": ["transcribe a local audio/video file", "auto-detect or pin the language", "enable word_timestamps when word-level timing is needed"],
       "export": ["export txt / srt / vtt / json caption files alongside the source"],
       "translate": ["use task='translate' to produce English text from foreign-language audio"],
-      "kg": ["ingest a transcript as a :Document, the audio as a :MediaAsset blob, and segments as :TranscriptSegment nodes linked :segmentOf / :transcribedFrom"]
+      "kg": ["ingest a transcript as a :Document, the audio as a :AssetOccurrence blob, and segments as :TranscriptSegment nodes linked :segmentOf / :transcribedFrom"]
     },
     "workflow": [
       "confirm the audio_file path exists (or record_seconds for mic capture)",

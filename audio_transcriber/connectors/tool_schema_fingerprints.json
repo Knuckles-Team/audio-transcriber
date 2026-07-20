@@ -1,0 +1,8 @@
+{
+  "algorithm": "agent-utilities:mcp-tool-schema-compat:v1",
+  "connector": "audio-transcriber",
+  "schema_version": "1",
+  "tools": {
+    "audio_ingest_transcription": "63365388ea53ca6abe45ba7292418e2d8bf0bd45743f0df4cd96dc2ab26367f6"
+  }
+}

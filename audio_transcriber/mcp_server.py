@@ -34,13 +34,10 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from agent_utilities.core.config import setting
-from agent_utilities.mcp_utilities import (
-    create_mcp_server,
-    ctx_log,
-    load_config,
-    register_tool_surface,
-)
+from agent_utilities.core.config import load_config, setting
+from agent_utilities.mcp.context_helpers import ctx_log
+from agent_utilities.mcp.server_factory import create_mcp_server
+from agent_utilities.mcp.verbose_tools import register_tool_surface
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
@@ -151,7 +148,7 @@ def register_audio_processing_tools(mcp: FastMCP):
             if audio_file:
                 file_path = Path(audio_file)
                 if not file_path.exists():
-                    raise ValueError(f"Audio file not found: {audio_file}")
+                    raise ValueError("Configured audio file was not found")
             else:
                 ctx_log(
                     ctx,
@@ -210,8 +207,8 @@ def register_audio_processing_tools(mcp: FastMCP):
             ctx_log(ctx, logger, "info", "Transcription completed successfully.")
             return result["text"]
         except Exception as e:
-            ctx_log(ctx, logger, "error", f"Failed to transcribe audio: {str(e)}")
-            raise RuntimeError(f"Failed to transcribe audio: {str(e)}") from e
+            ctx_log(ctx, logger, "error", f"Failed to transcribe audio: {type(e).__name__}")
+            raise RuntimeError(f"Failed to transcribe audio: {type(e).__name__}") from e
 
 
 def register_prompts(mcp: FastMCP):
@@ -279,7 +276,7 @@ def register_misc_tools(mcp: FastMCP):
         """Transcribe an audio file and natively ingest it into the knowledge graph.
 
         Runs Whisper on ``audio_file`` and pushes the result across modalities: the raw
-        audio as a shared ``:MediaAsset`` blob, the transcript text as a ``:Document``,
+        audio as a shared ``:AssetOccurrence`` blob, the transcript text as a ``:Document``,
         and the Whisper segments as ``:TranscriptSegment`` nodes. Best-effort: the
         ``ingested`` key is ``None`` when no engine is reachable.
         CONCEPT:AU-KG.ingest.enterprise-source-extractor.
@@ -289,7 +286,7 @@ def register_misc_tools(mcp: FastMCP):
         from audio_transcriber.kg_ingest import _ext_id
 
         if not audio_file or not Path(audio_file).exists():
-            raise ValueError(f"Audio file not found: {audio_file}")
+            raise ValueError("Configured audio file was not found")
 
         transcriber = AudioTranscriber(
             model=model,

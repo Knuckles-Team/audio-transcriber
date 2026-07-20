@@ -9,7 +9,7 @@
 # Audio-transcription ontology — Whisper transcription of audio/video into text. All
 # classes and properties live in the shared `:` (kg#) namespace; only the owl:Ontology
 # node gets the per-package IRI. Backs the audio-transcriber MCP surface (transcribe_audio /
-# audio_ingest_transcription). The raw audio is stored as a shared :MediaAsset/:Blob; the
+# audio_ingest_transcription). The raw audio is stored as a shared :AssetOccurrence/:Blob; the
 # transcription text is a shared :Document; only the segment breakdown is new here.
 
 # --- new classes ---
@@ -27,9 +27,9 @@
 
 :transcribedFrom a owl:ObjectProperty ;
     rdfs:label "transcribed from" ;
-    rdfs:comment "Links a Transcript to the source audio/video :MediaAsset it was transcribed from." ;
+    rdfs:comment "Links a Transcript to the source audio/video :AssetOccurrence it was transcribed from." ;
     rdfs:domain :Transcript ;
-    rdfs:range :MediaAsset .
+    rdfs:range :AssetOccurrence .
 
 :segmentOf a owl:ObjectProperty ;
     rdfs:label "segment of" ;
@@ -90,7 +90,7 @@
 <http://knuckles.team/kg/audio> a owl:Ontology ;
     rdfs:label "Audio Transcription Ontology" ;
     rdfs:comment """Audio/video transcription domain model — Whisper transcripts and their
-    timestamped segments, transcribed from a shared :MediaAsset blob and carried as a shared
+    timestamped segments, transcribed from a shared :AssetOccurrence blob and carried as a shared
     :Document, with language/duration/model provenance — federated into the agent-utilities
     knowledge-graph hub.""" ;
     owl:imports <http://knuckles.team/kg> .

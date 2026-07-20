@@ -1,14 +1,26 @@
 services:
   personaplex:
+    init: true
+    user: "10001:10001"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: ${MCP_CONTAINER_MEMORY_LIMIT:-2g}
+    cpus: ${MCP_CONTAINER_CPU_LIMIT:-1.0}
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m
     build:
       context: .
       dockerfile: personaplex.Dockerfile
     container_name: personaplex
     hostname: personaplex
     ports:
-      - "8998:8998"
+      - "127.0.0.1:8998:8998"
     volumes:
-      - ./mcp/huggingface_cache:/root/.cache/huggingface
+      - personaplex-cache:/tmp/.cache/huggingface
     deploy:
       resources:
         reservations:
@@ -18,7 +30,10 @@ services:
               capabilities: [ gpu ]
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "curl", "-k", "https://localhost:8998" ]
+      test: [ "CMD", "python3", "-c", "import socket; socket.create_connection(('127.0.0.1', 8998), 3).close()" ]
       interval: 30s
       timeout: 10s
       retries: 3
+
+volumes:
+  personaplex-cache:

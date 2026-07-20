@@ -1,0 +1,4 @@
+interface:
+  display_name: "Audio Transcriber Operations"
+  short_description: "Help with Audio Transcriber Operations tasks"
+  default_prompt: "Use $audio-transcriber-operations to complete a governed provider workflow."

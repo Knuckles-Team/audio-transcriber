@@ -359,7 +359,7 @@ class AudioTranscriber:
             wave_file.setsampwidth(self.pyaudio_instance.get_sample_size(self.format))
             wave_file.setframerate(self.rate)
             wave_file.writeframes(b"".join(self.frames))
-        self.logger.info(f"Audio saved to {self.file_path}")
+        self.logger.info("Audio stream saved")
 
     def transcribe(
         self,
@@ -373,9 +373,7 @@ class AudioTranscriber:
     ) -> dict:
         """Transcribe the audio file using the initialized backend."""
         start_time = datetime.datetime.now()
-        self.logger.info(
-            f"Started transcription at {start_time} for file: {self.file_path}"
-        )
+        self.logger.info("Transcription started at %s", start_time)
 
         if not self.backend_instance:
             raise RuntimeError("Backend not initialized.")
@@ -396,7 +394,10 @@ class AudioTranscriber:
             f"Ended transcription at {end_time}. Time elapsed: {end_time - start_time}"
         )
         if verbose:
-            self.logger.info(f"Transcription result: {result.get('text', '')}")
+            transcript = result.get("text", "")
+            self.logger.info(
+                "Transcription completed: text_length=%d", len(str(transcript))
+            )
 
         self._maybe_ingest_kg(result, task=task)
 
@@ -423,7 +424,9 @@ class AudioTranscriber:
                 task=task,
             )
         except Exception as e:  # noqa: BLE001 — KG ingestion is never fatal
-            self.logger.debug(f"KG ingest skipped: {e}")
+            self.logger.debug(
+                "KG ingest skipped: error_type=%s", type(e).__name__
+            )
 
     def export(
         self,
@@ -433,6 +436,7 @@ class AudioTranscriber:
         """Export transcription to specified formats."""
         segments = result["segments"]
         for fmt in formats:
+            format_label = fmt if fmt in {"txt", "vtt", "srt", "json"} else "unsupported"
             export_path = self.directory / f"{self.title}.{fmt}"
             if fmt == "txt":
                 with open(export_path, "w", encoding="utf-8") as f:
@@ -447,8 +451,8 @@ class AudioTranscriber:
                 with open(export_path, "w", encoding="utf-8") as f:
                     json.dump(result, f, indent=4, ensure_ascii=False)
             else:
-                self.logger.warning(f"Unsupported export format: {fmt}")
-            self.logger.info(f"Exported to {export_path}")
+                self.logger.warning("Unsupported export format requested")
+            self.logger.info("Transcription export completed: format=%s", format_label)
 
     @staticmethod
     def _srt_format_timestamp(seconds: float) -> str:
@@ -749,7 +753,7 @@ def audio_transcriber() -> None:
     if args.file:
         for file_path in args.file:
             if not file_path.exists():
-                logger.error(f"File not found: {file_path}")
+                logger.error("Configured audio file was not found")
                 sys.exit(1)
             transcriber = AudioTranscriber(
                 model=args.model,

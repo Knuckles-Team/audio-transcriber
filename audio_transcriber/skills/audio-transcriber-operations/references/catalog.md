@@ -1,0 +1,6 @@
+# Provider workflow catalog
+
+Load only the workflow relevant to the current request.
+
+- [audio-transcriber-knowledge-graph](../../audio-transcriber-knowledge-graph/WORKFLOW.md): Native knowledge-graph ingestion of Whisper transcripts on the audio-transcriber MCP server — transcribe an audio/video file and push it into the epistemic-graph in one call: the raw audio as a shared :AssetOccurrence blob, the transcript text as a :Document, and each Whisper segment as a :TranscriptSegment node linked :segmentOf the transcript and :transcribedFrom the audio. Use when a transcript must be durable and semantically searchable in the KG. Do NOT use for a one-off transcription with no KG persistence (use audio-transcriber-transcription).
+- [audio-transcriber-transcription](../../audio-transcriber-transcription/WORKFLOW.md): Speech-to-text on the audio-transcriber MCP server — run Whisper (faster-whisper, falling back to openai-whisper) over a local audio/video file or a microphone recording, and export txt/srt/vtt/json captions. Use when the agent must transcribe or translate spoken audio, generate subtitle/caption files, or pick a Whisper model for an accuracy/latency trade-off. Do NOT use to push a transcript into the knowledge graph (use audio-transcriber-knowledge-graph) or to download the media first (use media-downloader).
