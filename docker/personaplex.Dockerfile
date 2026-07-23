@@ -1,4 +1,4 @@
-FROM python:3.11-slim@sha256:e031123e3d85762b141ad1cbc56452ba69c6e722ebf2f042cc0dc86c47c0d8b3 AS builder
+FROM python:3.14-slim@sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6 AS builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -19,7 +19,7 @@ RUN git init . \
     && pip install --no-cache-dir ./moshi \
     && mkdir -p /tmp/ssl
 
-FROM python:3.11-slim@sha256:e031123e3d85762b141ad1cbc56452ba69c6e722ebf2f042cc0dc86c47c0d8b3 AS runtime
+FROM python:3.14-slim@sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6 AS runtime
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libopus0 \
     && groupadd --system --gid 10001 app \
