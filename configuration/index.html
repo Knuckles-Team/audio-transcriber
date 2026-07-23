@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://knuckles-team.github.io/audio-transcriber/installation/">
+        <link rel="canonical" href="https://knuckles-team.github.io/audio-transcriber/configuration/">
       
       
-        <link rel="prev" href="../overview/">
+        <link rel="prev" href="../installation/">
       
       
-        <link rel="next" href="../configuration/">
+        <link rel="next" href="../deployment/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Installation - audio-transcriber</title>
+        <title>Configuration, trust, and privacy - audio-transcriber</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#installation" class="md-skip">
+        <a href="#configuration-trust-and-privacy" class="md-skip">
           Skip to content
         </a>
       
@@ -114,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Installation
+              Configuration, trust, and privacy
             
           </span>
         </div>
@@ -272,11 +272,9 @@
   
   
   
-    
   
-  
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
+    <li class="md-tabs__item">
+      <a href="../installation/" class="md-tabs__link">
         
   
   
@@ -293,9 +291,11 @@
   
   
   
+    
   
-    <li class="md-tabs__item">
-      <a href="../configuration/" class="md-tabs__link">
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
         
   
   
@@ -474,6 +474,33 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -493,7 +520,7 @@
   <span class="md-ellipsis">
     
   
-    Installation
+    Configuration, trust, and privacy
   
 
     
@@ -511,7 +538,7 @@
   <span class="md-ellipsis">
     
   
-    Installation
+    Configuration, trust, and privacy
   
 
     
@@ -537,10 +564,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#requirements" class="md-nav__link">
+  <a href="#capability-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Requirements
+        Capability configuration
       
     </span>
   </a>
@@ -548,38 +575,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#from-pypi-recommended" class="md-nav__link">
+  <a href="#runtime-values-and-secrets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From PyPI (recommended)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="From PyPI (recommended)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#optional-extras" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional extras
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#from-source" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From source
+        Runtime values and secrets
       
     </span>
   </a>
@@ -587,10 +586,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prebuilt-docker-image" class="md-nav__link">
+  <a href="#tls-trust" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prebuilt Docker image
+        TLS trust
       
     </span>
   </a>
@@ -598,10 +597,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#verify-the-install" class="md-nav__link">
+  <a href="#privacy-and-data-governance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Verify the install
+        Privacy and data governance
       
     </span>
   </a>
@@ -609,10 +608,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
+  <a href="#deployment-verification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Next steps
+        Deployment verification
       
     </span>
   </a>
@@ -623,33 +622,6 @@
   
 </nav>
       
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../configuration/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configuration, trust, and privacy
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -762,10 +734,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#requirements" class="md-nav__link">
+  <a href="#capability-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Requirements
+        Capability configuration
       
     </span>
   </a>
@@ -773,38 +745,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#from-pypi-recommended" class="md-nav__link">
+  <a href="#runtime-values-and-secrets" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From PyPI (recommended)
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="From PyPI (recommended)">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#optional-extras" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional extras
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#from-source" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        From source
+        Runtime values and secrets
       
     </span>
   </a>
@@ -812,10 +756,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#prebuilt-docker-image" class="md-nav__link">
+  <a href="#tls-trust" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prebuilt Docker image
+        TLS trust
       
     </span>
   </a>
@@ -823,10 +767,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#verify-the-install" class="md-nav__link">
+  <a href="#privacy-and-data-governance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Verify the install
+        Privacy and data governance
       
     </span>
   </a>
@@ -834,10 +778,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
+  <a href="#deployment-verification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Next steps
+        Deployment verification
       
     </span>
   </a>
@@ -864,89 +808,70 @@
   
 
 
-<h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
-<p><code>audio-transcriber</code> is a standard Python package and a prebuilt container image.
-Pick the path that matches how you want to run it.</p>
-<h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
+<h1 id="configuration-trust-and-privacy">Configuration, trust, and privacy<a class="headerlink" href="#configuration-trust-and-privacy" title="Permanent link">&para;</a></h1>
+<p>This page is the operator contract for <code>audio-transcriber</code>. Package-specific endpoint,
+authentication, tool-toggle, and model settings remain documented in the
+repository README and the installed command's <code>--help</code> output. Runtime values
+must be injected by the launcher; they do not belong in source, packaged skill
+content, traces, or generated reports.</p>
+<h2 id="capability-configuration">Capability configuration<a class="headerlink" href="#capability-configuration" title="Permanent link">&para;</a></h2>
+<p>The current capability surface is defined by three versioned artifacts:</p>
 <ul>
-<li><strong>Python 3.11 – 3.14</strong>.</li>
-<li><strong><code>ffmpeg</code></strong> for broad audio-format support, and the PortAudio system libraries
-  for microphone recording. On Debian / Ubuntu:</li>
+<li>the action-routed MCP tools described in the README and <code>docs/usage.md</code>;</li>
+<li>the compact canonical skill plus any specialist <code>WORKFLOW.md</code> procedures;</li>
+<li><code>connector_manifest.yml</code> and its ontology, mappings, shapes, fixtures,
+  migrations, tool-schema fingerprints, and certification metadata.</li>
 </ul>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>apt-get<span class="w"> </span>update
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>libasound-dev<span class="w"> </span>portaudio19-dev<span class="w"> </span>libportaudio2<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>libportaudiocpp0<span class="w"> </span>ffmpeg<span class="w"> </span>gcc
-</span></code></pre></div>
-<p>The Whisper model is loaded locally; no external transcription service is required.</p>
-<h2 id="from-pypi-recommended">From PyPI (recommended)<a class="headerlink" href="#from-pypi-recommended" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>audio-transcriber
-</span></code></pre></div>
-<h3 id="optional-extras">Optional extras<a class="headerlink" href="#optional-extras" title="Permanent link">&para;</a></h3>
-<p>The base install ships the CLI and the <code>faster-whisper</code> backend. Install the extra
-for the interface you need:</p>
-<table>
-<thead>
-<tr>
-<th>Extra</th>
-<th>Install</th>
-<th>Pulls in</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>mcp</code></td>
-<td><code>pip install "audio-transcriber[mcp]"</code></td>
-<td>FastMCP MCP-server runtime (<code>agent-utilities[mcp]</code>) + <code>websockets</code></td>
-</tr>
-<tr>
-<td><code>agent</code></td>
-<td><code>pip install "audio-transcriber[agent]"</code></td>
-<td>Pydantic-AI agent + Logfire tracing</td>
-</tr>
-<tr>
-<td><code>local</code></td>
-<td><code>pip install "audio-transcriber[local]"</code></td>
-<td><code>openai-whisper</code> reference backend (fallback to <code>faster-whisper</code>)</td>
-</tr>
-<tr>
-<td><code>all</code></td>
-<td><code>pip install "audio-transcriber[all]"</code></td>
-<td>The <code>mcp</code> and <code>agent</code> extras together</td>
-</tr>
-</tbody>
-</table>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Typical: run the MCP server and the A2A agent</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;audio-transcriber[all]&quot;</span>
-</span></code></pre></div>
-<h2 id="from-source">From source<a class="headerlink" href="#from-source" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Knuckles-Team/audio-transcriber.git
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">cd</span><span class="w"> </span>audio-transcriber
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[all]&quot;</span><span class="w">          </span><span class="c1"># editable install with every extra</span>
-</span></code></pre></div>
-<p>With <a href="https://docs.astral.sh/uv/"><code>uv</code></a>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[all]&quot;</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>uv<span class="w"> </span>run<span class="w"> </span>audio-transcriber-mcp
-</span></code></pre></div>
-<h2 id="prebuilt-docker-image">Prebuilt Docker image<a class="headerlink" href="#prebuilt-docker-image" title="Permanent link">&para;</a></h2>
-<p>A MCP-serving image is published on every release (entrypoint <code>audio-transcriber-mcp</code>):</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>docker<span class="w"> </span>pull<span class="w"> </span>example/audio-transcriber@sha256:&lt;digest&gt;
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-i<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span>-e<span class="w"> </span><span class="nv">WHISPER_MODEL</span><span class="o">=</span>base<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span>example/audio-transcriber@sha256:&lt;digest&gt;<span class="w">        </span><span class="c1"># stdio transport (default)</span>
-</span></code></pre></div>
-<p>For an HTTP server with a published port, see <a href="../deployment/">Deployment</a>.</p>
-<h2 id="verify-the-install">Verify the install<a class="headerlink" href="#verify-the-install" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>audio-transcriber<span class="w"> </span>--help
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>audio-transcriber-mcp<span class="w"> </span>--help
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import audio_transcriber; print(audio_transcriber.__version__)&quot;</span>
-</span></code></pre></div>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
+<p>Treat those artifacts as a unit during release and deployment. Do not enable a
+skill whose certification or tool-schema fingerprint does not match the
+installed package. Use the compact/intent-oriented tool surface for delegated
+agents; expose verbose per-operation tools only for compatibility or debugging.</p>
+<h2 id="runtime-values-and-secrets">Runtime values and secrets<a class="headerlink" href="#runtime-values-and-secrets" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong><a href="../deployment/">Deployment</a></strong> — run it as a long-lived MCP server and agent behind Caddy + DNS.</li>
-<li><strong><a href="../usage/">Usage</a></strong> — call the tool, the API, and the CLI.</li>
-<li><strong><a href="../deployment/#configuration-environment">Configuration</a></strong> — every environment variable.</li>
+<li>Supply service endpoints, tenant identifiers, credentials, and model keys
+  through environment variables or a mounted secret provider.</li>
+<li>Use non-personal agent aliases and opaque tenant/correlation identifiers.</li>
+<li>Keep developer directories, workstation names, and deployment hostnames out
+  of checked-in configuration.</li>
+<li>Bind network transports to an explicitly chosen interface and require the
+  deployment's MCP authentication policy before accepting remote traffic.</li>
+<li>Enable optional agent, embedding, evolution, or observability features only
+  when their dependencies and backends are configured and healthy.</li>
 </ul>
+<p>The checked-in examples use <code>localhost</code> for loopback-only development and
+<code>example.invalid</code> for replaceable network endpoints. Neither value is a
+production default.</p>
+<h2 id="tls-trust">TLS trust<a class="headerlink" href="#tls-trust" title="Permanent link">&para;</a></h2>
+<p>Certificate verification is required. For a private certificate authority,
+mount a PEM bundle containing the required intermediate and root certificates,
+then configure the client environment with <code>SSL_CERT_FILE</code> and, for
+Requests-compatible clients, <code>REQUESTS_CA_BUNDLE</code>. When <code>uvx</code> must use the
+native platform trust store while resolving packages, set <code>UV_NATIVE_TLS=true</code>.</p>
+<p>Do not disable verification to work around an incomplete server chain. Keep CA
+bundle locations environment-configured and stable for the runtime; never embed
+a workstation path or certificate material in MCP configuration.</p>
+<h2 id="privacy-and-data-governance">Privacy and data governance<a class="headerlink" href="#privacy-and-data-governance" title="Permanent link">&para;</a></h2>
+<p>The default observability posture is metadata-only. Do not persist prompts,
+message bodies, tool inputs/results, document content, raw traces, credentials,
+local paths, hostnames, or personal identity unless an approved data contract
+explicitly requires it. Keep Langfuse or OTLP content capture disabled unless a
+reviewed retention and access policy authorizes it.</p>
+<p>When connector ingestion is enabled, each change must carry tenant, ACL,
+classification, retention, provenance, and checkpoint/delta metadata. Reject or
+quarantine records that cannot satisfy that contract; never silently widen a
+tenant scope. Logs and reports should contain counts, status, and opaque
+references only.</p>
+<h2 id="deployment-verification">Deployment verification<a class="headerlink" href="#deployment-verification" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Validate the capability bundle and skill metadata against the installed tool
+   schemas.</li>
+<li>Confirm required secrets are present without printing their values.</li>
+<li>Verify the complete TLS chain with certificate verification enabled.</li>
+<li>Exercise health/readiness and one least-privilege read operation.</li>
+<li>Confirm traces arrive under the expected opaque tenant/run identifiers and
+   contain no captured content.</li>
+<li>Record only sanitized pass/fail evidence and version identifiers.</li>
+</ol>
 
 
 
@@ -984,7 +909,7 @@ for the interface you need:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../overview/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview">
+          <a href="../installation/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Installation">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -994,20 +919,20 @@ for the interface you need:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Overview
+                Installation
               </div>
             </div>
           </a>
         
         
           
-          <a href="../configuration/" class="md-footer__link md-footer__link--next" aria-label="Next: Configuration, trust, and privacy">
+          <a href="../deployment/" class="md-footer__link md-footer__link--next" aria-label="Next: Deployment">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Configuration, trust, and privacy
+                Deployment
               </div>
             </div>
             <div class="md-footer__button md-icon">
