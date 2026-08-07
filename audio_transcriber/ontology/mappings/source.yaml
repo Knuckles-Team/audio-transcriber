@@ -3,7 +3,7 @@ connector: audio-transcriber
 ontology_source: audio
 sync:
 - preset: audio-transcripts
-  server: audio-transcriber
+  server: audio-transcriber-mcp
   tool: audio_ingest_transcription
   action: transcribe
   records_path: documents

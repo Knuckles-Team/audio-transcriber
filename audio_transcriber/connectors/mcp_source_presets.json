@@ -1,7 +1,7 @@
 {
   "_comment": "Tier-1 mcp_tool source preset for audio-transcriber (AU-KG.ingest.mcp-tool-connector). audio-transcriber is a PRODUCER: the audio_ingest_transcription tool transcribes an audio_file and returns the transcript as a :Document (plus stores the audio blob as a :AssetOccurrence). This preset maps that tool's `documents` array into the KG as transcript documents. Contributed presets win over the central MCP_TOOL_PRESETS.",
   "audio-transcripts": {
-    "server": "audio-transcriber",
+    "server": "audio-transcriber-mcp",
     "tool": "audio_ingest_transcription",
     "action": "transcribe",
     "records_path": "documents",
