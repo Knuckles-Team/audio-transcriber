@@ -34,6 +34,8 @@ logger = logging.getLogger("AudioTranscriber.kg")
 
 _SOURCE = "audio-transcriber"
 _DOMAIN = "audio"
+
+
 def ingest_entities(
     entities: list[dict[str, Any]],
     relationships: list[dict[str, Any]] | None = None,
