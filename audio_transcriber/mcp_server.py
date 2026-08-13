@@ -207,7 +207,9 @@ def register_audio_processing_tools(mcp: FastMCP):
             ctx_log(ctx, logger, "info", "Transcription completed successfully.")
             return result["text"]
         except Exception as e:
-            ctx_log(ctx, logger, "error", f"Failed to transcribe audio: {type(e).__name__}")
+            ctx_log(
+                ctx, logger, "error", f"Failed to transcribe audio: {type(e).__name__}"
+            )
             raise RuntimeError(f"Failed to transcribe audio: {type(e).__name__}") from e
 
 

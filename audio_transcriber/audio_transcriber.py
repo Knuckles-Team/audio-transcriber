@@ -424,9 +424,7 @@ class AudioTranscriber:
                 task=task,
             )
         except Exception as e:  # noqa: BLE001 — KG ingestion is never fatal
-            self.logger.debug(
-                "KG ingest skipped: error_type=%s", type(e).__name__
-            )
+            self.logger.debug("KG ingest skipped: error_type=%s", type(e).__name__)
 
     def export(
         self,
@@ -436,7 +434,9 @@ class AudioTranscriber:
         """Export transcription to specified formats."""
         segments = result["segments"]
         for fmt in formats:
-            format_label = fmt if fmt in {"txt", "vtt", "srt", "json"} else "unsupported"
+            format_label = (
+                fmt if fmt in {"txt", "vtt", "srt", "json"} else "unsupported"
+            )
             export_path = self.directory / f"{self.title}.{fmt}"
             if fmt == "txt":
                 with open(export_path, "w", encoding="utf-8") as f:

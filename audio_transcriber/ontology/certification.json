@@ -8,7 +8,7 @@
     "audio_transcriber/ontology/mappings/source.yaml": "6bd91a7639ca42738e90a79f9ba3d312dd8483a8551842de86d01168315adf18",
     "audio_transcriber/ontology/migrations/manifest.json": "30273f3429c34ca2a1719d48e32a08c08651e72034d894fd66294062e5d842e9",
     "audio_transcriber/ontology/shapes/connector.shacl.ttl": "de0b63cde5bc9997ed76b8d5d44be2a4c3825928b17b0debba8ef7c1a2dbe00b",
-    "connector_manifest.yml": "11cb2a8359c3d4326a9552a8c62c0f6ef348f4f80d2c96d6639740fa120e82cb"
+    "connector_manifest.yml": "4b0088f0c58c42c30eea47dfac3f30c3e47a893ea18c426cc4534ee191f1ee1e"
   },
   "checks": {
     "declared_tool_schema": "passed",
@@ -18,7 +18,7 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=1.27.1,<2",
+    "agent_utilities": ">=2.1.0,<3",
     "bundle_schema": "2",
     "epistemic_graph": ">=2.23.1,<3"
   },
@@ -27,10 +27,10 @@
   "live_certified": false,
   "mode": "offline-source",
   "schema_version": "2",
-  "signature": "WuN7BBMxrAQl4yPtsDGTnlzJGTNhI8sgoTFVbNQ0P-E1_Ut_x6PdIh4wMjzgu7i7_fp9ZkSbT4JMkf-h-K3wCA",
+  "signature": "MacOZTe4vr3qUQPQ4zsAkNFV5gLhyAKl8J_CPg0KRgWHO1QMuA2yPnpMOqVx-dqwYGNp-tZdTybJKRIProe3Dw",
   "signature_algorithm": "ed25519",
   "signer": "ontology-manifest-generator",
-  "signing_public_key": "q0Cp7bmQMqJhbofGKKw8xXC6KbFzukBDDke0UYVi8y4",
+  "signing_public_key": "QkigdPNpcUU7x7NcSkwCsUXIQpaFncMQbYSoiSgI2SY",
   "status": "source-validated",
-  "validated_at": "2026-07-18T00:00:00Z"
+  "validated_at": "2026-07-28T10:14:00Z"
 }
