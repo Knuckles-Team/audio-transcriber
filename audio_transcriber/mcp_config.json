@@ -7,9 +7,10 @@
         "audio-transcriber-mcp"
       ],
       "env": {
-        "MCP_TOOL_MODE": "condensed",
+        "MCP_TOOL_MODE": "intent",
         "AUDIO_PROCESSINGTOOL": "True",
         "MISCTOOL": "True",
+        "TRANSCRIBE_DIRECTORY": "/path/to/transcribe_directory",
         "WHISPER_MODEL": "base"
       }
     }
