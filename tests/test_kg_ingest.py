@@ -8,10 +8,16 @@ CONCEPT:AU-KG.ingest.enterprise-source-extractor.
 
 from __future__ import annotations
 
+from typing import Any
+
 from dataclasses import dataclass
 
+import msgpack
 import pytest
 from agent_utilities.knowledge_graph.memory.native_ingest import NativeIngestError
+from agent_utilities.security.brain_context import ActorContext, use_actor
+from agent_utilities.models.company_brain import ActorType
+from agent_utilities.knowledge_graph.core.session import GraphSession, use_session
 
 from audio_transcriber.kg_ingest import (
     ingest_documents,
@@ -20,30 +26,92 @@ from audio_transcriber.kg_ingest import (
 )
 
 
-class _FakeTxn:
-    def __init__(self):
-        self.nodes = {}
-        self.edges = []
-        self.committed = False
+@pytest.fixture(autouse=True)
+def _governed_session():
+    actor = ActorContext(
+        actor_id="subject:opaque:synthetic",
+        actor_type=ActorType.AUTOMATED_SERVICE,
+        roles=(),
+        tenant_id="tenant:opaque:synthetic",
+        authenticated=True,
+    )
+    session = GraphSession(
+        actor=actor,
+        tenant=actor.tenant_id,
+        scopes=frozenset({"kg:write"}),
+        graph="graph:opaque:synthetic",
+        policy_version="policy:opaque:synthetic",
+        audience="epistemic-graph",
+    )
+    with use_actor(actor), use_session(session):
+        yield
 
-    def begin(self, graph=None):
-        self.graph = graph
-        return "txn-1"
 
-    def add_node(self, txn, node_id, props):
-        self.nodes[node_id] = props
+class _FakeNodes:
+    def __init__(self) -> None:
+        self.values: dict[str, dict[str, Any]] = {}
 
-    def add_edge(self, txn, source, target, props):
-        self.edges.append((source, target, props))
+    def properties(self, node_id: str) -> dict[str, Any] | None:
+        return self.values.get(node_id)
 
-    def commit(self, txn):
-        self.committed = True
-        return True
+    def list(self) -> list[tuple[str, dict[str, Any]]]:
+        return list(self.values.items())
+
+
+class _FakeChanges:
+    def __init__(self, nodes: _FakeNodes) -> None:
+        self.nodes = nodes
+        self.edges: list[tuple[str, str, dict[str, Any]]] = []
+        self.applied: list[dict[str, Any]] = []
+        self.records: dict[str, dict[str, Any]] = {}
+        self.versions: dict[str, dict[str, Any]] = {}
+
+    def get(self, envelope_id: str) -> dict[str, Any] | None:
+        return self.records.get(envelope_id)
+
+    def content_version(self, object_id: str) -> dict[str, Any] | None:
+        return self.versions.get(object_id)
+
+    def cursor(self, _source: str, _partition: str = "") -> None:
+        return None
+
+    def apply(self, envelope: dict[str, Any]) -> dict[str, Any]:
+        self.applied.append(envelope)
+        mutation = envelope["mutation"]
+        for operation in mutation["operations"]:
+            method = operation["method"]
+            params = method["params"]
+            properties = msgpack.unpackb(params["properties_msgpack"], raw=False)
+            if method["method"] == "AddNode":
+                self.nodes.values[params["node_id"]] = properties
+            elif method["method"] == "AddEdge":
+                self.edges.append(
+                    (params["source_id"], params["target_id"], properties)
+                )
+        version = envelope["content_version"]
+        self.versions[version["object_id"]] = version
+        self.records[envelope["envelope_id"]] = envelope
+        return {
+            "batch_id": mutation["batch_id"],
+            "replayed": False,
+            "projection_pending": False,
+        }
+
+
+class _FakeRdf:
+    def validate_shacl(self, _shapes: str, _data_graph: str) -> dict[str, Any]:
+        return {"conforms": True, "results": []}
 
 
 class _FakeClient:
-    def __init__(self):
-        self.txn = _FakeTxn()
+    def __init__(self) -> None:
+        self.nodes = _FakeNodes()
+        self.changes = _FakeChanges(self.nodes)
+        self.rdf = _FakeRdf()
+
+    @staticmethod
+    def supports(operation: str) -> bool:
+        return operation == "ApplyChangeEnvelope"
 
 
 @dataclass
@@ -87,15 +155,14 @@ def test_ingest_entities_writes_nodes_and_edges():
             }
         ],
         client=c,
-        graph="__commons__",
     )
     assert res == {"nodes": 1, "edges": 1}
-    assert c.txn.committed is True
-    node = c.txn.nodes["audio:segment:x:0"]
+    assert len(c.changes.applied) == 1
+    node = c.nodes.values["audio:segment:x:0"]
     assert node["node_type"] == "TranscriptSegment"
     assert node["source"] == "audio-transcriber"
     assert node["domain"] == "audio"
-    assert c.txn.edges == [
+    assert c.changes.edges == [
         ("audio:segment:x:0", "audio:transcript:x", {"relationship": "segmentOf"})
     ]
 
@@ -105,13 +172,12 @@ def test_ingest_documents_writes_document_node():
     res = ingest_documents(
         [{"id": "audio:transcript:x", "title": "x", "text": "hello world"}],
         client=c,
-        graph="__commons__",
     )
     assert res == {"nodes": 1, "edges": 0}
-    node = c.txn.nodes["audio:transcript:x"]
+    node = c.nodes.values["audio:transcript:x"]
     assert node["node_type"] == "Document"
     assert node["text"] == "hello world"
-    assert "created_at" in node
+    assert node["needs_enrichment"] is True
 
 
 def test_ingest_transcription_maps_all_modalities(tmp_path):
@@ -126,7 +192,6 @@ def test_ingest_transcription_maps_all_modalities(tmp_path):
         model="base",
         media_store=store,
         client=c,
-        graph="__commons__",
     )
     assert res is not None
     assert res["transcript_id"] == "audio:transcript:my-talk"
@@ -137,18 +202,18 @@ def test_ingest_transcription_maps_all_modalities(tmp_path):
     assert res["documents"] == {"nodes": 1, "edges": 0}
     assert res["entities"] == {"nodes": 2, "edges": 2}
     # transcript document carries provenance + link to the asset
-    doc = c.txn.nodes["audio:transcript:my-talk"]
+    doc = c.nodes.values["audio:transcript:my-talk"]
     assert doc["node_type"] == "Document"
     assert doc["text"] == "hello world"
     assert doc["transcribedFrom"] == "media:aa"
     assert doc["whisper_model"] == "base"
     # segments typed + linked
-    assert c.txn.nodes["audio:segment:my-talk:0"]["node_type"] == "TranscriptSegment"
+    assert c.nodes.values["audio:segment:my-talk:0"]["node_type"] == "TranscriptSegment"
     assert (
         "audio:segment:my-talk:1",
         "audio:transcript:my-talk",
         {"relationship": "segmentOf"},
-    ) in c.txn.edges
+    ) in c.changes.edges
 
 
 def test_ingest_transcription_noops_on_empty_text():
