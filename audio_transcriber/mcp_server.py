@@ -213,6 +213,163 @@ def register_audio_processing_tools(mcp: FastMCP):
             raise RuntimeError(f"Failed to transcribe audio: {type(e).__name__}") from e
 
 
+def register_media_sidecar_tools(mcp: FastMCP):
+    """The governed media-sidecar contract adapter (BUG-271,
+    CONCEPT:AU-KG.ingest.media-sidecar-delegation).
+
+    agent-utilities' ``media/sidecar_contract.py`` ``SIDECAR_CAPABILITIES['audio']``
+    manifest entry declares ``server=audio-transcriber-mcp``,
+    ``tool=transcribe_media``, ``action=transcribe_segments``, action-routed
+    (``action`` + ``params_json``, ``params_style="json"`` — the fleet's dominant
+    convention, matching ``stirlingpdf_agent/mcp/mcp_pdf.py``'s ``pdf_action``) with
+    an ``artifact_b64``/``digest``/``media_type`` payload. This tool is that
+    contract's real implementation: it verifies the caller's digest before
+    transcribing, delegates to the SAME ``AudioTranscriber``/Whisper backend
+    ``transcribe_audio`` above uses (no second transcription implementation), uses
+    a private temp path under ``/var/tmp`` (``/tmp`` may be size-constrained
+    tmpfs), and cleans the temp file up deterministically on every exit path —
+    it never fabricates a transcript on failure.
+    """
+
+    @mcp.tool(
+        annotations={
+            "title": "Transcribe Media (sidecar)",
+            "readOnlyHint": False,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
+        tags={"audio_processing"},
+        name="transcribe_media",
+    )
+    async def transcribe_media(
+        action: str = Field(
+            description=(
+                "The sidecar action to execute. Only 'transcribe_segments' is "
+                "implemented."
+            )
+        ),
+        params_json: str = Field(
+            default="{}",
+            description=(
+                "JSON object: {'digest', 'media_type', 'artifact_b64', "
+                "'language'?, 'task'?, 'word_timestamps'?}."
+            ),
+        ),
+        ctx: Context | None = Field(
+            description="MCP context for progress reporting.", default=None
+        ),
+    ) -> dict:
+        """Verify the digest, transcribe via Whisper, and return AudioSegment-shaped
+        segments (``start_ms``/``end_ms``/``text``). Never raises — every failure
+        mode returns ``{"available": False, "error": ...}``, matching the
+        sidecar-delegate contract's "never fabricate" invariant."""
+        import base64
+        import hashlib
+        import mimetypes
+        import shutil
+        import tempfile
+        from pathlib import Path
+
+        from agent_utilities.mcp.action_dispatch import parse_json_object
+
+        if action != "transcribe_segments":
+            return {"available": False, "error": f"unsupported action: {action!r}"}
+
+        try:
+            params = parse_json_object(params_json)
+        except ValueError as e:
+            # parse_json_object's message never echoes caller input, so it is
+            # safe to return verbatim (same posture as stirlingpdf's pdf_action).
+            return {"available": False, "error": str(e)}
+
+        digest = str(params.get("digest") or "")
+        media_type = str(params.get("media_type") or "audio/wav")
+        artifact_b64 = params.get("artifact_b64")
+        if not digest or not artifact_b64:
+            return {
+                "available": False,
+                "error": "missing required 'digest' or 'artifact_b64'",
+            }
+
+        try:
+            raw = base64.b64decode(artifact_b64, validate=True)
+        except Exception as e:
+            return {
+                "available": False,
+                "error": f"invalid artifact_b64: {type(e).__name__}",
+            }
+
+        # Verify the caller's digest BEFORE transcribing — a mismatch is a
+        # distinct failure, never silently transcribed anyway.
+        expected = digest.split(":", 1)[-1] if ":" in digest else digest
+        if hashlib.sha256(raw).hexdigest() != expected:
+            return {"available": False, "error": "digest mismatch"}
+
+        ext = mimetypes.guess_extension(media_type.split(";")[0].strip()) or ".wav"
+        # A private, owner-only, unpredictable-name temp dir under /var/tmp (never a
+        # fixed shared path — CWE-377 / bandit B108 is exactly the symlink/race class
+        # a *hardcoded* path in a world-writable dir opens up). `mkdtemp` is the
+        # sanctioned stdlib remediation for that: it allocates the dir atomically with
+        # a random name and mode 0700, so bandit's B108 hit here is a false positive
+        # on the "/var/tmp" substring, not on an actual predictable-path use.
+        scratch_dir = Path(
+            tempfile.mkdtemp(prefix="audio-transcriber-sidecar-", dir="/var/tmp")  # nosec B108
+        )
+        temp_path = scratch_dir / f"artifact{ext}"
+
+        try:
+            temp_path.write_bytes(raw)
+            if ctx:
+                await ctx.report_progress(progress=10, total=100)
+            transcriber = AudioTranscriber(
+                model=DEFAULT_WHISPER_MODEL,
+                file=temp_path,
+                logger=logger,
+                ingest_to_kg=False,
+            )
+            result = transcriber.transcribe(
+                language=params.get("language"),
+                task=str(params.get("task") or "transcribe"),
+                word_timestamps=bool(params.get("word_timestamps", False)),
+            )
+        except Exception as e:
+            ctx_log(
+                ctx, logger, "error", f"transcribe_media failed: {type(e).__name__}"
+            )
+            return {
+                "available": False,
+                "error": f"{type(e).__name__}: transcription failed",
+            }
+        finally:
+            shutil.rmtree(scratch_dir, ignore_errors=True)
+
+        segments_out: list[dict[str, Any]] = []
+        for segment in result.get("segments") or []:
+            try:
+                start_ms = int(round(float(segment["start"]) * 1000))
+                end_ms = int(round(float(segment["end"]) * 1000))
+            except (KeyError, TypeError, ValueError):
+                continue
+            segments_out.append(
+                {
+                    "start_ms": start_ms,
+                    "end_ms": end_ms,
+                    "text": segment.get("text", ""),
+                }
+            )
+
+        if ctx:
+            await ctx.report_progress(progress=100, total=100)
+
+        return {
+            "available": True,
+            "segments": segments_out,
+            "language": result.get("language"),
+            "duration": result.get("duration"),
+        }
+
+
 def register_prompts(mcp: FastMCP):
     @mcp.prompt
     def transcribe_file_prompt(

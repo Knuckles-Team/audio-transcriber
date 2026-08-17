@@ -7,6 +7,7 @@ from fastmcp import FastMCP, Context
 
 from audio_transcriber.mcp_server import (
     register_audio_processing_tools,
+    register_media_sidecar_tools,
     register_prompts,
     get_mcp_instance,
     mcp_server,
@@ -177,6 +178,91 @@ async def test_transcribe_audio_tool():
         mock_transcriber_rec.record.assert_called_once_with(seconds=5)
         mock_transcriber_rec.stop_stream.assert_called_once()
         mock_transcriber_rec.save_stream.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_transcribe_media_tool():
+    """BUG-271: the governed sidecar contract's ``transcribe_media`` action —
+    action-routed (``action`` + ``params_json``) with ``digest``/``media_type``/
+    ``artifact_b64``, matching ``agent_utilities.media.sidecar_contract``'s
+    ``SIDECAR_CAPABILITIES['audio']`` manifest entry exactly."""
+    import base64
+    import hashlib
+    import json
+
+    mcp = MockMCP()
+    register_media_sidecar_tools(mcp)
+
+    assert "transcribe_media" in mcp.tools
+    tool_fn = mcp.tools["transcribe_media"]
+
+    # Unsupported action: never fabricates, distinct error.
+    res = await tool_fn(action="not_a_real_action", params_json="{}", ctx=None)
+    assert res == {"available": False, "error": "unsupported action: 'not_a_real_action'"}
+
+    # Malformed params_json: distinct failure, not a crash.
+    res = await tool_fn(action="transcribe_segments", params_json="not json", ctx=None)
+    assert res["available"] is False
+
+    # Missing required fields: distinct failure.
+    res = await tool_fn(action="transcribe_segments", params_json="{}", ctx=None)
+    assert res == {
+        "available": False,
+        "error": "missing required 'digest' or 'artifact_b64'",
+    }
+
+    raw = b"not-really-audio-but-bytes"
+    good_digest = hashlib.sha256(raw).hexdigest()
+    b64 = base64.b64encode(raw).decode("ascii")
+
+    # Digest mismatch: verified BEFORE transcribing, never silently transcribed anyway.
+    res = await tool_fn(
+        action="transcribe_segments",
+        params_json=json.dumps(
+            {"digest": "sha256:deadbeef", "media_type": "audio/wav", "artifact_b64": b64}
+        ),
+        ctx=None,
+    )
+    assert res == {"available": False, "error": "digest mismatch"}
+
+    # Successful path: delegates to the SAME AudioTranscriber/Whisper backend
+    # transcribe_audio uses (no second transcription implementation).
+    mock_transcriber = MagicMock()
+    mock_transcriber.transcribe.return_value = {
+        "segments": [
+            {"start": 0.0, "end": 1.5, "text": "hello"},
+            {"start": 1.5, "end": 3.0, "text": "world"},
+        ],
+        "language": "en",
+        "duration": 3.0,
+    }
+    with (
+        patch(
+            "audio_transcriber.mcp_server.AudioTranscriber",
+            return_value=mock_transcriber,
+        ) as mock_cls,
+        patch("pathlib.Path.write_bytes"),
+    ):
+        res = await tool_fn(
+            action="transcribe_segments",
+            params_json=json.dumps(
+                {
+                    "digest": f"sha256:{good_digest}",
+                    "media_type": "audio/wav",
+                    "artifact_b64": b64,
+                }
+            ),
+            ctx=None,
+        )
+    assert res["available"] is True
+    assert res["segments"] == [
+        {"start_ms": 0, "end_ms": 1500, "text": "hello"},
+        {"start_ms": 1500, "end_ms": 3000, "text": "world"},
+    ]
+    assert res["language"] == "en"
+    assert res["duration"] == 3.0
+    # ingest_to_kg=False: a dictation/sidecar clip never becomes durable KG evidence.
+    assert mock_cls.call_args.kwargs["ingest_to_kg"] is False
 
 
 def test_mcp_server_main():
