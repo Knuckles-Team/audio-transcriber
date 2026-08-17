@@ -61,12 +61,14 @@ The table below is auto-generated from the live server — do not edit by hand.
 
 <!-- MCP-TOOLS-TABLE:START -->
 
-#### Condensed action-routed tools (default — `MCP_TOOL_MODE=condensed`)
+#### Condensed action-routed tools (`MCP_TOOL_MODE=condensed`)
 
 | MCP Tool | Toggle Env Var | Description |
 |----------|----------------|-------------|
+| `audio_ingest_transcription` | `MISCTOOL` | Transcribe an audio file and natively ingest it into the knowledge graph. |
 | `health_check` | `MISCTOOL` |  |
 | `transcribe_audio` | `AUDIO_PROCESSINGTOOL` | Transcribes audio from a provided file or by recording from the microphone. |
+| `transcribe_media` | `MEDIA_SIDECARTOOL` | Verify the digest, transcribe via Whisper, and return AudioSegment-shaped |
 
 #### Verbose 1:1 API-mapped tools (`MCP_TOOL_MODE=verbose` or `both`)
 
@@ -85,7 +87,7 @@ The table below is auto-generated from the live server — do not edit by hand.
 
 </details>
 
-_2 action-routed tool(s) (default) · 7 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (`condensed` default · `verbose` 1:1 · `both`). Auto-generated — do not edit._
+_4 action-routed tool(s) · 7 verbose 1:1 tool(s). Each is enabled unless its `<DOMAIN>TOOL` toggle is set false; `MCP_TOOL_MODE` selects the surface (**`intent` default** — the six verb-tools, granular set loaded on demand · `condensed` action-routed · `verbose` 1:1 · `both`). Auto-generated — do not edit._
 <!-- MCP-TOOLS-TABLE:END -->
 
 Detailed tool schemas, parameter shapes, and validation constraints are preserved in [docs/usage.md](docs/usage.md).
@@ -135,6 +137,7 @@ When query strings or parameters are supplied, an LLM-free **Knowledge Graph res
       "env": {
         "MCP_TOOL_MODE": "intent",
         "AUDIO_PROCESSINGTOOL": "True",
+        "MEDIA_SIDECARTOOL": "True",
         "MISCTOOL": "True",
         "TRANSCRIBE_DIRECTORY": "/path/to/transcribe_directory",
         "WHISPER_MODEL": "base"
@@ -170,6 +173,7 @@ own runtime secret boundary.
         "PORT": "8000",
         "MCP_TOOL_MODE": "intent",
         "AUDIO_PROCESSINGTOOL": "True",
+        "MEDIA_SIDECARTOOL": "True",
         "MISCTOOL": "True",
         "TRANSCRIBE_DIRECTORY": "/path/to/transcribe_directory",
         "WHISPER_MODEL": "base"
@@ -204,6 +208,7 @@ docker run -i --rm \
   -e TRANSPORT=stdio \
   -e MCP_TOOL_MODE=intent \
   -e AUDIO_PROCESSINGTOOL=True \
+  -e MEDIA_SIDECARTOOL=True \
   -e MISCTOOL=True \
   -e TRANSCRIBE_DIRECTORY=/path/to/transcribe_directory \
   -e WHISPER_MODEL=base \
@@ -361,6 +366,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `TRANSCRIBE_DIRECTORY` | `/path/to/transcribe_directory` | Directory where transcripts are written (defaults to the data dir under audio-transcriber) |
 | `MISCTOOL` | `True` |  |
 | `AUDIO_PROCESSINGTOOL` | `True` |  |
+| `MEDIA_SIDECARTOOL` | `True` |  |
 | `WHISPER_MODEL` | `base` | Standard OpenAI Whisper model to use for local transcription (e.g., base, tiny, small) |
 
 #### Inherited agent-utilities variables (apply to every connector)
@@ -384,7 +390,7 @@ Built directly upon the enterprise-ready [`agent-utilities`](https://github.com/
 | `MODEL_ID` | `gpt-4o` | Model id for the agent |
 | `ENABLE_WEB_UI` | `True` | Serve the AG-UI web interface |
 
-_15 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
+_16 package + 16 inherited variable(s). Auto-generated from `.env.example` + the shared agent-utilities set — do not edit._
 <!-- ENV-VARS-TABLE:END -->
 
 
