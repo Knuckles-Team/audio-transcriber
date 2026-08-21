@@ -1,7 +1,6 @@
 {
   "api_version": "graphos.io/v1",
   "artifacts": {
-    "a2a.json": "2be8743aa1e8a67a4b47ce64f73ec8a6cb696d94fb1b8e4d4a411af2a0d0d553",
     "audio_transcriber/connectors/mcp_source_presets.json": "fb2e8568a72321370936b8834507c1a975a804a56a93cde1f3acb98e0db1fd06",
     "audio_transcriber/connectors/tool_schema_fingerprints.json": "505380e259d63a608a1478f9bdcc56c8d204c0d4aeb10919a4c9fcc487a18acc",
     "audio_transcriber/ontology/audio.ttl": "208e2f1c550278038b77be42c6519dbc9b2997bb4f367f1b674642e2e83c50b9",
@@ -9,7 +8,7 @@
     "audio_transcriber/ontology/mappings/source.yaml": "6988e238142f7eabac12e92486458cf57888b760b6a59ebe272492807252616e",
     "audio_transcriber/ontology/migrations/manifest.json": "30273f3429c34ca2a1719d48e32a08c08651e72034d894fd66294062e5d842e9",
     "audio_transcriber/ontology/shapes/connector.shacl.ttl": "de0b63cde5bc9997ed76b8d5d44be2a4c3825928b17b0debba8ef7c1a2dbe00b",
-    "connector_manifest.yml": "0d83503842a14ed87c03ad467bd68e00fff78d5a8631f164ebd4223ce5cd6e8a"
+    "connector_manifest.yml": "73975af247a109eb6f2e7e8073a56ce903fe4280385a805c30ed2810dadefb87"
   },
   "checks": {
     "declared_tool_schema": "passed",
@@ -19,19 +18,19 @@
     "synthetic_fixture_contract": "passed"
   },
   "compatibility": {
-    "agent_utilities": ">=2.1.0,<3",
+    "agent_utilities": ">=2.4.0,<3",
     "bundle_schema": "2",
-    "epistemic_graph": ">=2.23.0,<3"
+    "epistemic_graph": ">=2.26.0,<3"
   },
   "connector": "audio-transcriber",
   "kind": "ConnectorSourceAttestation",
   "live_certified": false,
   "mode": "offline-source",
   "schema_version": "2",
-  "signature": "Gvt6NXJf2jBHWvB3dbl0D17juLeQaUZh2nFUCVvlfTwlfTVoly1KwQEphVsGnk9zpt7LQl1NHNLo_fMBQVa6CQ",
-  "signature_algorithm": "ed25519",
-  "signer": "ontology-manifest-generator",
-  "signing_public_key": "QkigdPNpcUU7x7NcSkwCsUXIQpaFncMQbYSoiSgI2SY",
+  "signature": null,
+  "signature_algorithm": "none",
+  "signer": "UNSIGNED-PREVIEW",
+  "signing_public_key": "",
   "status": "source-validated",
-  "validated_at": "2026-07-31T04:00:00Z"
+  "validated_at": "2026-08-21T04:30:39Z"
 }
