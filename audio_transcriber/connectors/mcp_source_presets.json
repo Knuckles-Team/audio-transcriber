@@ -4,6 +4,7 @@
     "server": "audio-transcriber-mcp",
     "tool": "audio_ingest_transcription",
     "action": "transcribe",
+    "action_param": "task",
     "records_path": "documents",
     "id_field": "id",
     "title_field": "title",
