@@ -32,7 +32,7 @@ warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 import logging
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from agent_utilities.core.config import load_config, setting
 from agent_utilities.mcp.context_helpers import ctx_log
@@ -424,7 +424,7 @@ def register_misc_tools(mcp: FastMCP):
             default=None,
             description="Language code (e.g. 'en'); auto-detected if omitted.",
         ),
-        task: str = Field(
+        task: Literal["transcribe", "translate"] = Field(
             default="transcribe",
             description="Whisper task: 'transcribe' or 'translate' (to English).",
         ),

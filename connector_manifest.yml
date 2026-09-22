@@ -79,7 +79,7 @@ sync:
   updated_field: created_at
   pagination: null
   doc_type: transcript
-  tool_schema_sha256: 63365388ea53ca6abe45ba7292418e2d8bf0bd45743f0df4cd96dc2ab26367f6
+  tool_schema_sha256: e941b74bd6ade3119fdc2c40fe0e1fbc99c1f366c2cae30e3c0c97a03fb2f2f3
   raw:
     server: audio-transcriber-mcp
     tool: audio_ingest_transcription
