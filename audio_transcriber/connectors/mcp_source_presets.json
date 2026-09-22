@@ -5,6 +5,7 @@
     "tool": "audio_ingest_transcription",
     "action": "transcribe",
     "action_param": "task",
+    "params_style": "args",
     "records_path": "documents",
     "id_field": "id",
     "title_field": "title",
