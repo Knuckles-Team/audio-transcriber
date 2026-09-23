@@ -411,7 +411,18 @@ def register_misc_tools(mcp: FastMCP):
     async def health_check() -> dict:
         return {"status": "OK"}
 
-    @mcp.tool(tags={"misc", "kg"})
+    @mcp.tool(
+        tags={"misc", "kg"},
+        annotations={
+            "readOnlyHint": False,
+            "destructiveHint": False,
+            "idempotentHint": False,
+            "openWorldHint": False,
+        },
+        meta={
+            "eg.annotations": {"modalities_in": ["text"], "modalities_out": ["text"]}
+        },
+    )
     async def audio_ingest_transcription(
         audio_file: str = Field(
             description="Path to the audio/video file to transcribe and ingest.",
