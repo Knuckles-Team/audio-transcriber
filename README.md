@@ -238,89 +238,8 @@ the detailed transport contract.
   `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->
 
-## Agent
-
-This repository features a fully integrated Pydantic AI Graph Agent. It communicates over the **Agent Control Protocol (ACP)** and interacts seamlessly with the **Agent Web UI (AG-UI)** and Terminal interface.
-
-### Running the Agent CLI
-To start the interactive command-line agent:
-
-```bash
-# Configure transcription (optional)
-export WHISPER_MODEL="base"
-export TRANSCRIBE_DIRECTORY="/path/to/transcribe_directory"
-
-# Run the agent server
-audio-transcriber-agent --provider openai --model-id gpt-4o
-```
-
 ### Docker Compose Orchestration
-The following `docker/agent.compose.yml` configures the Agent, Web UI, and Terminal Interface together:
-
-```yaml
-version: '3.8'
-
-services:
-  audio-transcriber-mcp:
-    image: example/audio-transcriber:mcp
-    container_name: audio-transcriber-mcp
-    hostname: audio-transcriber-mcp
-    restart: always
-    env_file:
-      - ../.env
-    environment:
-      - PYTHONUNBUFFERED=1
-      - HOST=0.0.0.0
-      - PORT=8000
-      - TRANSPORT=streamable-http
-    ports:
-      - "8000:8000"
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  audio-transcriber-agent:
-    image: example/audio-transcriber@sha256:<digest>
-    container_name: audio-transcriber-agent
-    hostname: audio-transcriber-agent
-    restart: always
-    depends_on:
-      - audio-transcriber-mcp
-    env_file:
-      - ../.env
-    command: [ "audio-transcriber-agent" ]
-    environment:
-      - PYTHONUNBUFFERED=1
-      - HOST=0.0.0.0
-      - PORT=9014
-      - MCP_URL=http://audio-transcriber-mcp:8000/mcp
-      - PROVIDER=${PROVIDER:-openai}
-      - MODEL_ID=${MODEL_ID:-gpt-4o}
-      - ENABLE_WEB_UI=True
-      - ENABLE_OTEL=True
-    ports:
-      - "9014:9014"
-    healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9014/health')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-```
+`docker/mcp.compose.yml` runs the MCP server as a hardened, least-privilege container (see the file for the full service definition).
 
 Detailed graph node architecture explanations, custom skill configurations, and agentic trace guides are available in [docs/deployment.md](docs/deployment.md).
 
@@ -434,13 +353,6 @@ See the [Available MCP Tools](#available-mcp-tools) table above for the authorit
 | `EUNOMIA_POLICY_FILE` | Embedded policy file | `mcp_policies.json` |
 | `EUNOMIA_REMOTE_URL` | Remote Eunomia server URL | — |
 
-### Agent CLI (full `[agent]` runtime only)
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `MCP_URL` | URL of the MCP server the agent connects to | `http://localhost:8000/mcp` |
-| `PROVIDER` | LLM provider (e.g. `openai`) | `openai` |
-| `MODEL_ID` | Model id (e.g. `gpt-4o`) | `gpt-4o` |
-| `ENABLE_WEB_UI` | Serve the AG-UI web interface | `True` |
 
 See [`.env.example`](.env.example) for a copy-paste starting point.
 
@@ -453,43 +365,31 @@ Pick the extra that matches what you want to run:
 | Extra | Installs | Use when |
 |-------|----------|----------|
 | `audio-transcriber[mcp]` | Connector-focused MCP server (`agent-utilities[mcp]` — FastMCP/FastAPI + `epistemic-graph[full]`) | You only run the **MCP server** (smallest install / image) |
-| `audio-transcriber[agent]` | Agent runtime (`agent-utilities[agent-runtime,logfire]` — model orchestration + `epistemic-graph[full]`) | You run the **integrated agent** |
-| `audio-transcriber[all]` | Everything (`mcp` + `agent`) | Development / both surfaces |
 
 ```bash
 # Connector-focused MCP server (includes the shared graph engine)
 uv pip install "audio-transcriber[mcp]"
-
-# Agent runtime (adds model orchestration to the shared graph engine)
-uv pip install "audio-transcriber[agent]"
-
-# Everything (development)
-uv pip install "audio-transcriber[all]"      # or: python -m pip install "audio-transcriber[all]"
 ```
 
-### Container images (`:mcp` vs `:agent`)
+### Container images (`:mcp`)
 
-One multi-stage `docker/Dockerfile` builds two right-sized images, selected by `--target`:
+One `docker/Dockerfile` builds a single slim MCP-server image:
 
-| Image tag | Build target | Contents | Entrypoint |
-|-----------|--------------|----------|------------|
-| `example/audio-transcriber:mcp` | `--target mcp` | `audio-transcriber[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `audio-transcriber-mcp` |
-| `example/audio-transcriber@sha256:<digest>` | `--target agent` (default) | `audio-transcriber[agent]` — **agent runtime**, model orchestration + `epistemic-graph[full]` | `audio-transcriber-agent` |
+| Image tag | Contents | Entrypoint |
+|-----------|----------|------------|
+| `example/audio-transcriber:mcp` | `audio-transcriber[mcp]` -- connector-focused, includes `epistemic-graph[full]` | `audio-transcriber` |
 
 ```bash
-docker build --target mcp   -t example/audio-transcriber:mcp    docker/   # connector-focused MCP server
-docker build --target agent -t example/audio-transcriber:agent-local docker/   # agent runtime
+docker build -t example/audio-transcriber:mcp docker/   # connector-focused MCP server
 ```
 
-`docker/mcp.compose.yml` runs the connector-focused `:mcp` server; `docker/agent.compose.yml` runs the
-agent (`immutable agent digest`) with a co-located `:mcp` sidecar.
+`docker/mcp.compose.yml` runs the connector-focused `:mcp` server.
 
 ### Knowledge-graph database (`epistemic-graph`)
 
-Both `[mcp]` and `[agent]` carry the **epistemic-graph** engine through the required
-Agent Utilities core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
-the server connector-focused; `[agent]` additionally enables model orchestration. Local
-deployments can use the bundled engine. For production or shared state, run
+The `[mcp]` extra carries the **epistemic-graph** engine through the required
+Agent Utilities core dependency (`epistemic-graph[full]`); the server stays
+connector-focused. Local deployments can use the bundled engine. For production or shared state, run
 **epistemic-graph as a dedicated database service** and configure the runtime to use it.
 Deployment recipes (single-node + Raft HA), connection configuration, and architecture
 diagrams are documented in the
@@ -544,7 +444,7 @@ to **"deploy `audio-transcriber` with agent-utilities-deployment"**.
 | Install mode | Command |
 |------|---------|
 | Installed package | `uv tool install "audio-transcriber[mcp]"`, then run `audio-transcriber-mcp` |
-| Editable source | `uv pip install -e ".[agent]"`, then run `audio-transcriber-mcp` |
+| Editable source | `uv pip install -e ".[mcp]"`, then run `audio-transcriber-mcp` |
 | Immutable container | deploy `registry.example.invalid/audio-transcriber@sha256:<digest>` through the operator-selected orchestrator |
 
 The repository embeds no deployment profile, credential value, certificate path, or
