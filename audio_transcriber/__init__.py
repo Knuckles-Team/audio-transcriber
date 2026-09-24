@@ -9,7 +9,6 @@ __all__: list[str] = []
 CORE_MODULES: list[str] = ["audio_transcriber.audio_transcriber"]
 
 OPTIONAL_MODULES = {
-    "audio_transcriber.agent_server": "agent",
     "audio_transcriber.mcp_server": "mcp",
 }
 
