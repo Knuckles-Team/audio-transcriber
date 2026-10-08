@@ -5,7 +5,7 @@
 
 ## Description
 
-Transcribe your .wav .mp4 .mp3 .flac files to text or record your own audio!
+Transcribe the operator's .wav .mp4 .mp3 .flac files to text or record the operator's own audio!
 
 ## Enterprise Readiness
 

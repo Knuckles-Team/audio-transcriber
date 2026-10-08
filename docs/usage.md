@@ -1,7 +1,7 @@
 # Usage — API / CLI / MCP
 
 `audio-transcriber` exposes the same capability three ways: as an **MCP tool** an
-agent calls, as a **Python API** (`AudioTranscriber`) you import, and as a **CLI**.
+agent calls, as a **Python API** (`AudioTranscriber`) the operator import, and as a **CLI**.
 
 ## As an MCP server
 
