@@ -1,6 +1,6 @@
 # audio-transcriber
 
-Transcribe `.wav`, `.mp4`, `.mp3`, and `.flac` files to text — or record your own
+Transcribe `.wav`, `.mp4`, `.mp3`, and `.flac` files to text — or record the operator's own
 audio — through a CLI, a Python API, an **MCP server**, and an A2A agent, built on
 the agent-utilities ecosystem.
 
@@ -34,7 +34,7 @@ external transcription service is required.
 
 <div class="grid cards" markdown>
 
-- :material-rocket-launch: **[Installation](installation.md)** — pip, source, extras, and the prebuilt Docker image.
+- :material-rocket-start: **[Installation](installation.md)** — pip, source, extras, and the prebuilt Docker image.
 - :material-server-network: **[Deployment](deployment.md)** — run the MCP server and the agent, Docker Compose, Caddy + Technitium.
 - :material-console: **[Usage](usage.md)** — the MCP tool surface, the `AudioTranscriber` API, and the CLI.
 - :material-sitemap: **[Overview](overview.md)** — capability summary and ecosystem role.

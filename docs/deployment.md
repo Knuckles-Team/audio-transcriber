@@ -119,7 +119,7 @@ curl -s http://localhost:8000/health        # {"status":"OK"}
 
 Every variable, grouped by concern, is documented in
 [`.env.example`](https://github.com/Knuckles-Team/audio-transcriber/blob/main/.env.example).
-Copy it to `.env` and populate only what you use.
+Copy it to `.env` and populate only what the operator use.
 
 ## Docker Compose
 
@@ -207,7 +207,7 @@ The agent endpoints are then available at `http://localhost:9014/a2a` (discovery
 
 ## Behind a Caddy reverse proxy
 
-Expose the HTTP server on a hostname with automatic TLS. Add to your `Caddyfile`:
+Expose the HTTP server on a hostname with automatic TLS. Add to the operator's `Caddyfile`:
 
 ```caddy
 # Internal (self-signed) — homelab .example.invalid zone
@@ -251,7 +251,7 @@ this as a tool.
 
 ## Register with an MCP client
 
-Add to your client's `mcp_config.json`:
+Add to the operator's client's `mcp_config.json`:
 
 ```json
 {

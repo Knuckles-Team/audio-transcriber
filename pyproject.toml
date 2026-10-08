@@ -87,3 +87,6 @@ ignore_names = ["request", "config"]
 omit = [
     "audio_transcriber/__main__.py",
 ]
+
+[tool.pipelines_hooks.ste]
+exempt = ["specs/*", "specs/**/*"]

@@ -1,7 +1,7 @@
 # Installation
 
 `audio-transcriber` is a standard Python package and a prebuilt container image.
-Pick the path that matches how you want to run it.
+Pick the path that matches how the operator want to run it.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ pip install audio-transcriber
 ### Optional extras
 
 The base install ships the CLI and the `faster-whisper` backend. Install the extra
-for the interface you need:
+for the interface the operator need:
 
 | Extra | Install | Pulls in |
 |---|---|---|
