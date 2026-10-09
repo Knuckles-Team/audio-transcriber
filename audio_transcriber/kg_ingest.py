@@ -4,89 +4,121 @@ CONCEPT:AU-KG.ingest.enterprise-source-extractor. audio-transcriber is a *produc
 after Whisper transcribes an audio/video file it natively pushes the result into the ONE
 epistemic-graph engine across every modality that applies (the "maximum ingestion" bar):
 
-* **blob**  — the raw audio bytes → shared ``:AssetOccurrence``/``:Blob`` (``audio_transcriber.kg_media``)
+* **blob**  — the raw audio bytes → a shared media-asset record (``audio_transcriber.kg_media``)
 * **document** — the transcript text → shared ``:Document`` (``ingest_documents``); the hub
   chunks/embeds it for semantic search
 * **typed nodes** — the Whisper segments → ``:TranscriptSegment`` nodes (``ingest_entities``),
   linked ``:segmentOf`` the transcript and ``:transcribedFrom`` the audio asset
 
-All three ride the required
-``agent_utilities.knowledge_graph.memory.native_ingest`` transaction primitive. Engine
-failures are explicit and no partial write is acknowledged. Node ids follow
-``audio:<class>:<externalId>`` and ``node_type`` matches the classes federated by
+All three ride the ``agent_connector_sdk.ingest`` knowledge-ingest facade
+(:class:`~agent_connector_sdk.ingest.KnowledgeIngest`), which is async — every public
+ingest function here is an ``async def`` and its callers must ``await`` it. Engine
+failures are explicit (``IngestError``) and no partial write is acknowledged. Node ids
+follow ``audio:<class>:<externalId>`` and ``node_type`` matches the classes federated by
 ``audio_transcriber.ontology`` (``audio.ttl``).
 """
 
 from __future__ import annotations
 
 import logging
+import os
 import re
 from typing import Any
 
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_documents as _native_ingest_documents,
-)
-from agent_utilities.knowledge_graph.memory.native_ingest import (
-    ingest_entities as _native_ingest_entities,
+from agent_connector_sdk.ingest import (
+    ChangeSet,
+    Document,
+    Entity,
+    IngestBinding,
+    IngestError,
+    IngestUnavailableError,
+    KnowledgeIngest,
+    Relationship,
+    current_ingest,
 )
 
 logger = logging.getLogger("AudioTranscriber.kg")
 
 _SOURCE = "audio-transcriber"
 _DOMAIN = "audio"
+_BINDING = IngestBinding(connector="audio-transcriber", stream=_DOMAIN)
 
 
-def ingest_entities(
+def _to_entity(record: dict[str, Any]) -> Entity:
+    return Entity(
+        id=record.get("id"),
+        node_type=record.get("node_type"),
+        properties={k: v for k, v in record.items() if k not in ("id", "node_type")},
+    )
+
+
+def _to_relationship(record: dict[str, Any]) -> Relationship:
+    props = {
+        k: v
+        for k, v in record.items()
+        if k not in ("source", "target", "relationship")
+    }
+    return Relationship(
+        source=record["source"],
+        target=record["target"],
+        relationship=record["relationship"],
+        properties=props or None,
+    )
+
+
+def _to_document(record: dict[str, Any]) -> Document:
+    return Document(
+        id=record["id"],
+        text=record["text"],
+        title=record.get("title"),
+        source_uri=record.get("source_uri"),
+        properties={
+            k: v
+            for k, v in record.items()
+            if k not in ("id", "text", "title", "source_uri")
+        },
+    )
+
+
+async def ingest_entities(
     entities: list[dict[str, Any]],
     relationships: list[dict[str, Any]] | None = None,
     *,
-    source: str = _SOURCE,
-    domain: str = _DOMAIN,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """Write typed OWL nodes (+ edges) into the engine (``:TranscriptSegment`` …).
 
     ``entities`` use ``node_type`` and relationships use ``relationship``.
-    ``client``/``graph`` may be injected for isolated validation.
+    ``ingest`` may be injected (tests); otherwise the process-installed
+    :class:`~agent_connector_sdk.ingest.KnowledgeIngest` is used.
     """
-    return _native_ingest_entities(
-        entities,
-        relationships,
-        source=source,
-        domain=domain,
-        client=client,
-        graph=graph,
+    if not entities:
+        raise IngestError("ingest_entities needs at least one entity")
+    change_set = ChangeSet(
+        entities=tuple(_to_entity(e) for e in entities),
+        relationships=tuple(_to_relationship(r) for r in relationships or ()),
     )
+    service = ingest or current_ingest()
+    receipt = await service.submit(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
 
 
-def ingest_documents(
+async def ingest_documents(
     documents: list[dict[str, Any]],
     *,
-    source: str = _SOURCE,
-    domain: str = _DOMAIN,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, int]:
     """Write transcript text records as shared ``:Document`` nodes (search fodder).
 
     Each doc: ``{"id":..., "text":..., "title"?:..., "source_uri"?:..., ...props}``.
-    ``client``/``graph`` may be injected for isolated validation.
+    ``ingest`` may be injected (tests); otherwise the process-installed service.
     """
-    return _native_ingest_documents(
-        documents,
-        source=source,
-        domain=domain,
-        client=client,
-        graph=graph,
-    )
-
-
-def media_store() -> Any | None:
-    """Return a ``MediaStore`` over a live engine for raw-blob ingestion, or ``None``."""
-    from audio_transcriber.kg_media import _media_store
-
-    return _media_store()
+    if not documents:
+        raise IngestError("ingest_documents needs at least one document")
+    change_set = ChangeSet(documents=tuple(_to_document(d) for d in documents))
+    service = ingest or current_ingest()
+    receipt = await service.submit(_BINDING, change_set)
+    return {"nodes": receipt.affected_count, "edges": receipt.relationship_count}
 
 
 # --------------------------------------------------------------------------- #
@@ -98,7 +130,7 @@ def _ext_id(name: str) -> str:
     return slug or "transcript"
 
 
-def ingest_transcription(
+async def ingest_transcription(
     result: dict[str, Any],
     *,
     audio_path: str | None = None,
@@ -107,19 +139,18 @@ def ingest_transcription(
     task: str = "transcribe",
     max_segments: int = 500,
     source: str = _SOURCE,
-    media_store: Any | None = None,
-    client: Any | None = None,
-    graph: str | None = None,
+    ingest: KnowledgeIngest | None = None,
 ) -> dict[str, Any] | None:
     """Ingest a Whisper ``result`` across all modalities and link them.
 
-    1. store the audio bytes as a shared ``:AssetOccurrence`` blob (best-effort),
+    1. store the audio bytes as a shared media-asset blob (best-effort),
     2. write the transcript text as a shared ``:Document`` (``audio:transcript:<ext>``),
     3. write each Whisper segment as a ``:TranscriptSegment`` typed node linked
        ``:segmentOf`` the transcript and the transcript ``:transcribedFrom`` the asset.
 
     Returns a summary ``{transcript_id, asset, documents, entities}`` or ``None`` when
-    there is nothing to write / no engine (never raises).
+    there is nothing to write / no engine (never raises). ``ingest`` may be injected
+    (tests); otherwise the process-installed service is used for all three steps.
     """
     if not result:
         return None
@@ -127,7 +158,12 @@ def ingest_transcription(
     if not text:
         return None
 
-    import os
+    service = ingest
+    if service is None:
+        try:
+            service = current_ingest()
+        except IngestUnavailableError:
+            return None
 
     stem = name or (os.path.basename(audio_path) if audio_path else "transcript")
     ext = _ext_id(stem)
@@ -144,13 +180,13 @@ def ingest_transcription(
         "source_uri": audio_path,
     }
 
-    # 1) blob — the raw audio bytes as a :AssetOccurrence.
+    # 1) blob — the raw audio bytes as a media-asset record.
     asset: dict[str, Any] | None = None
     if audio_path:
         from audio_transcriber.kg_media import ingest_audio_file
 
-        asset = ingest_audio_file(
-            audio_path, info=info, source=source, media_store=media_store
+        asset = await ingest_audio_file(
+            audio_path, info=info, source=source, ingest=service
         )
 
     # 2) document — the transcript text as a :Document.
@@ -167,9 +203,7 @@ def ingest_transcription(
     }
     if asset and asset.get("asset_id"):
         doc["transcribedFrom"] = asset["asset_id"]
-    documents_result = ingest_documents(
-        [doc], source=source, client=client, graph=graph
-    )
+    documents_result = await ingest_documents([doc], ingest=service)
 
     # 3) typed nodes — the Whisper segments as :TranscriptSegment.
     entities: list[dict[str, Any]] = []
@@ -192,9 +226,9 @@ def ingest_transcription(
         relationships.append(
             {"source": seg_id, "target": transcript_id, "relationship": "segmentOf"}
         )
-    entities_result = ingest_entities(
-        entities, relationships, source=source, client=client, graph=graph
-    )
+    entities_result: dict[str, int] | None = None
+    if entities:
+        entities_result = await ingest_entities(entities, relationships, ingest=service)
 
     if documents_result is None and entities_result is None and asset is None:
         return None

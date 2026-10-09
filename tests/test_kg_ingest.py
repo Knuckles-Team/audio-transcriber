@@ -1,23 +1,18 @@
 """Native epistemic-graph transcription ingestion — Wire-First coverage.
 
 Exercises the real ``ingest_entities`` / ``ingest_documents`` / ``ingest_transcription``
-seam with a fake engine client (no engine required), asserting the txn add_node/commit +
-edge calls and the Whisper-result -> blob/document/segment mapping.
+seam with a fake epistemic-graph ingest transport (no engine required), asserting the
+generated ``SourceIngestionRequest`` records/relationships the SDK's own request
+builder produces, and the Whisper-result -> blob/document/segment mapping.
 CONCEPT:AU-KG.ingest.enterprise-source-extractor.
 """
 
 from __future__ import annotations
 
-from typing import Any
+from types import SimpleNamespace
 
-from dataclasses import dataclass
-
-import msgpack
 import pytest
-from agent_utilities.knowledge_graph.memory.native_ingest import NativeIngestError
-from agent_utilities.security.brain_context import ActorContext, use_actor
-from agent_utilities.security.actor_identity import ActorType
-from agent_utilities.knowledge_graph.core.session import GraphSession, use_session
+from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
 
 from audio_transcriber.kg_ingest import (
     ingest_documents,
@@ -26,107 +21,31 @@ from audio_transcriber.kg_ingest import (
 )
 
 
-@pytest.fixture(autouse=True)
-def _governed_session():
-    actor = ActorContext(
-        actor_id="subject:opaque:synthetic",
-        actor_type=ActorType.AUTOMATED_SERVICE,
-        roles=(),
-        tenant_id="tenant:opaque:synthetic",
-        authenticated=True,
-    )
-    session = GraphSession(
-        actor=actor,
-        tenant=actor.tenant_id,
-        scopes=frozenset({"kg:write"}),
-        graph="graph:opaque:synthetic",
-        policy_version="policy:opaque:synthetic",
-        audience="epistemic-graph",
-    )
-    with use_actor(actor), use_session(session):
-        yield
+class _FakeTransport:
+    """Fakes the transport boundary; the SDK's real request builder runs on top."""
 
-
-class _FakeNodes:
-    def __init__(self) -> None:
-        self.values: dict[str, dict[str, Any]] = {}
-
-    def properties(self, node_id: str) -> dict[str, Any] | None:
-        return self.values.get(node_id)
-
-    def list(self) -> list[tuple[str, dict[str, Any]]]:
-        return list(self.values.items())
-
-
-class _FakeChanges:
-    def __init__(self, nodes: _FakeNodes) -> None:
-        self.nodes = nodes
-        self.edges: list[tuple[str, str, dict[str, Any]]] = []
-        self.applied: list[dict[str, Any]] = []
-        self.records: dict[str, dict[str, Any]] = {}
-        self.versions: dict[str, dict[str, Any]] = {}
-
-    def get(self, envelope_id: str) -> dict[str, Any] | None:
-        return self.records.get(envelope_id)
-
-    def content_version(self, object_id: str) -> dict[str, Any] | None:
-        return self.versions.get(object_id)
-
-    def cursor(self, _source: str, _partition: str = "") -> None:
-        return None
-
-    def apply(self, envelope: dict[str, Any]) -> dict[str, Any]:
-        self.applied.append(envelope)
-        mutation = envelope["mutation"]
-        for operation in mutation["operations"]:
-            method = operation["method"]
-            params = method["params"]
-            properties = msgpack.unpackb(params["properties_msgpack"], raw=False)
-            if method["method"] == "AddNode":
-                self.nodes.values[params["node_id"]] = properties
-            elif method["method"] == "AddEdge":
-                self.edges.append(
-                    (params["source_id"], params["target_id"], properties)
-                )
-        version = envelope["content_version"]
-        self.versions[version["object_id"]] = version
-        self.records[envelope["envelope_id"]] = envelope
-        return {
-            "batch_id": mutation["batch_id"],
-            "replayed": False,
-            "projection_pending": False,
-        }
-
-
-class _FakeRdf:
-    def validate_shacl(self, _shapes: str, _data_graph: str) -> dict[str, Any]:
-        return {"conforms": True, "results": []}
-
-
-class _FakeClient:
-    def __init__(self) -> None:
-        self.nodes = _FakeNodes()
-        self.changes = _FakeChanges(self.nodes)
-        self.rdf = _FakeRdf()
-
-    @staticmethod
-    def supports(operation: str) -> bool:
-        return operation == "ApplyChangeEnvelope"
-
-
-@dataclass
-class _Stored:
-    asset_id: str
-    digest: str
-
-
-class _FakeMediaStore:
     def __init__(self):
-        self.calls = []
+        self.requests = []
 
-    def store_media(self, data, **kw):
-        self.calls.append((data, kw))
-        return _Stored(asset_id="media:aa", digest="aabb")
+    async def source_status(self, connector, stream):
+        return SimpleNamespace(accepted_checkpoint=None)
+
+    async def submit(self, request):
+        self.requests.append(request)
+        return SimpleNamespace(
+            affected_count=len(request.records),
+            relationship_count=len(request.relationships),
+        )
+
+    async def store_blob(self, data):
+        digest = "aabb"
+        return digest
+
+
+@pytest.fixture
+def ingest():
+    transport = _FakeTransport()
+    return KnowledgeIngest(transport, loop=None), transport
 
 
 _RESULT = {
@@ -141,9 +60,10 @@ _RESULT = {
 }
 
 
-def test_ingest_entities_writes_nodes_and_edges():
-    c = _FakeClient()
-    res = ingest_entities(
+@pytest.mark.asyncio
+async def test_ingest_entities_writes_nodes_and_edges(ingest):
+    service, transport = ingest
+    res = await ingest_entities(
         [
             {"id": "audio:segment:x:0", "node_type": "TranscriptSegment", "text": "hi"},
         ],
@@ -154,78 +74,83 @@ def test_ingest_entities_writes_nodes_and_edges():
                 "relationship": "segmentOf",
             }
         ],
-        client=c,
+        ingest=service,
     )
     assert res == {"nodes": 1, "edges": 1}
-    assert len(c.changes.applied) == 1
-    node = c.nodes.values["audio:segment:x:0"]
-    assert node["node_type"] == "TranscriptSegment"
-    assert node["source"] == "audio-transcriber"
-    assert node["domain"] == "audio"
-    assert c.changes.edges == [
-        ("audio:segment:x:0", "audio:transcript:x", {"relationship": "segmentOf"})
-    ]
+    assert len(transport.requests) == 1
+    record = transport.requests[0].records[0]
+    assert record.record_id == "audio:segment:x:0"
+    assert record.payload["text"] == "hi"
+    relationship = transport.requests[0].relationships[0]
+    assert relationship.source.record_id == "audio:segment:x:0"
+    assert relationship.target.record_id == "audio:transcript:x"
 
 
-def test_ingest_documents_writes_document_node():
-    c = _FakeClient()
-    res = ingest_documents(
+@pytest.mark.asyncio
+async def test_ingest_documents_writes_document_node(ingest):
+    service, transport = ingest
+    res = await ingest_documents(
         [{"id": "audio:transcript:x", "title": "x", "text": "hello world"}],
-        client=c,
+        ingest=service,
     )
     assert res == {"nodes": 1, "edges": 0}
-    node = c.nodes.values["audio:transcript:x"]
-    assert node["node_type"] == "Document"
-    assert node["text"] == "hello world"
-    assert node["needs_enrichment"] is True
+    record = transport.requests[0].records[0]
+    assert record.record_id == "audio:transcript:x"
+    assert record.payload["text"] == "hello world"
 
 
-def test_ingest_transcription_maps_all_modalities(tmp_path):
-    c = _FakeClient()
-    store = _FakeMediaStore()
+@pytest.mark.asyncio
+async def test_ingest_transcription_maps_all_modalities(ingest, tmp_path):
+    service, transport = ingest
     audio = tmp_path / "My Talk.mp3"
     audio.write_bytes(b"audio-bytes")
-    res = ingest_transcription(
+    res = await ingest_transcription(
         _RESULT,
         audio_path=str(audio),
         name="My Talk",
         model="base",
-        media_store=store,
-        client=c,
+        ingest=service,
     )
     assert res is not None
     assert res["transcript_id"] == "audio:transcript:my-talk"
-    # blob stored
-    assert res["asset"]["asset_id"] == "media:aa"
-    assert len(store.calls) == 1
-    # document + 2 segment nodes written
+    # blob stored (media change set submitted first)
+    assert res["asset"]["asset_id"].startswith("blob:")
+    # document + 2 segment nodes written, each its own submission
     assert res["documents"] == {"nodes": 1, "edges": 0}
     assert res["entities"] == {"nodes": 2, "edges": 2}
-    # transcript document carries provenance + link to the asset
-    doc = c.nodes.values["audio:transcript:my-talk"]
-    assert doc["node_type"] == "Document"
-    assert doc["text"] == "hello world"
-    assert doc["transcribedFrom"] == "media:aa"
-    assert doc["whisper_model"] == "base"
-    # segments typed + linked
-    assert c.nodes.values["audio:segment:my-talk:0"]["node_type"] == "TranscriptSegment"
-    assert (
-        "audio:segment:my-talk:1",
-        "audio:transcript:my-talk",
-        {"relationship": "segmentOf"},
-    ) in c.changes.edges
+    # three submissions: media, document, entities+relationships
+    assert len(transport.requests) == 3
+    doc_request = transport.requests[1]
+    doc_record = doc_request.records[0]
+    assert doc_record.record_id == "audio:transcript:my-talk"
+    assert doc_record.payload["text"] == "hello world"
+    assert doc_record.payload["transcribedFrom"].startswith("blob:")
+    assert doc_record.payload["whisper_model"] == "base"
+    entities_request = transport.requests[2]
+    record_ids = {r.record_id for r in entities_request.records}
+    assert record_ids == {"audio:segment:my-talk:0", "audio:segment:my-talk:1"}
+    relationship_pairs = {
+        (r.source.record_id, r.target.record_id) for r in entities_request.relationships
+    }
+    assert ("audio:segment:my-talk:1", "audio:transcript:my-talk") in relationship_pairs
 
 
-def test_ingest_transcription_noops_on_empty_text():
-    assert ingest_transcription({"text": "   "}, client=_FakeClient()) is None
-    assert ingest_transcription({}, client=_FakeClient()) is None
+@pytest.mark.asyncio
+async def test_ingest_transcription_noops_on_empty_text(ingest):
+    service, _ = ingest
+    assert await ingest_transcription({"text": "   "}, ingest=service) is None
+    assert await ingest_transcription({}, ingest=service) is None
 
 
-def test_retired_structural_alias_is_rejected():
-    with pytest.raises(NativeIngestError, match="canonical node_type"):
-        ingest_entities([{"id": "a", "type": "TranscriptSegment"}], client=_FakeClient())
+@pytest.mark.asyncio
+async def test_ingest_entities_rejects_missing_node_type(ingest):
+    service, _ = ingest
+    with pytest.raises(IngestError, match="id and a node_type"):
+        await ingest_entities([{"id": "a"}], ingest=service)
 
 
-def test_empty_native_ingest_is_rejected():
-    with pytest.raises(NativeIngestError, match="at least one entity"):
-        ingest_entities([], client=_FakeClient())
+@pytest.mark.asyncio
+async def test_empty_entities_is_rejected(ingest):
+    service, _ = ingest
+    with pytest.raises(IngestError, match="at least one entity"):
+        await ingest_entities([], ingest=service)
