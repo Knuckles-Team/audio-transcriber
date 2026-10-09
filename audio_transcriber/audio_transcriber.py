@@ -3,6 +3,7 @@
 
 import argparse
 import asyncio
+import concurrent.futures
 import datetime
 import json
 import logging
@@ -410,19 +411,31 @@ class AudioTranscriber:
         engine is reachable. On success records ``self.last_kg_result``
         (``{transcript_id, asset, documents, entities}``).
         CONCEPT:AU-KG.ingest.enterprise-source-extractor.
+
+        ``ingest_transcription`` is ``async`` (the agent-connector-sdk ingest
+        facade commits over an async transport). This method stays synchronous
+        — it is called from the synchronous ``transcribe()`` on both a plain
+        CLI path (no event loop) and from inside an already-running MCP tool
+        handler's event loop — so the coroutine always runs on a dedicated
+        worker thread with its own fresh loop via ``asyncio.run``, never nested
+        inside a loop that might already be running on this thread.
         """
         if not self.ingest_to_kg or not result:
             return
         try:
             from audio_transcriber.kg_ingest import ingest_transcription
 
-            self.last_kg_result = ingest_transcription(
-                result,
+            coro_kwargs = dict(
                 audio_path=str(self.file_path) if self.file_path else None,
                 name=self.title,
                 model=getattr(self.backend_instance, "model_name", None),
                 task=task,
             )
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                future = pool.submit(
+                    lambda: asyncio.run(ingest_transcription(result, **coro_kwargs))
+                )
+                self.last_kg_result = future.result(timeout=30.0)
         except Exception as e:  # noqa: BLE001 — KG ingestion is never fatal
             self.logger.debug("KG ingest skipped: error_type=%s", type(e).__name__)
 

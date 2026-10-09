@@ -30,14 +30,15 @@ warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
 import logging
+import os
 import sys
 from pathlib import Path
 from typing import Any
 
-from agent_utilities.core.config import load_config, setting
-from agent_utilities.mcp.context_helpers import ctx_log
-from agent_utilities.mcp.server_factory import create_mcp_server
-from agent_utilities.mcp.verbose_tools import register_tool_surface
+from agent_connector_sdk.config import load_config, setting
+from agent_connector_sdk.mcp.context import ctx_log
+from agent_connector_sdk.mcp.server import create_mcp_server
+from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
@@ -47,10 +48,17 @@ logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
 
 DEFAULT_WHISPER_MODEL = setting("WHISPER_MODEL", "base")
-from agent_utilities.core import paths
+
+
+def _default_transcribe_directory() -> Path:
+    """Default transcription scratch directory: this connector's own XDG data dir."""
+    override = os.environ.get("XDG_DATA_HOME")
+    base = Path(override).expanduser() if override else Path.home() / ".local" / "share"
+    return base / "audio-transcriber"
+
 
 DEFAULT_TRANSCRIBE_DIRECTORY = setting(
-    "TRANSCRIBE_DIRECTORY", str(paths.data_dir() / "audio-transcriber")
+    "TRANSCRIBE_DIRECTORY", str(_default_transcribe_directory())
 )
 
 
@@ -119,12 +127,12 @@ def register_audio_processing_tools(mcp: FastMCP):
         ),
     ) -> str:
         """Transcribes audio from a provided file or by recording from the microphone."""
-        ctx_log(
+        await ctx_log(
             ctx,
-            logger,
-            "info",
             f"Starting transcription: audio_file={audio_file}, record_seconds={record_seconds}, "
             f"directory={directory}, model={model}, language={language}, task={task}, backend={backend}",
+            logger=logger,
+            level="info",
         )
 
         try:
@@ -143,18 +151,20 @@ def register_audio_processing_tools(mcp: FastMCP):
 
             if ctx:
                 await ctx.report_progress(progress=0, total=100)
-                ctx_log(ctx, logger, "debug", "Reported initial progress: 0/100")
+                await ctx_log(
+                    ctx, "Reported initial progress: 0/100", logger=logger, level="debug"
+                )
 
             if audio_file:
                 file_path = Path(audio_file)
                 if not file_path.exists():
                     raise ValueError("Configured audio file was not found")
             else:
-                ctx_log(
+                await ctx_log(
                     ctx,
-                    logger,
-                    "info",
                     f"Starting recording for {record_seconds} seconds.",
+                    logger=logger,
+                    level="info",
                 )
                 transcriber.initiate_stream()
 
@@ -164,14 +174,14 @@ def register_audio_processing_tools(mcp: FastMCP):
 
                 if ctx:
                     await ctx.report_progress(progress=40, total=100)
-                    ctx_log(
+                    await ctx_log(
                         ctx,
-                        logger,
-                        "debug",
                         "Reported progress after recording: 40/100",
+                        logger=logger,
+                        level="debug",
                     )
 
-            ctx_log(ctx, logger, "info", "Starting Whisper transcription.")
+            await ctx_log(ctx, "Starting Whisper transcription.", logger=logger, level="info")
             result = transcriber.transcribe(
                 language=language,
                 task=task,
@@ -184,31 +194,38 @@ def register_audio_processing_tools(mcp: FastMCP):
 
             if ctx:
                 await ctx.report_progress(progress=90, total=100)
-                ctx_log(
+                await ctx_log(
                     ctx,
-                    logger,
-                    "debug",
                     "Reported progress after transcription: 90/100",
+                    logger=logger,
+                    level="debug",
                 )
 
             if export_formats:
                 transcriber.export(result, formats=export_formats)
-                ctx_log(
+                await ctx_log(
                     ctx,
-                    logger,
-                    "info",
                     f"Exported transcription to formats: {export_formats}",
+                    logger=logger,
+                    level="info",
                 )
 
             if ctx:
                 await ctx.report_progress(progress=100, total=100)
-                ctx_log(ctx, logger, "debug", "Reported final progress: 100/100")
+                await ctx_log(
+                    ctx, "Reported final progress: 100/100", logger=logger, level="debug"
+                )
 
-            ctx_log(ctx, logger, "info", "Transcription completed successfully.")
+            await ctx_log(
+                ctx, "Transcription completed successfully.", logger=logger, level="info"
+            )
             return result["text"]
         except Exception as e:
-            ctx_log(
-                ctx, logger, "error", f"Failed to transcribe audio: {type(e).__name__}"
+            await ctx_log(
+                ctx,
+                f"Failed to transcribe audio: {type(e).__name__}",
+                logger=logger,
+                level="error",
             )
             raise RuntimeError(f"Failed to transcribe audio: {type(e).__name__}") from e
 
@@ -271,7 +288,7 @@ def register_media_sidecar_tools(mcp: FastMCP):
         import tempfile
         from pathlib import Path
 
-        from agent_utilities.mcp.action_dispatch import parse_json_object
+        from agent_connector_sdk.mcp.action_dispatch import parse_json_object
 
         if action != "transcribe_segments":
             return {"available": False, "error": f"unsupported action: {action!r}"}
@@ -334,8 +351,11 @@ def register_media_sidecar_tools(mcp: FastMCP):
                 word_timestamps=bool(params.get("word_timestamps", False)),
             )
         except Exception as e:
-            ctx_log(
-                ctx, logger, "error", f"transcribe_media failed: {type(e).__name__}"
+            await ctx_log(
+                ctx,
+                f"transcribe_media failed: {type(e).__name__}",
+                logger=logger,
+                level="error",
             )
             return {
                 "available": False,
