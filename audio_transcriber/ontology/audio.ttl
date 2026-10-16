@@ -91,6 +91,6 @@
     rdfs:label "Audio Transcription Ontology" ;
     rdfs:comment """Audio/video transcription domain model — Whisper transcripts and their
     timestamped segments, transcribed from a shared :AssetOccurrence blob and carried as a shared
-    :Document, with language/duration/model provenance — federated into the agent-utilities
+    :Document, with language/duration/model provenance — federated into the agent-connector-sdk
     knowledge-graph hub.""" ;
     owl:imports <http://knuckles.team/kg> .

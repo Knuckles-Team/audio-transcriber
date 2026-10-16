@@ -210,17 +210,6 @@ def test_mcp_server_coverage(mock_audio):
             loop.close()
 
 
-def test_agent_server_coverage():
-    import audio_transcriber.agent_server as mod
-    from audio_transcriber.agent_server import agent_server
-
-    with patch("agent_utilities.create_agent_server") as mock_s:
-        with patch("sys.argv", ["agent_server.py"]):
-            if inspect.isfunction(agent_server):
-                agent_server()
-            else:
-                mod.agent_server()
-            assert mock_s.called
 
 
 def test_main_coverage(mock_audio):

@@ -2,7 +2,7 @@
 
 Transcribe `.wav`, `.mp4`, `.mp3`, and `.flac` files to text — or record the operator's own
 audio — through a CLI, a Python API, an **MCP server**, and an A2A agent, built on
-the agent-utilities ecosystem.
+the agent-connector-sdk ecosystem.
 
 !!! info "Official documentation"
     This site is the canonical reference for `audio-transcriber`, maintained

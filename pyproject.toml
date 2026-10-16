@@ -9,7 +9,7 @@ description = "Transcribe your .wav .mp4 .mp3 .flac files to text or record your
 readme = "README.md"
 classifiers = [ "Development Status :: 5 - Production/Stable", "License :: Public Domain", "Environment :: Console", "Operating System :: POSIX :: Linux", "Programming Language :: Python :: 3",]
 requires-python = ">=3.12, <3.15"
-dependencies = [ "agent-connector-sdk>=0.1.0,<1.0.0", "agent-utilities>=2.0.0,<3.0.0", "pyaudio>=0.2.14", "faster-whisper>=1.2.1", "setuptools-rust>=1.13.0",]
+dependencies = [ "agent-connector-sdk>=0.2.0,<1.0.0", "pyaudio>=0.2.14", "faster-whisper>=1.2.1", "setuptools-rust>=1.13.0",]
 [[project.authors]]
 name = "Project Maintainers"
 email = "maintainers@users.noreply.github.com"
@@ -19,8 +19,7 @@ text = "MIT"
 
 [project.optional-dependencies]
 local = [ "openai-whisper>=20250625",]
-mcp = [ "agent-utilities[mcp]>=2.0.0,<3.0.0", "websockets>=16.1.1",]
-agent = [ "agent-utilities[agent-runtime,logfire]>=2.0.0,<3.0.0", "websockets>=16.1.1",]
+mcp = [ "agent-connector-sdk>=0.2.0,<1.0.0", "websockets>=16.1.1",]
 all = [ "audio-transcriber[mcp,agent]>=1.0.0",]
 test = [
     "pytest-xdist>=3.8.0", "pytest>=9.1.1", "pytest-asyncio>=1.4.0", "pytest-cov>=7.1.0",]
@@ -28,18 +27,17 @@ test = [
 [project.scripts]
 audio-transcriber = "audio_transcriber.audio_transcriber:main"
 audio-transcriber-mcp = "audio_transcriber.mcp_server:mcp_server"
-audio-transcriber-agent = "audio_transcriber.agent_server:agent_server"
 
-[project.entry-points."agent_utilities.skill_providers"]
+[project.entry-points."agent_connector_sdk.skill_providers"]
 audio-transcriber = "audio_transcriber.skills"
 
-[project.entry-points."agent_utilities.ontology_providers"]
+[project.entry-points."agent_connector_sdk.ontology_providers"]
 audio-transcriber = "audio_transcriber.ontology"
 
-[project.entry-points."agent_utilities.source_connector_providers"]
+[project.entry-points."agent_connector_sdk.source_connector_providers"]
 audio-transcriber = "audio_transcriber.connectors"
 
-[project.entry-points."agent_utilities.prompt_providers"]
+[project.entry-points."agent_connector_sdk.prompt_providers"]
 audio-transcriber = "audio_transcriber.prompts"
 
 [tool.uv.workspace]
@@ -53,9 +51,6 @@ override-dependencies = [
     "fastmcp-slim[client,server]>=4.0.0b1",
 ]
 
-[tool.uv.sources]
-agent-connector-sdk = { path = ".uv-workspace-siblings/agent-connector-sdk", editable = true }
-agent-utilities = { path = ".uv-workspace-siblings/agent-utilities", editable = true }
 
 [tool.ruff]
 line-length = 88

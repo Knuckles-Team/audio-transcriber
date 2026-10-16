@@ -234,7 +234,7 @@ def register_media_sidecar_tools(mcp: FastMCP):
     """The governed media-sidecar contract adapter (BUG-271,
     CONCEPT:AU-KG.ingest.media-sidecar-delegation).
 
-    agent-utilities' ``media/sidecar_contract.py`` ``SIDECAR_CAPABILITIES['audio']``
+    agent-connector-sdk' ``media/sidecar_contract.py`` ``SIDECAR_CAPABILITIES['audio']``
     manifest entry declares ``server=audio-transcriber-mcp``,
     ``tool=transcribe_media``, ``action=transcribe_segments``, action-routed
     (``action`` + ``params_json``, ``params_style="json"`` — the fleet's dominant

@@ -18,7 +18,7 @@
 ## Functional Requirements
 
 - **FR-001**: Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
-- **FR-002**: Minor update: agent-utilities 0.2.40 (installed) -> 0.16.0
+- **FR-002**: Minor update: agent-connector-sdk 0.2.40 (installed) -> 0.16.0
 - **FR-003**: Needs attention: audio_transcriber.py (769L) — 1 functions with high complexity (worst: AudioTranscriber.export at 24L, CC=6)
 - **FR-004**: 9 functions with nesting depth >4
 - **FR-005**: 6 tests without assertions
@@ -48,7 +48,7 @@
 - **FR-029**: 6 tests have no assertions
 - **FR-030**: 9 tests have excessive mocking (>5 mocks) — test behavior, not implementation
 - **FR-031**: 1 tests exceed 100 lines — likely doing too much per test
-- **FR-032**: Analysis error: No module named 'agent_utilities.knowledge_graph'
+- **FR-032**: Analysis error: No module named 'agent_connector_sdk.knowledge_graph'
 
 ## Success Criteria
 
