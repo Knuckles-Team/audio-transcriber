@@ -247,7 +247,6 @@ def test_main_coverage(mock_audio):
             dummy_file.unlink()
 
 
-@pytest.mark.skip(reason="Hangs indefinitely due to asyncio loop")
 def test_interact_coverage(mock_audio):
     from audio_transcriber.audio_transcriber import audio_transcriber
 

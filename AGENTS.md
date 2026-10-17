@@ -9,19 +9,9 @@
 - Key principles: Functional patterns, Pydantic for data validation, asynchronous tool execution.
 - Architecture:
     - `mcp_server.py`: Main MCP server entry point and tool registration.
-    - `agent.py`: Pydantic AI agent definition and logic.
     - `skills/`: Directory containing modular agent skills (if applicable).
 
 ### Architecture Diagram
-```mermaid
-graph TD
-    User([User/A2A]) --> Server[A2A Server / FastAPI]
-    Server --> Agent[Pydantic AI Agent]
-    Agent --> Skills[Modular Skills]
-    Agent --> MCP[MCP Server / FastMCP]
-    MCP --> Client[API Client / Wrapper]
-    Client --> ExternalAPI([External Service API])
-```
 
 ### Workflow Diagram
 ```mermaid
@@ -59,9 +49,6 @@ pre-commit run --all-files
 - Skills → `skills/` (if exists)
 
 ### File Tree
-```text
-├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .github\n│   └── workflows\n│       └── pipeline.yml\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── audio_transcriber\n│   ├── __init__.py\n│   ├── __main__.py\n│   ├── agent.py\n│   ├── audio_transcriber.py\n│   ├── mcp_server.py\n│   └── personaplex_client.py\n├── compose.yml\n├── debug.Dockerfile\n├── docker-compose.personaplex.yaml\n├── mcp.compose.yml\n├── personaplex.Dockerfile\n├── pyproject.toml\n├── pytest.ini\n├── requirements.txt\n└── scripts\n    ├── test_personaplex_connection.py\n    └── validate_a2a_agent.py
-```
 
 ## Code Style & Conventions
 **Always:**

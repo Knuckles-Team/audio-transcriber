@@ -63,11 +63,9 @@ Store the real remote URL, outbound identity reference, and TLS-profile referenc
 <!-- END GENERATED: deployment-options -->
 
 This page covers running `audio-transcriber` as a long-lived server: the transports,
-the optional A2A agent, a Docker Compose stack, putting it behind a Caddy reverse
 proxy, and giving it a DNS name with Technitium.
 
 > `audio-transcriber` ships an **MCP server** (console script `audio-transcriber-mcp`)
-> and an **A2A agent server** (console script `audio-transcriber-agent`). The MCP
 > server is the typed, deterministic tool surface; the agent drives those tools over
 > the Agent Control Protocol.
 
@@ -154,56 +152,6 @@ cp .env.example .env          # then edit WHISPER_MODEL and any other values
 docker compose -f docker/mcp.compose.yml up -d
 docker compose -f docker/mcp.compose.yml logs -f
 ```
-
-## Run the A2A agent
-
-The agent connects to the MCP server and exposes an Agent Control Protocol endpoint
-(and an optional web interface). The console script is `audio-transcriber-agent`:
-
-```bash
-export MCP_URL=http://localhost:8000/mcp
-audio-transcriber-agent --provider openai --model-id gpt-4o
-```
-
-The repo ships [`docker/agent.compose.yml`](https://github.com/Knuckles-Team/audio-transcriber/blob/main/docker/agent.compose.yml),
-which deploys the MCP server and the agent together. The agent listens on `:9014`
-and is wired to the MCP server by container name through `MCP_URL`:
-
-```yaml
-services:
-  audio-transcriber-mcp:
-    image: example/audio-transcriber@sha256:<digest>
-    hostname: audio-transcriber-mcp
-    environment:
-      - TRANSPORT=streamable-http
-      - HOST=0.0.0.0
-      - PORT=8000
-    ports:
-      - "8000:8000"
-
-  audio-transcriber-agent:
-    image: example/audio-transcriber@sha256:<digest>
-    depends_on:
-      - audio-transcriber-mcp
-    command: ["audio-transcriber-agent"]
-    environment:
-      - HOST=0.0.0.0
-      - PORT=9014
-      - MCP_URL=http://audio-transcriber-mcp:8000/mcp
-      - PROVIDER=${PROVIDER:-openai}
-      - MODEL_ID=${MODEL_ID:-gpt-4o}
-      - ENABLE_WEB_UI=True
-    ports:
-      - "9014:9014"
-```
-
-```bash
-docker compose -f docker/agent.compose.yml up -d
-```
-
-The agent endpoints are then available at `http://localhost:9014/a2a` (discovery at
-`/a2a/.well-known/agent.json`) and, when enabled, the web interface at
-`http://localhost:9014/`.
 
 ## Behind a Caddy reverse proxy
 

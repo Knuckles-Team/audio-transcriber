@@ -1,5 +1,5 @@
 [build-system]
-requires = [ "setuptools>=80.9.0", "wheel",]
+requires = [ "setuptools>=84.0.0", "wheel",]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -19,8 +19,8 @@ text = "MIT"
 
 [project.optional-dependencies]
 local = [ "openai-whisper>=20250625",]
-mcp = [ "agent-connector-sdk>=0.2.0,<1.0.0", "websockets>=16.1.1",]
-all = [ "audio-transcriber[mcp,agent]>=1.0.0",]
+mcp = [ "agent-connector-sdk>=0.2.0,<1.0.0", "websockets>=17.2",]
+all = [ "audio-transcriber[mcp]>=1.0.0",]
 test = [
     "pytest-xdist>=3.8.0", "pytest>=9.1.1", "pytest-asyncio>=1.4.0", "pytest-cov>=7.1.0",]
 
@@ -48,7 +48,7 @@ include-package-data = true
 
 [tool.uv]
 override-dependencies = [
-    "fastmcp-slim[client,server]>=4.0.0b1",
+    "fastmcp-slim[client,server]>=4.1.0",
 ]
 
 

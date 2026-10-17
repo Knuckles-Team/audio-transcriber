@@ -13,9 +13,7 @@ def test_expose_members_and_getattr():
 def test_available_flags():
     # Fetch available flags
     mcp_avail = audio_transcriber._MCP_AVAILABLE
-    agent_avail = audio_transcriber._AGENT_AVAILABLE
     assert isinstance(mcp_avail, bool)
-    assert isinstance(agent_avail, bool)
 
 
 def test_import_error_getattr():

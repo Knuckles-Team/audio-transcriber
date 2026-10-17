@@ -49,11 +49,6 @@ def __getattr__(name: str) -> Any:
         if mcp_key:
             return _import_module_safely(mcp_key) is not None
         return False
-    if name == "_AGENT_AVAILABLE":
-        agent_key = next((k for k in OPTIONAL_MODULES if "agent_server" in k), None)
-        if agent_key:
-            return _import_module_safely(agent_key) is not None
-        return False
 
     # Check optional modules
     for module_name in OPTIONAL_MODULES:
