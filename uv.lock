@@ -83,7 +83,6 @@ source = { editable = "." }
 dependencies = [
     { name = "agent-connector-sdk", extra = ["mcp"] },
     { name = "faster-whisper" },
-    { name = "pyaudio" },
     { name = "setuptools-rust" },
 ]
 
@@ -98,6 +97,9 @@ local = [
 mcp = [
     { name = "agent-connector-sdk", extra = ["mcp"] },
     { name = "websockets" },
+]
+microphone = [
+    { name = "pyaudio" },
 ]
 test = [
     { name = "pytest" },
@@ -118,7 +120,7 @@ requires-dist = [
     { name = "audio-transcriber", extras = ["mcp"], marker = "extra == 'all'", specifier = ">=1.0.0" },
     { name = "faster-whisper", specifier = ">=1.2.1" },
     { name = "openai-whisper", marker = "extra == 'local'", specifier = ">=20250625" },
-    { name = "pyaudio", specifier = ">=0.2.14" },
+    { name = "pyaudio", marker = "extra == 'microphone'", specifier = ">=0.2.14" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=9.1.1" },
     { name = "pytest-asyncio", marker = "extra == 'test'", specifier = ">=1.4.0" },
     { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=7.1.0" },
@@ -126,7 +128,7 @@ requires-dist = [
     { name = "setuptools-rust", specifier = ">=1.13.0" },
     { name = "websockets", marker = "extra == 'mcp'", specifier = ">=17.2" },
 ]
-provides-extras = ["local", "mcp", "all", "test"]
+provides-extras = ["local", "microphone", "mcp", "all", "test"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest-timeout", specifier = ">=2.4.0" }]
