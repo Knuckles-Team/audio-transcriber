@@ -121,10 +121,8 @@ async def test_transcribe_audio_tool():
     # 1. Invalid args (neither audio_file nor positive record_seconds)
     with pytest.raises(RuntimeError) as exc_info:
         await call_tool(audio_file=None, record_seconds=0)
-    assert (
-        "Either audio_file must be provided or record_seconds must be positive"
-        in str(exc_info.value)
-    )
+    # The tool reports the exception type only (never the message).
+    assert "Failed to transcribe audio: ValueError" in str(exc_info.value)
 
     # 2. File not found
     mock_transcriber_missing = MagicMock()
@@ -137,7 +135,7 @@ async def test_transcribe_audio_tool():
     ):
         with pytest.raises(RuntimeError) as exc_info:
             await call_tool(audio_file="nonexistent.wav", record_seconds=0)
-        assert "Audio file not found" in str(exc_info.value)
+        assert "Failed to transcribe audio: ValueError" in str(exc_info.value)
 
     # 3. Successful file transcription with mock AudioTranscriber
     mock_transcriber = MagicMock()
@@ -184,7 +182,7 @@ async def test_transcribe_audio_tool():
 async def test_transcribe_media_tool():
     """BUG-271: the governed sidecar contract's ``transcribe_media`` action —
     action-routed (``action`` + ``params_json``) with ``digest``/``media_type``/
-    ``artifact_b64``, matching ``agent_utilities.media.sidecar_contract``'s
+    ``artifact_b64``, matching ``agent_connector_sdk.media.sidecar_contract``'s
     ``SIDECAR_CAPABILITIES['audio']`` manifest entry exactly."""
     import base64
     import hashlib

@@ -42,7 +42,7 @@ from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -152,7 +152,10 @@ def register_audio_processing_tools(mcp: FastMCP):
             if ctx:
                 await ctx.report_progress(progress=0, total=100)
                 await ctx_log(
-                    ctx, "Reported initial progress: 0/100", logger=logger, level="debug"
+                    ctx,
+                    "Reported initial progress: 0/100",
+                    logger=logger,
+                    level="debug",
                 )
 
             if audio_file:
@@ -181,7 +184,9 @@ def register_audio_processing_tools(mcp: FastMCP):
                         level="debug",
                     )
 
-            await ctx_log(ctx, "Starting Whisper transcription.", logger=logger, level="info")
+            await ctx_log(
+                ctx, "Starting Whisper transcription.", logger=logger, level="info"
+            )
             result = transcriber.transcribe(
                 language=language,
                 task=task,
@@ -213,11 +218,17 @@ def register_audio_processing_tools(mcp: FastMCP):
             if ctx:
                 await ctx.report_progress(progress=100, total=100)
                 await ctx_log(
-                    ctx, "Reported final progress: 100/100", logger=logger, level="debug"
+                    ctx,
+                    "Reported final progress: 100/100",
+                    logger=logger,
+                    level="debug",
                 )
 
             await ctx_log(
-                ctx, "Transcription completed successfully.", logger=logger, level="info"
+                ctx,
+                "Transcription completed successfully.",
+                logger=logger,
+                level="info",
             )
             return result["text"]
         except Exception as e:
@@ -234,7 +245,7 @@ def register_media_sidecar_tools(mcp: FastMCP):
     """The governed media-sidecar contract adapter (BUG-271,
     CONCEPT:AU-KG.ingest.media-sidecar-delegation).
 
-    agent-utilities' ``media/sidecar_contract.py`` ``SIDECAR_CAPABILITIES['audio']``
+    agent-connector-sdk' ``media/sidecar_contract.py`` ``SIDECAR_CAPABILITIES['audio']``
     manifest entry declares ``server=audio-transcriber-mcp``,
     ``tool=transcribe_media``, ``action=transcribe_segments``, action-routed
     (``action`` + ``params_json``, ``params_style="json"`` — the fleet's dominant

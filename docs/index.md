@@ -1,8 +1,7 @@
 # audio-transcriber
 
 Transcribe `.wav`, `.mp4`, `.mp3`, and `.flac` files to text — or record the operator's own
-audio — through a CLI, a Python API, an **MCP server**, and an A2A agent, built on
-the agent-utilities ecosystem.
+the agent-connector-sdk ecosystem.
 
 !!! info "Official documentation"
     This site is the canonical reference for `audio-transcriber`, maintained
@@ -24,7 +23,6 @@ provides:
   local media files, and exports `txt` / `srt` / `vtt` / `json` results.
 - **An MCP server** (`audio-transcriber-mcp`) exposing the `transcribe_audio` tool
   for agents and IDE assistants.
-- **An A2A agent** (`audio-transcriber-agent`) that drives the MCP tools over the
   Agent Control Protocol with an optional web interface.
 
 Transcription runs entirely in process — the Whisper model is loaded locally, so no

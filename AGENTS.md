@@ -5,23 +5,13 @@
 
 ## Tech Stack & Architecture
 - Language/Version: Python 3.10+
-- Core Libraries: `agent-utilities`, `fastmcp`, `pydantic-ai`
+- Core Libraries: `agent-connector-sdk`, `fastmcp`, `pydantic-ai`
 - Key principles: Functional patterns, Pydantic for data validation, asynchronous tool execution.
 - Architecture:
     - `mcp_server.py`: Main MCP server entry point and tool registration.
-    - `agent.py`: Pydantic AI agent definition and logic.
     - `skills/`: Directory containing modular agent skills (if applicable).
 
 ### Architecture Diagram
-```mermaid
-graph TD
-    User([User/A2A]) --> Server[A2A Server / FastAPI]
-    Server --> Agent[Pydantic AI Agent]
-    Agent --> Skills[Modular Skills]
-    Agent --> MCP[MCP Server / FastMCP]
-    MCP --> Client[API Client / Wrapper]
-    Client --> ExternalAPI([External Service API])
-```
 
 ### Workflow Diagram
 ```mermaid
@@ -59,20 +49,17 @@ pre-commit run --all-files
 - Skills → `skills/` (if exists)
 
 ### File Tree
-```text
-├── .bumpversion.cfg\n├── .dockerignore\n├── .env\n├── .gitattributes\n├── .github\n│   └── workflows\n│       └── pipeline.yml\n├── .gitignore\n├── .pre-commit-config.yaml\n├── AGENTS.md\n├── Dockerfile\n├── LICENSE\n├── MANIFEST.in\n├── README.md\n├── audio_transcriber\n│   ├── __init__.py\n│   ├── __main__.py\n│   ├── agent.py\n│   ├── audio_transcriber.py\n│   ├── mcp_server.py\n│   └── personaplex_client.py\n├── compose.yml\n├── debug.Dockerfile\n├── docker-compose.personaplex.yaml\n├── mcp.compose.yml\n├── personaplex.Dockerfile\n├── pyproject.toml\n├── pytest.ini\n├── requirements.txt\n└── scripts\n    ├── test_personaplex_connection.py\n    └── validate_a2a_agent.py
-```
 
 ## Code Style & Conventions
 **Always:**
-- Use `agent-utilities` for common patterns (e.g., `create_mcp_server`, `create_agent`).
+- Use `agent-connector-sdk` for common patterns (e.g., `create_mcp_server`, `create_agent`).
 - Define input/output models using Pydantic.
 - Include descriptive docstrings for all tools (they are used as tool descriptions for LLMs).
 - Check for optional dependencies using `try/except ImportError`.
 
 **Good example:**
 ```python
-from agent_utilities import create_mcp_server
+from agent_connector_sdk import create_mcp_server
 from mcp.server.fastmcp import FastMCP
 
 mcp = create_mcp_server("my-agent")
@@ -86,7 +73,7 @@ async def my_tool(param: str) -> str:
 ## Dos and Don'ts
 **Do:**
 - Run `pre-commit` before pushing changes.
-- Use existing patterns from `agent-utilities`.
+- Use existing patterns from `agent-connector-sdk`.
 - Keep tools focused and idempotent where possible.
 
 **Don't:**
@@ -97,7 +84,7 @@ async def my_tool(param: str) -> str:
 ## Safety & Boundaries
 **Always do:**
 - Run lint/test via `pre-commit`.
-- Use `agent-utilities` base classes.
+- Use `agent-connector-sdk` base classes.
 
 **Ask first:**
 - Major refactors of `mcp_server.py` or `agent.py`.
@@ -105,11 +92,11 @@ async def my_tool(param: str) -> str:
 
 **Never do:**
 - Commit `.env` files or secrets.
-- Modify `agent-utilities` or `universal-skills` files from within this package.
+- Modify `agent-connector-sdk` or `universal-skills` files from within this package.
 
 ## When Stuck
 - Propose a plan first before making large changes.
-- Check `agent-utilities` documentation for existing helpers.
+- Check `agent-connector-sdk` documentation for existing helpers.
 
 ## Testing with Timeout
 
@@ -241,10 +228,10 @@ alone).
 Working in parallel with other sessions/worktrees? **Reserve a concept id before you write its `CONCEPT:` marker** so two sessions never collide:
 
 ```bash
-agent-utilities --json concept reserve --ns EG-KG.compute.backend   # or a package prefix, e.g. KEY
+agent-connector-sdk --json concept reserve --ns EG-KG.compute.backend   # or a package prefix, e.g. KEY
 ```
 
-Full protocol (ledger, merge=union, reconcile, MCP/REST): <https://knuckles-team.github.io/agent-utilities/concept_coordination/>
+Full protocol (ledger, merge=union, reconcile, MCP/REST): <https://knuckles-team.github.io/agent-connector-sdk/concept_coordination/>
 <!-- END concept-coordination (generated) -->
 
 ## Version & lockfile drift edict (keep the version mirrors AND the lock in sync)
@@ -272,14 +259,14 @@ is what Dependabot flags. Rules:
 ## Upstream currency edict — target the newest release; a pin is a hypothesis, not a fact (READ BEFORE capping, deferring, or opt-in-gating an upgrade)
 
 This governs how this repository treat **other people's** releases, deprecations, and version caps in
-this repo (fleet-wide edict, propagated from `agent-utilities/AGENTS.md`).
+this repo (fleet-wide edict, propagated from `agent-connector-sdk/AGENTS.md`).
 
 1. **Latest by default.** Target the newest upstream release -- including a pre-release
    where the ecosystem has already moved onto it. Sitting on an old major because the
    upgrade is work is not a reason to defer it.
 2. **A conservative upstream pin is a hypothesis, not a fact -- test it, don't inherit
    it.** Upstream maintainers cap defensively (an unreleased major, an untested surface)
-   as often as they cap for a known break. Worked example (from `agent-utilities`):
+   as often as they cap for a known break. Worked example (from `agent-connector-sdk`):
    `pydantic-ai-slim` 2.18.0 declared `fastmcp-slim[client]>=3.3.0` with no upper bound;
    2.19.0 added `<4` purely as a defensive guard while fastmcp 4 was still pre-release --
    not because of an observed incompatibility. Blocking an upgrade on that kind of cap

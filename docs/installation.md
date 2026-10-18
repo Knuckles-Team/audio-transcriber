@@ -30,15 +30,9 @@ for the interface the operator need:
 
 | Extra | Install | Pulls in |
 |---|---|---|
-| `mcp` | `pip install "audio-transcriber[mcp]"` | FastMCP MCP-server runtime (`agent-utilities[mcp]`) + `websockets` |
-| `agent` | `pip install "audio-transcriber[agent]"` | Pydantic-AI agent + Logfire tracing |
+| `mcp` | `pip install "audio-transcriber[mcp]"` | FastMCP MCP-server runtime (`agent-connector-sdk`) + `websockets` |
 | `local` | `pip install "audio-transcriber[local]"` | `openai-whisper` reference backend (fallback to `faster-whisper`) |
 | `all` | `pip install "audio-transcriber[all]"` | The `mcp` and `agent` extras together |
-
-```bash
-# Typical: run the MCP server and the A2A agent
-pip install "audio-transcriber[all]"
-```
 
 ## From source
 

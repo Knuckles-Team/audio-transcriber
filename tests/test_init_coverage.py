@@ -13,9 +13,7 @@ def test_expose_members_and_getattr():
 def test_available_flags():
     # Fetch available flags
     mcp_avail = audio_transcriber._MCP_AVAILABLE
-    agent_avail = audio_transcriber._AGENT_AVAILABLE
     assert isinstance(mcp_avail, bool)
-    assert isinstance(agent_avail, bool)
 
 
 def test_import_error_getattr():
@@ -27,27 +25,6 @@ def test_import_error_getattr():
         assert res is None
 
 
-def test_available_flags_missing():
-    # Patch import_module to raise ImportError when importing optional modules
-    original_import = importlib.import_module
-
-    def mock_import(name, *args, **kwargs):
-        if "mcp_server" in name or "agent_server" in name:
-            raise ImportError("mock optional missing")
-        return original_import(name, *args, **kwargs)
-
-    with patch("importlib.import_module", side_effect=mock_import):
-        mcp_val = audio_transcriber.__getattr__("_MCP_AVAILABLE")
-        agent_val = audio_transcriber.__getattr__("_AGENT_AVAILABLE")
-        assert mcp_val is False
-        assert agent_val is False
-
-    # Cover fallback return False (lines 52, 57) when OPTIONAL_MODULES keys are missing
-    with patch.dict(audio_transcriber.OPTIONAL_MODULES, {}, clear=True):
-        mcp_val = audio_transcriber.__getattr__("_MCP_AVAILABLE")
-        agent_val = audio_transcriber.__getattr__("_AGENT_AVAILABLE")
-        assert mcp_val is False
-        assert agent_val is False
 
 
 def test_dynamic_attributes_retrieval():
