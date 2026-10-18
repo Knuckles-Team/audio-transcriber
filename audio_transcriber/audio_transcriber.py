@@ -23,7 +23,7 @@ except ModuleNotFoundError:  # pragma: no cover - audio hardware lib is optional
     # module importable when the native PortAudio library is absent.
     pyaudio = None  # type: ignore[assignment]
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 
 
 class TranscriberBackend(ABC):
@@ -425,7 +425,7 @@ class AudioTranscriber:
         try:
             from audio_transcriber.kg_ingest import ingest_transcription
 
-            coro_kwargs = dict(
+            coro_kwargs: dict[str, Any] = dict(
                 audio_path=str(self.file_path) if self.file_path else None,
                 name=self.title,
                 model=getattr(self.backend_instance, "model_name", None),
