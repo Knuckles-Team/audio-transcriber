@@ -6,8 +6,6 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Transcribe .wav .mp4 .mp3 .flac files to text or record your own audio — CLI, Python API, MCP Server, and A2A agent for the agent-utilities ecosystem.">
-      
       
       
         <link rel="canonical" href="https://knuckles-team.github.io/audio-transcriber/">
@@ -764,8 +762,7 @@
 
 <h1 id="audio-transcriber">audio-transcriber<a class="headerlink" href="#audio-transcriber" title="Permanent link">&para;</a></h1>
 <p>Transcribe <code>.wav</code>, <code>.mp4</code>, <code>.mp3</code>, and <code>.flac</code> files to text — or record the operator's own
-audio — through a CLI, a Python API, an <strong>MCP server</strong>, and an A2A agent, built on
-the agent-utilities ecosystem.</p>
+the agent-connector-sdk ecosystem.</p>
 <div class="admonition info">
 <p class="admonition-title">Official documentation</p>
 <p>This site is the canonical reference for <code>audio-transcriber</code>, maintained
@@ -784,8 +781,7 @@ provides:</p>
 <li><strong><code>AudioTranscriber</code></strong> — a Python class that records microphone audio, transcribes
   local media files, and exports <code>txt</code> / <code>srt</code> / <code>vtt</code> / <code>json</code> results.</li>
 <li><strong>An MCP server</strong> (<code>audio-transcriber-mcp</code>) exposing the <code>transcribe_audio</code> tool
-  for agents and IDE assistants.</li>
-<li><strong>An A2A agent</strong> (<code>audio-transcriber-agent</code>) that drives the MCP tools over the
+  for agents and IDE assistants.
   Agent Control Protocol with an optional web interface.</li>
 </ul>
 <p>Transcription runs entirely in process — the Whisper model is loaded locally, so no
