@@ -16,7 +16,7 @@ RUN git init . \
     && git remote add origin https://github.com/NVIDIA/personaplex.git \
     && git fetch --depth 1 origin "${PERSONAPLEX_REV}" \
     && git checkout --detach FETCH_HEAD \
-    && pip install --no-cache-dir ./moshi \
+    && pip install --no-cache-dir --only-binary :all: ./moshi \
     && mkdir -p /tmp/ssl
 
 FROM python:3.14-slim@sha256:cea0e6040540fb2b965b6e7fb5ffa00871e632eef63719f0ea54bca189ce14a6 AS runtime

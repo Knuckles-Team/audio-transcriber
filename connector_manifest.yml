@@ -71,7 +71,7 @@ sync:
 - preset: audio-transcripts
   server: audio-transcriber-mcp
   tool: audio_ingest_transcription
-  action: transcribe
+  action: null
   records_path: documents
   id_field: id
   title_field: title
@@ -83,7 +83,6 @@ sync:
   raw:
     server: audio-transcriber-mcp
     tool: audio_ingest_transcription
-    action: transcribe
     records_path: documents
     id_field: id
     title_field: title

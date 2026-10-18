@@ -162,8 +162,9 @@ def test_mcp_server_coverage(mock_audio):
         return await call_next(context)
 
     with patch.object(RateLimitingMiddleware, "on_request", mock_on_request):
+        # Build the server against the real client class (the SDK reflects its methods).
+        mcp_data = get_mcp_instance()
         with patch("audio_transcriber.mcp_server.AudioTranscriber") as mock_at:
-            mcp_data = get_mcp_instance()
             mcp = mcp_data[0] if isinstance(mcp_data, tuple) else mcp_data
 
             async def run_tools():

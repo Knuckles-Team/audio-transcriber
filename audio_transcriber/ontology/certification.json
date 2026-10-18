@@ -1,14 +1,14 @@
 {
   "api_version": "arbora.io/v1",
   "artifacts": {
-    "audio_transcriber/connectors/mcp_source_presets.json": "fb2e8568a72321370936b8834507c1a975a804a56a93cde1f3acb98e0db1fd06",
-    "audio_transcriber/connectors/tool_schema_fingerprints.json": "505380e259d63a608a1478f9bdcc56c8d204c0d4aeb10919a4c9fcc487a18acc",
+    "audio_transcriber/connectors/mcp_source_presets.json": "424294c89f5f4eaab1cbc27b450c2b3de14511c1899787b7fd8e82d4662b0d12",
+    "audio_transcriber/connectors/tool_schema_fingerprints.json": "4fe1399d675151f6924663879cf7b8209bdf6f5f98c6596ca2dfcdea15bc3103",
     "audio_transcriber/ontology/audio.ttl": "208e2f1c550278038b77be42c6519dbc9b2997bb4f367f1b674642e2e83c50b9",
     "audio_transcriber/ontology/fixtures/records.json": "57434157c5440e0601c5e6897f713869908364d9f0fb4b07120e746854f2e992",
     "audio_transcriber/ontology/mappings/source.yaml": "6988e238142f7eabac12e92486458cf57888b760b6a59ebe272492807252616e",
     "audio_transcriber/ontology/migrations/manifest.json": "30273f3429c34ca2a1719d48e32a08c08651e72034d894fd66294062e5d842e9",
     "audio_transcriber/ontology/shapes/connector.shacl.ttl": "de0b63cde5bc9997ed76b8d5d44be2a4c3825928b17b0debba8ef7c1a2dbe00b",
-    "connector_manifest.yml": "ea9407c6454c574cdba2b548a4dba2b917ec4e2c06b7b0a4c52c5f420adf411e"
+    "connector_manifest.yml": "11dc70311fe0c29fc5dc54ce23d84b932672bc1177281caaa8fe79cba0037602"
   },
   "checks": {
     "declared_tool_schema": "passed",
