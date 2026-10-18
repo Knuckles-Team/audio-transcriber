@@ -3,12 +3,12 @@
   "audio-transcripts": {
     "server": "audio-transcriber-mcp",
     "tool": "audio_ingest_transcription",
-    "action": "transcribe",
     "records_path": "documents",
     "id_field": "id",
     "title_field": "title",
     "text_field": "text",
     "updated_field": "created_at",
-    "doc_type": "transcript"
+    "doc_type": "transcript",
+    "params_style": "args"
   }
 }
