@@ -32,7 +32,7 @@ from agent_connector_sdk.ingest import (
 logger = logging.getLogger("AudioTranscriber.kg")
 
 _SOURCE = "audio-transcriber"
-_BINDING = IngestBinding(connector="audio-transcriber", stream="audio")
+_BINDING = IngestBinding(connector="audio-transcriber-mcp", stream="audio")
 
 # Whisper/transcription info keys worth carrying onto the media-asset record.
 _INFO_FIELDS = (

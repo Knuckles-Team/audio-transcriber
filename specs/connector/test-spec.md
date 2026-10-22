@@ -13,3 +13,4 @@ The tests cover the error path that each row names.
 ## Quality and release proof
 
 Run `pytest -q`. The served proof is the fleet acceptance check through the gateway.
+| T-002 | `CONN-AUDIO-TRANSCRIBER-R002` | `tests/test_fleet_name.py::test_connector_name_is_the_fleet_name` | Every connector name in the package is `audio-transcriber-mcp`. |
