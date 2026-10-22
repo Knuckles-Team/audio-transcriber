@@ -1,6 +1,6 @@
 {
   "algorithm": "agent-connector-sdk:mcp-tool-contract-compat:v2",
-  "connector": "audio-transcriber",
+  "connector": "audio-transcriber-mcp",
   "schema_version": "1",
   "tools": {
     "audio_ingest_transcription": "93bfdd1960717a853612aac29eb1d043ab6e738db3c2c3f39c0eee5d0d7831b2"

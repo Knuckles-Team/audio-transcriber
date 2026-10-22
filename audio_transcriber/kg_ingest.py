@@ -41,7 +41,7 @@ logger = logging.getLogger("AudioTranscriber.kg")
 
 _SOURCE = "audio-transcriber"
 _DOMAIN = "audio"
-_BINDING = IngestBinding(connector="audio-transcriber", stream=_DOMAIN)
+_BINDING = IngestBinding(connector="audio-transcriber-mcp", stream=_DOMAIN)
 
 
 def _to_entity(record: dict[str, Any]) -> Entity:
@@ -54,9 +54,7 @@ def _to_entity(record: dict[str, Any]) -> Entity:
 
 def _to_relationship(record: dict[str, Any]) -> Relationship:
     props = {
-        k: v
-        for k, v in record.items()
-        if k not in ("source", "target", "relationship")
+        k: v for k, v in record.items() if k not in ("source", "target", "relationship")
     }
     return Relationship(
         source=record["source"],

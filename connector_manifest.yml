@@ -1,4 +1,4 @@
-connector: audio-transcriber
+connector: audio-transcriber-mcp
 ontology_source: audio
 schema_version: '1'
 resources:
