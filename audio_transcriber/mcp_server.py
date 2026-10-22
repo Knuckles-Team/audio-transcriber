@@ -42,7 +42,7 @@ from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "2.3.0"
+__version__ = "2.3.1"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -60,6 +60,36 @@ def _default_transcribe_directory() -> Path:
 DEFAULT_TRANSCRIBE_DIRECTORY = setting(
     "TRANSCRIBE_DIRECTORY", str(_default_transcribe_directory())
 )
+
+
+def engine_health() -> dict:
+    """Read the local transcription engine's state; never load a model or write."""
+    import importlib.util
+    import shutil
+
+    def _importable(module: str) -> bool:
+        try:
+            return importlib.util.find_spec(module) is not None
+        except (ImportError, ValueError):
+            return module in sys.modules
+
+    backends = [
+        name
+        for name, module in (
+            ("faster-whisper", "faster_whisper"),
+            ("openai-whisper", "whisper"),
+        )
+        if _importable(module)
+    ]
+    directory = Path(DEFAULT_TRANSCRIBE_DIRECTORY)
+    return {
+        "status": "OK" if backends else "DEGRADED",
+        "version": __version__,
+        "backends": backends,
+        "ffmpeg": shutil.which("ffmpeg") is not None,
+        "default_model": DEFAULT_WHISPER_MODEL,
+        "transcribe_directory_exists": directory.is_dir(),
+    }
 
 
 def get_client() -> AudioTranscriber:
@@ -438,9 +468,22 @@ def register_prompts(mcp: FastMCP):
 def register_misc_tools(mcp: FastMCP):
     """Register miscellaneous tools like health check."""
 
-    @mcp.tool()
+    @mcp.tool(
+        annotations={
+            "title": "Transcription Engine Health",
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
+    )
     async def health_check() -> dict:
-        return {"status": "OK"}
+        """Report the transcription engine's state without loading a model.
+
+        Reads which Whisper backends are importable, whether ffmpeg is on the
+        path, the default model and the transcription directory. Changes nothing.
+        """
+        return engine_health()
 
     @mcp.tool(tags={"misc", "kg"})
     async def audio_ingest_transcription(
