@@ -2,17 +2,33 @@
   "schema_version": 2,
   "spec_id": "CONN-AUDIO-TRANSCRIBER",
   "owner_repo": "audio-transcriber",
-  "delivery_state": "SPECIFIED",
+  "delivery_state": "VERIFIED",
   "requirement_ids": [
-    "CONN-AUDIO-TRANSCRIBER-R001"
+    "CONN-AUDIO-TRANSCRIBER-R001",
+    "CONN-AUDIO-TRANSCRIBER-R002"
   ],
   "requirements": [
     {
       "id": "CONN-AUDIO-TRANSCRIBER-R001",
       "title": "Read-only engine health",
-      "delivery_state": "SPECIFIED",
-      "landed_in": [],
-      "verified_by": []
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "593d6635ee61"
+      ],
+      "verified_by": [
+        "tests/test_read_only_health.py:11"
+      ]
+    },
+    {
+      "id": "CONN-AUDIO-TRANSCRIBER-R002",
+      "title": "Fleet name",
+      "delivery_state": "VERIFIED",
+      "landed_in": [
+        "315cf71b94ac"
+      ],
+      "verified_by": [
+        "tests/test_fleet_name.py:35"
+      ]
     }
   ]
 }
