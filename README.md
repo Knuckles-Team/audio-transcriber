@@ -20,7 +20,7 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/audio-transcriber)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/audio-transcriber)
 
-*Version: 2.3.0*
+*Version: 2.3.1*
 
 > **Documentation** — Installation, deployment, and usage across the CLI, Python API,
 > [official documentation](https://knuckles-team.github.io/audio-transcriber/).
