@@ -42,7 +42,7 @@ from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
-__version__ = "2.3.3"
+__version__ = "2.3.4"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
