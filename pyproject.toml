@@ -20,7 +20,7 @@ text = "MIT"
 [project.optional-dependencies]
 local = [ "openai-whisper>=20250625",]
 microphone = [ "pyaudio>=0.2.14",]
-mcp = [ "agent-connector-sdk[mcp]>=0.3.11,<1.0.0", "websockets>=17.2",]
+mcp = [ "agent-connector-sdk[mcp,stream]>=0.3.11,<1.0.0",]
 all = [ "audio-transcriber[mcp]>=1.0.0",]
 test = [
     "pytest-xdist>=3.8.0", "pytest>=9.1.1", "pytest-asyncio>=1.4.0", "pytest-cov>=7.1.0",]

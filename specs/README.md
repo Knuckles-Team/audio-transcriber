@@ -14,3 +14,4 @@ Read the existing specs first. Extend the spec that owns the behavior. Create a 
 
 - [TRANSCRIBE — Local-model speech transcription with egress controls](transcription/spec.md) — Local inference routes speech without external transmission; refusal gates block misconfiguration egress.
 - [CONN-AUDIO-TRANSCRIBER](connector/spec.md): Read-only operations.
+- [`CONN-AUDIO-TRANSCRIBER-SDK-CENTRALIZATION`](sdk-centralization/spec.md) — Capabilities through the SDK.

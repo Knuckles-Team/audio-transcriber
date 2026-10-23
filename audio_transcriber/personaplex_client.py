@@ -5,6 +5,8 @@ from collections.abc import AsyncGenerator
 from typing import Any
 
 import websockets
+from agent_connector_sdk.tls.profile import ResolvedTLSProfile
+from agent_connector_sdk.tls.resolve import resolve_tls_profile
 
 
 class PersonaPlexClient:
@@ -14,12 +16,20 @@ class PersonaPlexClient:
         self.uri = uri
         self.logger = logger or logging.getLogger(__name__)
         self.websocket: Any = None
+        self._tls_profile: ResolvedTLSProfile | None = None
 
     async def connect(self):
         """Connect to the PersonaPlex server."""
         try:
             self.logger.info("Connecting to configured PersonaPlex service")
-            self.websocket = await websockets.connect(self.uri)
+            if self.uri.lower().startswith("wss://"):
+                # Trust comes from the runtime TLS profile, never from a flag.
+                self._tls_profile = resolve_tls_profile("personaplex")
+                self.websocket = await websockets.connect(
+                    self.uri, ssl=self._tls_profile.ssl_context
+                )
+            else:
+                self.websocket = await websockets.connect(self.uri)
             self.logger.info("Connected to PersonaPlex.")
         except Exception as e:
             self.logger.error("Operation failed: error_type=%s", type(e).__name__)
@@ -30,6 +40,9 @@ class PersonaPlexClient:
         if self.websocket:
             await self.websocket.close()
             self.logger.info("Disconnected from PersonaPlex.")
+        if self._tls_profile is not None:
+            self._tls_profile.cleanup()
+            self._tls_profile = None
 
     async def send_audio(self, audio_data: bytes):
         """Send audio data to the server.
