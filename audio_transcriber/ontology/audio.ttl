@@ -14,10 +14,8 @@
 
 # --- new classes ---
 
-:Transcript a owl:Class ;
-    rdfs:subClassOf :Document ;
-    rdfs:label "Transcript" ;
-    rdfs:comment "The full text transcription of an audio/video asset produced by Whisper. Ingested as a shared :Document (semantic-search fodder) carrying language, duration and model provenance." .
+:Transcript a owl:Class .
+
 
 :TranscriptSegment a owl:Class ;
     rdfs:label "Transcript Segment" ;
@@ -92,5 +90,4 @@
     rdfs:comment """Audio/video transcription domain model — Whisper transcripts and their
     timestamped segments, transcribed from a shared :AssetOccurrence blob and carried as a shared
     :Document, with language/duration/model provenance — federated into the agent-connector-sdk
-    knowledge-graph hub.""" ;
-    owl:imports <http://knuckles.team/kg> .
+    knowledge-graph hub.""" .
