@@ -4,8 +4,6 @@
   "schema_version": "1.0",
   "prompt_version": "0.1.0",
   "source": "audio-transcriber",
-  "extends": "agent-connector-sdk:base",
-  "compose": "append",
   "description": "Audio transcription specialist: run Whisper over audio/video, export captions, and ingest transcripts into the knowledge graph via the audio-transcriber MCP server.",
   "metadata": {
     "topic": "Speech-to-text transcription",
