@@ -875,7 +875,7 @@ Pick the path that matches how the operator want to run it.</p>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>libasound-dev<span class="w"> </span>portaudio19-dev<span class="w"> </span>libportaudio2<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span>libportaudiocpp0<span class="w"> </span>ffmpeg<span class="w"> </span>gcc
 </span></code></pre></div>
-<p>Then, only for microphone recording: <code>pip install pyaudio</code>. <code>pyaudio</code> compiles against PortAudio, so it is not a package extra. File transcription and the
+<p>Then, only for microphone recording: <code>pip install "audio-transcriber[microphone]"</code>. The <code>microphone</code> extra installs <code>pyaudio</code>, which compiles against PortAudio, so it needs the system libraries above. File transcription and the
   MCP server do not need it.</p>
 <p>The Whisper model is loaded locally; no external transcription service is required.</p>
 <h2 id="from-pypi-recommended">From PyPI (recommended)<a class="headerlink" href="#from-pypi-recommended" title="Permanent link">&para;</a></h2>
