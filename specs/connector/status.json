@@ -2,10 +2,11 @@
   "schema_version": 2,
   "spec_id": "CONN-AUDIO-TRANSCRIBER",
   "owner_repo": "audio-transcriber",
-  "delivery_state": "VERIFIED",
+  "delivery_state": "LANDED",
   "requirement_ids": [
     "CONN-AUDIO-TRANSCRIBER-R001",
-    "CONN-AUDIO-TRANSCRIBER-R002"
+    "CONN-AUDIO-TRANSCRIBER-R002",
+    "CONN-AUDIO-TRANSCRIBER-R003"
   ],
   "requirements": [
     {
@@ -29,6 +30,15 @@
       "verified_by": [
         "tests/test_fleet_name.py:35"
       ]
+    },
+    {
+      "id": "CONN-AUDIO-TRANSCRIBER-R003",
+      "title": "Microphone extra",
+      "delivery_state": "LANDED",
+      "landed_in": [
+        "0ab52e79f417"
+      ],
+      "verified_by": []
     }
   ]
 }
