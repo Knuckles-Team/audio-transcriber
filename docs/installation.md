@@ -15,7 +15,7 @@ Pick the path that matches how the operator want to run it.
     libportaudiocpp0 ffmpeg gcc
   ```
 
-  Then, only for microphone recording: `pip install pyaudio`. `pyaudio` compiles against PortAudio, so it is not a package extra. File transcription and the
+  Then, only for microphone recording: `pip install "audio-transcriber[microphone]"`. The `microphone` extra installs `pyaudio`, which compiles against PortAudio, so it needs the system libraries above. File transcription and the
   MCP server do not need it.
 
 The Whisper model is loaded locally; no external transcription service is required.
