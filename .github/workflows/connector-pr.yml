@@ -14,4 +14,4 @@ jobs:
     uses: Knuckles-Team/pipelines/.github/workflows/connector_pr_pipeline.yml@main
     with:
       # pyaudio (the `microphone` extra) needs PortAudio headers the runners lack; it is declared, and CI skips it.
-      sync-args: --extra local --extra mcp --extra all --extra test --all-groups
+      sync-args: --extra local --extra test --all-groups
