@@ -5,6 +5,8 @@ import asyncio
 import pytest
 
 import importlib
+import importlib.metadata
+from agent_connector_sdk.connector import build_server
 
 mcp_server = importlib.import_module("audio_transcriber.mcp_server")
 
@@ -13,7 +15,7 @@ pytestmark = pytest.mark.spec("CONN-AUDIO-TRANSCRIBER-R001")
 
 def test_health_check_is_listed_read_only(monkeypatch):
     monkeypatch.setattr("sys.argv", ["audio-transcriber-mcp"])
-    mcp, *_ = mcp_server.get_mcp_instance()
+    _, mcp = build_server("audio_transcriber", command_args=[])
     tools = {tool.name: tool for tool in asyncio.run(mcp.list_tools())}
     annotations = tools["health_check"].annotations
     assert annotations.read_only_hint is True
@@ -27,7 +29,7 @@ def test_health_reports_engine_state_without_loading_a_model(monkeypatch, tmp_pa
         mcp_server, "AudioTranscriber", lambda *_args, **_kwargs: pytest.fail("model loaded")
     )
     health = mcp_server.engine_health()
-    assert health["version"] == mcp_server.__version__
+    assert health["version"] == importlib.metadata.version("audio-transcriber")
     assert health["transcribe_directory_exists"] is True
     assert set(health) >= {"status", "backends", "ffmpeg", "default_model"}
 

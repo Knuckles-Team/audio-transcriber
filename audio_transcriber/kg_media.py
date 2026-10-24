@@ -20,6 +20,7 @@ import mimetypes
 import os
 from typing import Any
 
+from agent_connector_sdk.connector_identity import connector_name
 from agent_connector_sdk.ingest import (
     ChangeSet,
     IngestBinding,
@@ -31,7 +32,7 @@ from agent_connector_sdk.ingest import (
 
 logger = logging.getLogger("AudioTranscriber.kg")
 
-_SOURCE = "audio-transcriber"
+_SOURCE = connector_name("audio_transcriber")
 _BINDING = IngestBinding(connector="audio-transcriber-mcp", stream="audio")
 
 # Whisper/transcription info keys worth carrying onto the media-asset record.

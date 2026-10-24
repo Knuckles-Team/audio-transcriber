@@ -25,6 +25,7 @@ import os
 import re
 from typing import Any
 
+from agent_connector_sdk.connector_identity import connector_name
 from agent_connector_sdk.ingest import (
     ChangeSet,
     Document,
@@ -39,7 +40,7 @@ from agent_connector_sdk.ingest import (
 
 logger = logging.getLogger("AudioTranscriber.kg")
 
-_SOURCE = "audio-transcriber"
+_SOURCE = connector_name("audio_transcriber")
 _DOMAIN = "audio"
 _BINDING = IngestBinding(connector="audio-transcriber-mcp", stream=_DOMAIN)
 

@@ -23,8 +23,6 @@ except ModuleNotFoundError:  # pragma: no cover - audio hardware lib is optional
     # module importable when the native PortAudio library is absent.
     pyaudio = None  # type: ignore[assignment]
 
-__version__ = "2.3.6"
-
 
 class TranscriberBackend(ABC):
     """Abstract base class for transcription backends."""
