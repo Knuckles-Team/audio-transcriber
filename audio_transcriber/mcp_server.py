@@ -32,17 +32,14 @@ warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 import logging
 import os
 import sys
+from importlib.metadata import version as _v
 from pathlib import Path
 from typing import Any
 
-from agent_connector_sdk.config import load_config, setting
+from agent_connector_sdk.config import setting
 from agent_connector_sdk.mcp.context import ctx_log
-from agent_connector_sdk.mcp.server import create_mcp_server
-from agent_connector_sdk.mcp.tool_surface import register_tool_surface
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
-
-__version__ = "2.3.6"
 
 logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
@@ -84,7 +81,7 @@ def engine_health() -> dict:
     directory = Path(DEFAULT_TRANSCRIBE_DIRECTORY)
     return {
         "status": "OK" if backends else "DEGRADED",
-        "version": __version__,
+        "version": _v("audio-transcriber"),
         "backends": backends,
         "ffmpeg": shutil.which("ffmpeg") is not None,
         "default_model": DEFAULT_WHISPER_MODEL,
@@ -551,50 +548,3 @@ def register_misc_tools(mcp: FastMCP):
             "documents": documents,
             "ingested": kg,
         }
-
-
-def get_mcp_instance() -> tuple[Any, Any, Any, Any]:
-    """Initialize and return the MCP instance, args, and middlewares."""
-    load_config()
-
-    args, mcp, middlewares = create_mcp_server(
-        name="Audio Transcriber",
-        version=__version__,
-        instructions="Audio Transcriber MCP Server - Run Whisper transcription on audio files or microphone input.",
-    )
-
-    registered_tags = register_tool_surface(
-        mcp,
-        client_cls=AudioTranscriber,
-        get_client=get_client,
-        service="audio-transcriber",
-        tools_module=sys.modules[__name__],
-    )
-    register_prompts(mcp)
-
-    for mw in middlewares:
-        mcp.add_middleware(mw)
-    return mcp, args, middlewares, registered_tags
-
-
-def mcp_server() -> None:
-    mcp, args, middlewares, registered_tags = get_mcp_instance()
-    print(f"{'audio-transcriber'} MCP v{__version__}", file=sys.stderr)
-    print("\nStarting MCP Server", file=sys.stderr)
-    print(f"  Transport: {args.transport.upper()}", file=sys.stderr)
-    print(f"  Auth: {args.auth_type}", file=sys.stderr)
-    print(f"  Dynamic Tags Loaded: {len(set(registered_tags))}", file=sys.stderr)
-
-    if args.transport == "stdio":
-        mcp.run(transport="stdio")
-    elif args.transport == "streamable-http":
-        mcp.run(transport="streamable-http", host=args.host, port=args.port)
-    elif args.transport == "sse":
-        mcp.run(transport="sse", host=args.host, port=args.port)
-    else:
-        logger.error("Invalid transport", extra={"transport": args.transport})
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    mcp_server()
