@@ -2,7 +2,7 @@
   "schema_version": 2,
   "spec_id": "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT",
   "owner_repo": "audio-transcriber",
-  "delivery_state": "VERIFIED",
+  "delivery_state": "LANDED",
   "requirement_ids": [
     "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R001"
   ],
@@ -10,13 +10,11 @@
     {
       "id": "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R001",
       "title": "Default content",
-      "delivery_state": "VERIFIED",
+      "delivery_state": "LANDED",
       "landed_in": [
         "4fb26a280176"
       ],
-      "verified_by": [
-        "tests/test_default_content_surfaces.py:15"
-      ]
+      "verified_by": []
     }
   ]
 }
