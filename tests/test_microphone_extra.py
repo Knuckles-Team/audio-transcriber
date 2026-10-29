@@ -10,5 +10,3 @@ def test_microphone_extra_is_declared():
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
     extra = project["optional-dependencies"]["microphone"]
     assert any(dep.startswith("pyaudio") for dep in extra)
-
-
