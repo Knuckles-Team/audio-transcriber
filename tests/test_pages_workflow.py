@@ -3,11 +3,8 @@
 import json
 from pathlib import Path
 
-import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
 
 
 def test_spec_dashboard_sources_generated_status_files() -> None:

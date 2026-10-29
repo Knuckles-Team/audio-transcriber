@@ -23,7 +23,9 @@ class _FakeTransport:
         self.stored_blobs = []
 
     async def source_status(self, connector, stream):
-        return SimpleNamespace(connector=connector, stream=stream, accepted_checkpoint=None)
+        return SimpleNamespace(
+            connector=connector, stream=stream, accepted_checkpoint=None
+        )
 
     async def submit(self, request):
         self.requests.append(request)
