@@ -43,5 +43,5 @@ async def test_secure_stream_uses_the_tls_profile() -> None:
 def test_websockets_comes_from_the_sdk_stream_extra() -> None:
     text = (ROOT / "pyproject.toml").read_text()
     assert "websockets" not in text
-    match = re.search(r"agent-connector-sdk\[mcp,stream\]>=(\d+)\.(\d+)\.(\d+)", text)
+    match = re.search(r"scion-sdk\[mcp,stream\]>=(\d+)\.(\d+)\.(\d+)", text)
     assert match and tuple(map(int, match.groups())) >= (0, 3, 11)
