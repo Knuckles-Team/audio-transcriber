@@ -1,8 +1,8 @@
 # CONN-AUDIO-TRANSCRIBER-SDK-CENTRALIZATION — Capabilities through the SDK
 
-Owner: .. Cross-repo IDs: `SDK-CENTRALIZED-CAPABILITIES-R008`, `SDK-CENTRALIZED-CAPABILITIES-R040`.
+Owner: .. Cross-repo IDs: `SCION-CENTRALIZED-CAPABILITIES-R008`, `SCION-CENTRALIZED-CAPABILITIES-R040`.
 
-Extends: [SDK-CENTRALIZED-CAPABILITIES](https://github.com/Knuckles-Team/agent-connector-sdk/blob/main/specs/centralized-capabilities/spec.md)
+Extends: [SCION-CENTRALIZED-CAPABILITIES](https://github.com/Knuckles-Team/agent-connector-sdk/blob/main/specs/centralized-capabilities/spec.md)
 
 ## Purpose and user stories
 
