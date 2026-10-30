@@ -1,4 +1,4 @@
-scion-sdk[mcp]>=0.6.0,<0.7.0
+scion-sdk[mcp]>=0.6.2,<0.7.0
 pyaudio>=0.2.14
 faster-whisper>=1.0.0
 setuptools-rust>=1.12.0
