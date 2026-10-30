@@ -5,7 +5,7 @@ Skipped informational: 4
 
 - [ ] [P] **T001** [Dependency Audit] Minor update: pytest-xdist 3.6.0 (constraint — not installed) -> 3.8.0
   - Priority: P3-Low | Effort: Small
-- [ ] [P] **T002** [Dependency Audit] Minor update: agent-connector-sdk 0.2.40 (installed) -> 0.16.0
+- [ ] [P] **T002** [Dependency Audit] Minor update: scion-sdk 0.2.40 (installed) -> 0.16.0
   - Priority: P3-Low | Effort: Small
 - [ ] [P] **T003** [Codebase Optimization] Needs attention: audio_transcriber.py (769L) — 1 functions with high complexity
   - Priority: P2-Medium | Effort: Medium
@@ -65,5 +65,5 @@ Skipped informational: 4
   - Priority: P2-Medium | Effort: Medium
 - [ ] [P] **T031** [Pytest Quality] 1 tests exceed 100 lines — likely doing too much per test
   - Priority: P2-Medium | Effort: Medium
-- [ ] [P] **T032** [analyze_xdg_kg] Analysis error: No module named 'agent_connector_sdk.knowledge_graph'
+- [ ] [P] **T032** [analyze_xdg_kg] Analysis error: No module named 'scion_sdk.knowledge_graph'
   - Priority: P1-High | Effort: Medium

@@ -10,7 +10,7 @@ import hashlib
 from types import SimpleNamespace
 
 import pytest
-from agent_connector_sdk.ingest import KnowledgeIngest
+from scion_sdk.ingest import KnowledgeIngest
 
 from audio_transcriber.kg_media import ingest_audio_file
 

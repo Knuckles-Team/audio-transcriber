@@ -1,7 +1,7 @@
 # audio-transcriber
 
 Transcribe `.wav`, `.mp4`, `.mp3`, and `.flac` files to text — or record the operator's own
-the agent-connector-sdk ecosystem.
+the scion-sdk ecosystem.
 
 !!! info "Official documentation"
     This site is the canonical reference for `audio-transcriber`, maintained

@@ -12,7 +12,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
-from agent_connector_sdk.ingest import IngestError, KnowledgeIngest
+from scion_sdk.ingest import IngestError, KnowledgeIngest
 
 from audio_transcriber.kg_ingest import (
     ingest_documents,

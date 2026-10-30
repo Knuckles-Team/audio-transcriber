@@ -1,6 +1,6 @@
 # TRANSCRIBE — Local-model speech transcription with egress controls
 
-Owner: audio-transcriber. Cross-repo IDs: agent-connector-sdk, epistemic-graph.
+Owner: audio-transcriber. Cross-repo IDs: scion-sdk, epistemic-graph.
 Public provenance: EG:49 (spec audit 2026-10-15).
 
 ## Purpose and user stories
@@ -15,11 +15,11 @@ Speech input routes locally to inference without external transmission. Raw audi
 
 ## Why a new spec
 
-No existing spec owns local transcription execution contracts or egress refusal policy. agent-connector-sdk owns connector transport. epistemic-graph owns transcript consumption. This spec bridges them.
+No existing spec owns local transcription execution contracts or egress refusal policy. scion-sdk owns connector transport. epistemic-graph owns transcript consumption. This spec bridges them.
 
 ## Scope and interfaces
 
-audio-transcriber owns: local model execution, raw audio handling, egress checks, SDK transport policy links. agent-connector-sdk owns: connector transport contracts. epistemic-graph owns: transcript consumer integration. Non-goals: model selection, training, or tuning.
+audio-transcriber owns: local model execution, raw audio handling, egress checks, SDK transport policy links. scion-sdk owns: connector transport contracts. epistemic-graph owns: transcript consumer integration. Non-goals: model selection, training, or tuning.
 
 ## Traceability
 
@@ -32,4 +32,3 @@ audio-transcriber owns: local model execution, raw audio handling, egress checks
 ## Open questions
 
 None at entry.
-
