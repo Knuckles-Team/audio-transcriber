@@ -2,9 +2,11 @@
   "schema_version": 2,
   "spec_id": "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT",
   "owner_repo": "audio-transcriber",
-  "delivery_state": "LANDED",
+  "delivery_state": "SPECIFIED",
   "requirement_ids": [
-    "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R001"
+    "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R001",
+    "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R002",
+    "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R003"
   ],
   "requirements": [
     {
@@ -14,6 +16,20 @@
       "landed_in": [
         "4fb26a280176"
       ],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R002",
+      "title": "Transcript list/get operation by recording id and date",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R003",
+      "title": "Expose avg_logprob (confidence) per transcript segment",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
       "verified_by": []
     }
   ]
