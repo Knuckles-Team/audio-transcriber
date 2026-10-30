@@ -4,7 +4,7 @@ Governing spec: [spec.md](spec.md).
 
 ## Existing system and reuse
 
-audio-transcriber owns transcription via local models. agent-connector-sdk owns transport contracts. epistemic-graph owns transcript consumers. No duplicated transcription authority.
+audio-transcriber owns transcription via local models. scion-sdk owns transport contracts. epistemic-graph owns transcript consumers. No duplicated transcription authority.
 
 ## Architecture
 
@@ -25,4 +25,3 @@ Contract gate: SDK transport policy verified. Integration test: test_transcripti
 ## Risks, alternatives, and decisions
 
 Risk: Model size impacts latency; local inference chosen over remote for security. Decision: Refusal gates prevent misconfiguration egress; tests verify. Authority: audio-transcriber owns execution; SDK owns transport.
-

@@ -3,8 +3,8 @@
 CONCEPT:AU-KG.ingest.list-durable-media. When a live epistemic-graph engine is
 reachable, the audio file that was transcribed is stored as a content-addressed
 **blob** with a shared media-asset graph record (carrying its Whisper metadata),
-via the agent-connector-sdk knowledge-ingest facade
-(:mod:`agent_connector_sdk.ingest`). This makes the raw audio bytes — not just a
+via the scion-sdk knowledge-ingest facade
+(:mod:`scion_sdk.ingest`). This makes the raw audio bytes — not just a
 filesystem path — durable, deduped, and queryable inside the knowledge graph, so
 a ``:Transcript`` can point back at it via ``:transcribedFrom``.
 
@@ -20,8 +20,8 @@ import mimetypes
 import os
 from typing import Any
 
-from agent_connector_sdk.connector_identity import connector_name
-from agent_connector_sdk.ingest import (
+from scion_sdk.connector_identity import connector_name
+from scion_sdk.ingest import (
     ChangeSet,
     IngestBinding,
     IngestUnavailableError,
@@ -58,7 +58,7 @@ async def ingest_audio_file(
     Returns ``{asset_id, digest, size_bytes, media_type}`` on success, or
     ``None`` when there is no file, no engine is reachable, or the store
     failed (never raises). ``ingest`` may be injected (tests); otherwise the
-    process-installed :class:`~agent_connector_sdk.ingest.KnowledgeIngest` is
+    process-installed :class:`~scion_sdk.ingest.KnowledgeIngest` is
     used.
     """
     if not file_path or not os.path.exists(file_path):

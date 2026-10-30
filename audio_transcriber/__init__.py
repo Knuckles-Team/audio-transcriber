@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from agent_connector_sdk.connector import Connector
-from agent_connector_sdk.connector_hooks import RegistrationContext
+from scion_sdk.connector import Connector
+from scion_sdk.connector_hooks import RegistrationContext
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 from audio_transcriber.mcp_server import get_client, register_prompts

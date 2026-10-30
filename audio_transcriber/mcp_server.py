@@ -36,8 +36,8 @@ from importlib.metadata import version as _v
 from pathlib import Path
 from typing import Any
 
-from agent_connector_sdk.config import setting
-from agent_connector_sdk.mcp.context import ctx_log
+from scion_sdk.config import setting
+from scion_sdk.mcp.context import ctx_log
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
 
@@ -272,7 +272,7 @@ def register_media_sidecar_tools(mcp: FastMCP):
     """The governed media-sidecar contract adapter (BUG-271,
     CONCEPT:AU-KG.ingest.media-sidecar-delegation).
 
-    agent-connector-sdk' ``media/sidecar_contract.py`` ``SIDECAR_CAPABILITIES['audio']``
+    scion-sdk' ``media/sidecar_contract.py`` ``SIDECAR_CAPABILITIES['audio']``
     manifest entry declares ``server=audio-transcriber-mcp``,
     ``tool=transcribe_media``, ``action=transcribe_segments``, action-routed
     (``action`` + ``params_json``, ``params_style="json"`` — the fleet's dominant
@@ -326,7 +326,7 @@ def register_media_sidecar_tools(mcp: FastMCP):
         import tempfile
         from pathlib import Path
 
-        from agent_connector_sdk.mcp.action_dispatch import parse_json_object
+        from scion_sdk.mcp.action_dispatch import parse_json_object
 
         if action != "transcribe_segments":
             return {"available": False, "error": f"unsupported action: {action!r}"}

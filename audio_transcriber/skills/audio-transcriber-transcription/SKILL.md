@@ -12,7 +12,7 @@ description: >-
 license: MIT
 tags: [audio, transcription, whisper, speech-to-text, captions, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Audio Transcription
