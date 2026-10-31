@@ -1,11 +1,11 @@
 # TRANSCRIBE — Local-model speech transcription with egress controls
 
-Owner: audio-transcriber. Cross-repo IDs: scion-sdk, epistemic-graph.
+Owner: audio-transcriber. Cross-repo IDs: scion-sdk, medulla.
 Public provenance: EG:49 (spec audit 2026-10-15).
 
 ## Purpose and user stories
 
-Speech input routes locally to inference without external transmission. Raw audio egress is prohibited. SDK governs integration with epistemic-graph transcript consumers.
+Speech input routes locally to inference without external transmission. Raw audio egress is prohibited. SDK governs integration with medulla transcript consumers.
 
 ## Requirements and acceptance
 
@@ -15,11 +15,11 @@ Speech input routes locally to inference without external transmission. Raw audi
 
 ## Why a new spec
 
-No existing spec owns local transcription execution contracts or egress refusal policy. scion-sdk owns connector transport. epistemic-graph owns transcript consumption. This spec bridges them.
+No existing spec owns local transcription execution contracts or egress refusal policy. scion-sdk owns connector transport. medulla owns transcript consumption. This spec bridges them.
 
 ## Scope and interfaces
 
-audio-transcriber owns: local model execution, raw audio handling, egress checks, SDK transport policy links. scion-sdk owns: connector transport contracts. epistemic-graph owns: transcript consumer integration. Non-goals: model selection, training, or tuning.
+audio-transcriber owns: local model execution, raw audio handling, egress checks, SDK transport policy links. scion-sdk owns: connector transport contracts. medulla owns: transcript consumer integration. Non-goals: model selection, training, or tuning.
 
 ## Traceability
 

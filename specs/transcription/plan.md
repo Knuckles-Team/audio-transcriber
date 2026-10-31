@@ -4,11 +4,11 @@ Governing spec: [spec.md](spec.md).
 
 ## Existing system and reuse
 
-audio-transcriber owns transcription via local models. scion-sdk owns transport contracts. epistemic-graph owns transcript consumers. No duplicated transcription authority.
+audio-transcriber owns transcription via local models. scion-sdk owns transport contracts. medulla owns transcript consumers. No duplicated transcription authority.
 
 ## Architecture
 
-Speech input enters audio-transcriber transcribe endpoint. Local model inference produces text output. SDK contracts govern egress checks: raw audio blocked, transcripts validated, origin traced to epistemic-graph. Refusal gates block misconfigured remote endpoints before transmission.
+Speech input enters audio-transcriber transcribe endpoint. Local model inference produces text output. SDK contracts govern egress checks: raw audio blocked, transcripts validated, origin traced to medulla. Refusal gates block misconfigured remote endpoints before transmission.
 
 ## Interfaces and data model
 
@@ -16,7 +16,7 @@ Transcribe endpoint accepts raw audio input via ConnectorRequest. Response schem
 
 ## Live integration path
 
-SDK calls audio-transcriber transcribe. audio-transcriber invokes local model. Output text flows to epistemic-graph transcript consumer. Refusal checks intercept before transmission. No external inference APIs called.
+SDK calls audio-transcriber transcribe. audio-transcriber invokes local model. Output text flows to medulla transcript consumer. Refusal checks intercept before transmission. No external inference APIs called.
 
 ## Quality and release gates
 
