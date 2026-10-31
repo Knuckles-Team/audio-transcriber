@@ -4,6 +4,7 @@ Governing spec: [spec.md](spec.md).
 
 ## Existing system and reuse
 
+audio-transcriber owns transcription via local models. agent-connector-sdk owns transport contracts. medulla owns transcript consumers. No duplicated transcription authority.
 audio-transcriber owns transcription via local models. scion-sdk owns transport contracts. medulla owns transcript consumers. No duplicated transcription authority.
 
 ## Architecture
