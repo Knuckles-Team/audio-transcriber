@@ -6,7 +6,8 @@
   "requirement_ids": [
     "CONN-AUDIO-TRANSCRIBER-R001",
     "CONN-AUDIO-TRANSCRIBER-R002",
-    "CONN-AUDIO-TRANSCRIBER-R003"
+    "CONN-AUDIO-TRANSCRIBER-R003",
+    "CONN-AUDIO-TRANSCRIBER-R004"
   ],
   "requirements": [
     {
@@ -34,6 +35,13 @@
     {
       "id": "CONN-AUDIO-TRANSCRIBER-R003",
       "title": "Microphone extra",
+      "delivery_state": "SPECIFIED",
+      "landed_in": [],
+      "verified_by": []
+    },
+    {
+      "id": "CONN-AUDIO-TRANSCRIBER-R004",
+      "title": "Meeting segment tools",
       "delivery_state": "SPECIFIED",
       "landed_in": [],
       "verified_by": []
