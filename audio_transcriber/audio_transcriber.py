@@ -410,7 +410,7 @@ class AudioTranscriber:
         (``{transcript_id, asset, documents, entities}``).
         CONCEPT:AU-KG.ingest.enterprise-source-extractor.
 
-        ``ingest_transcription`` is ``async`` (the agent-connector-sdk ingest
+        ``ingest_transcription`` is ``async`` (the scion-sdk ingest
         facade commits over an async transport). This method stays synchronous
         — it is called from the synchronous ``transcribe()`` on both a plain
         CLI path (no event loop) and from inside an already-running MCP tool

@@ -33,7 +33,7 @@ for the interface the operator need:
 
 | Extra | Install | Pulls in |
 |---|---|---|
-| `mcp` | `pip install "audio-transcriber[mcp]"` | FastMCP MCP-server runtime (`agent-connector-sdk`) + `websockets` |
+| `mcp` | `pip install "audio-transcriber[mcp]"` | FastMCP MCP-server runtime (`scion-sdk`) + `websockets` |
 | `local` | `pip install "audio-transcriber[local]"` | `openai-whisper` reference backend (fallback to `faster-whisper`) |
 | `all` | `pip install "audio-transcriber[all]"` | The `mcp` and `agent` extras together |
 

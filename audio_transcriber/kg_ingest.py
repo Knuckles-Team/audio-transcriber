@@ -10,8 +10,8 @@ epistemic-graph engine across every modality that applies (the "maximum ingestio
 * **typed nodes** — the Whisper segments → ``:TranscriptSegment`` nodes (``ingest_entities``),
   linked ``:segmentOf`` the transcript and ``:transcribedFrom`` the audio asset
 
-All three ride the ``agent_connector_sdk.ingest`` knowledge-ingest facade
-(:class:`~agent_connector_sdk.ingest.KnowledgeIngest`), which is async — every public
+All three ride the ``scion_sdk.ingest`` knowledge-ingest facade
+(:class:`~scion_sdk.ingest.KnowledgeIngest`), which is async — every public
 ingest function here is an ``async def`` and its callers must ``await`` it. Engine
 failures are explicit (``IngestError``) and no partial write is acknowledged. Node ids
 follow ``audio:<class>:<externalId>`` and ``node_type`` matches the classes federated by
@@ -25,8 +25,8 @@ import os
 import re
 from typing import Any
 
-from agent_connector_sdk.connector_identity import connector_name
-from agent_connector_sdk.ingest import (
+from scion_sdk.connector_identity import connector_name
+from scion_sdk.ingest import (
     ChangeSet,
     Document,
     Entity,
@@ -89,7 +89,7 @@ async def ingest_entities(
 
     ``entities`` use ``node_type`` and relationships use ``relationship``.
     ``ingest`` may be injected (tests); otherwise the process-installed
-    :class:`~agent_connector_sdk.ingest.KnowledgeIngest` is used.
+    :class:`~scion_sdk.ingest.KnowledgeIngest` is used.
     """
     if not entities:
         raise IngestError("ingest_entities needs at least one entity")

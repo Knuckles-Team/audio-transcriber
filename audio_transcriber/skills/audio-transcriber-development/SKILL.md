@@ -8,7 +8,7 @@ description: >-
 license: MIT
 tags: [audio, transcription, whisper, connector, mcp, knowledge-graph]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Audio Transcriber Development

@@ -18,4 +18,3 @@ Misconfigured remote endpoint: refusal gate blocks transmission. Invalid audio: 
 ## Quality and release proof
 
 Command: pytest tests/integration/test_transcription_sdk.py::test_transcription_local_egress_zero -v. Environment: local model inference, network audit enabled. Proof: test passes; audit shows zero external calls. Evidence: CI log and test result.
-

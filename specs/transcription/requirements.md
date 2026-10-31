@@ -13,4 +13,3 @@ Each row is one requirement. A child row `.n` is one five-minute unit of work. A
 | `TRANSCRIBE-R001.4` | **Refusal.** Misconfiguration preventing local inference triggers refusal before transmission; misconfigured remote endpoints are rejected. | Test T-004: Misconfiguration test rejects misconfigured remote endpoint; refusal logged. |
 | `TRANSCRIBE-R001.5` | **Evidence.** Positive test exercises local inference end-to-end; negative test observes zero network egress under misconfiguration. | Test T-005: Positive case: local transcription succeeds. Negative case: external transmission blocked. |
 | `TRANSCRIBE-R001.6` | **Hot-path proof.** audio-transcriber transcribe endpoint integration test calls local inference, validates SDK output contract, observes zero external calls in test_transcription_local_egress_zero. | Test T-006: pytest test_transcription_local_egress_zero in tests/integration/test_transcription_sdk.py passes. |
-

@@ -1,6 +1,7 @@
 # TRANSCRIBE — Local-model speech transcription with egress controls
 
 Owner: audio-transcriber. Cross-repo IDs: agent-connector-sdk, medulla.
+Owner: audio-transcriber. Cross-repo IDs: scion-sdk, medulla.
 Public provenance: EG:49 (spec audit 2026-10-15).
 
 ## Purpose and user stories
@@ -18,8 +19,9 @@ Speech input routes locally to inference without external transmission. Raw audi
 No existing spec owns local transcription execution contracts or egress refusal policy. agent-connector-sdk owns connector transport. medulla owns transcript consumption. This spec bridges them.
 
 ## Scope and interfaces
-
 audio-transcriber owns: local model execution, raw audio handling, egress checks, SDK transport policy links. agent-connector-sdk owns: connector transport contracts. medulla owns: transcript consumer integration. Non-goals: model selection, training, or tuning.
+No existing spec owns local transcription execution contracts or egress refusal policy. scion-sdk owns connector transport. medulla owns transcript consumption. This spec bridges them.
+audio-transcriber owns: local model execution, raw audio handling, egress checks, SDK transport policy links. scion-sdk owns: connector transport contracts. medulla owns: transcript consumer integration. Non-goals: model selection, training, or tuning.
 
 ## Traceability
 
@@ -32,4 +34,3 @@ audio-transcriber owns: local model execution, raw audio handling, egress checks
 ## Open questions
 
 None at entry.
-

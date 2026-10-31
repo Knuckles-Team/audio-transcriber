@@ -6,7 +6,7 @@ import pytest
 
 import importlib
 import importlib.metadata
-from agent_connector_sdk.connector import build_server
+from scion_sdk.connector import build_server
 
 mcp_server = importlib.import_module("audio_transcriber.mcp_server")
 

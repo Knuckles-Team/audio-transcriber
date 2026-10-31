@@ -12,7 +12,7 @@ description: >-
 license: MIT
 tags: [audio, transcription, knowledge-graph, ingestion, whisper, mcp]
 metadata:
-  author: Genius
+  author: Knuckles-Team
   version: '0.1.0'
 ---
 # Audio Transcript → Knowledge Graph
