@@ -2,6 +2,9 @@
 
 Governing spec: [spec.md](spec.md). Design: [plan.md](plan.md). Rows: [requirements.md](requirements.md).
 
-- [x] CONN-AUDIO-TRANSCRIBER-R001: Read-only engine health.
-- [x] **CONN-AUDIO-TRANSCRIBER-R002:** File the pack, manifest and ingest binding under the fleet name `audio-transcriber-mcp`.
-- [x] **CONN-AUDIO-TRANSCRIBER-R003:** Keep the `microphone` extra; CI skips it through `sync-args`.
+Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is producer first.
+
+- [x] T001 [US1] CONN-AUDIO-TRANSCRIBER-R001 Read-only engine health.
+- [x] T002 [US1] CONN-AUDIO-TRANSCRIBER-R002 Fleet name.
+- [x] T003 [US1] CONN-AUDIO-TRANSCRIBER-R003 Microphone extra.
+- [ ] T004 [US1] CONN-AUDIO-TRANSCRIBER-R004 Meeting segment tools.

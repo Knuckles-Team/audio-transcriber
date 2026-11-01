@@ -8,12 +8,6 @@ Public provenance: EG:49 (spec audit 2026-10-15).
 
 Speech input routes locally to inference without external transmission. Raw audio egress is prohibited. SDK governs integration with medulla transcript consumers.
 
-## Requirements and acceptance
-
-- FR-001: Local inference transcribes speech; raw audio never leaves the host.
-- FR-002: Misconfiguration refusals prevent egress before transmission occurs.
-- SC-001: Integration tests prove local model execution and zero external transmission.
-
 ## Why a new spec
 
 No existing spec owns local transcription execution contracts or egress refusal policy. agent-connector-sdk owns connector transport. medulla owns transcript consumption. This spec bridges them.
@@ -34,3 +28,36 @@ audio-transcriber owns: local model execution, raw audio handling, egress checks
 ## Open questions
 
 None at entry.
+
+## User Scenarios & Testing
+
+### User Story 1 - Local-model speech transcription with egress controls (Priority: P1)
+
+Speech input routes locally to inference without external transmission. Raw audio egress is prohibited. SDK governs integration with medulla transcript consumers.
+
+**Acceptance Scenarios**:
+
+1. **Given** the connector is configured, **When** the behaviour of row `TRANSCRIBE-R001` (local-model speech transcription with egress controls) is exercised, **Then** integration test proves local execution, zero external transmission, and refusal gates.
+
+### Edge Cases
+
+- If `TRANSCRIBE-R001` is not met, its proving test fails: local-model speech transcription with egress controls.
+
+## Requirements
+
+- **FR-001**: Local-model speech transcription with egress controls. Rows: `TRANSCRIBE-R001`.
+
+## Success Criteria
+
+- **SC-001**: Integration test proves local execution, zero external transmission, and refusal gates. Rows: `TRANSCRIBE-R001`.
+
+## Assumptions
+
+- The external system is reachable with operator-supplied credentials.
+- The SDK and engine contracts the rows cite are at the floors declared in `pyproject.toml`.
+
+## Traceability
+
+| Label | Rows | Design section | Test ID | Evidence |
+|---|---|---|---|---|
+| FR-001 | `TRANSCRIBE-R001` | [plan.md](plan.md) | T-001 | [test-spec.md](test-spec.md) |
