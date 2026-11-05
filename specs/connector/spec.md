@@ -44,6 +44,7 @@ A fleet operator must check the transcription engine without a transcription run
 - If `CONN-AUDIO-TRANSCRIBER-R001` is not met, its proving test fails: read-only engine health.
 - If `CONN-AUDIO-TRANSCRIBER-R002` is not met, its proving test fails: fleet name.
 - If `CONN-AUDIO-TRANSCRIBER-R003` is not met, its proving test fails: microphone extra.
+- If `CONN-AUDIO-TRANSCRIBER-R005` is not met, its proving tests fail: transcript list and get.
 
 ## Requirements
 
@@ -51,6 +52,7 @@ A fleet operator must check the transcription engine without a transcription run
 - **FR-002**: Fleet name. Rows: `CONN-AUDIO-TRANSCRIBER-R002`.
 - **FR-003**: Microphone extra. Rows: `CONN-AUDIO-TRANSCRIBER-R003`.
 - **FR-004**: Meeting segment tools. Rows: `CONN-AUDIO-TRANSCRIBER-R004`.
+- **FR-005**: Transcript list and get by recording id and date. Rows: `CONN-AUDIO-TRANSCRIBER-R005`.
 
 ## Success Criteria
 
@@ -58,6 +60,7 @@ A fleet operator must check the transcription engine without a transcription run
 - **SC-002**: Every connector name in the package is `audio-transcriber-mcp`. Rows: `CONN-AUDIO-TRANSCRIBER-R002`.
 - **SC-003**: The `microphone` extra lists `pyaudio`; the PR workflow passes `sync-args` that omit it. Rows: `CONN-AUDIO-TRANSCRIBER-R003`.
 - **SC-004**: Meeting segment tools. Rows: `CONN-AUDIO-TRANSCRIBER-R004`.
+- **SC-005**: Both transcript tools are listed read-only; a list filtered by recording id and date range returns the matching transcripts in date-descending order, `get_transcript` returns the segments with `start`, `end` and `no_speech_prob`, and each refusal code leaves the directory unchanged. Rows: `CONN-AUDIO-TRANSCRIBER-R005`.
 
 ## Assumptions
 
@@ -72,3 +75,4 @@ A fleet operator must check the transcription engine without a transcription run
 | FR-002 | `CONN-AUDIO-TRANSCRIBER-R002` | [plan.md](plan.md) | T-002 | [test-spec.md](test-spec.md) |
 | FR-003 | `CONN-AUDIO-TRANSCRIBER-R003` | [plan.md](plan.md) | T-003 | [test-spec.md](test-spec.md) |
 | FR-004 | `CONN-AUDIO-TRANSCRIBER-R004` | [plan.md](plan.md) | T-004 | [test-spec.md](test-spec.md) |
+| FR-005 | `CONN-AUDIO-TRANSCRIBER-R005` | [plan.md](plan.md) | T-005 | [test-spec.md](test-spec.md) |

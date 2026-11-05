@@ -73,6 +73,7 @@ The repository pre-commit hooks apply: `ruff-format`, `connector-standard`, `sec
 2. `CONN-AUDIO-TRANSCRIBER-R002`: The `audio-transcriber-mcp` console script in pyproject.toml runs `scion_sdk.cli:serve`, which loads the single `scion_sdk.connector` entry point `audio-transcriber-mcp = audio_transcriber:connector` defined in `audio_transcriber/__init__.py::connector`.
 3. `CONN-AUDIO-TRANSCRIBER-R003`: A user runs `pip install audio-transcriber[microphone]`, which resolves the `microphone` extra in pyproject.toml; the `audio-transcriber` console script (`audio_transcriber.audio_transcriber:main` entry `audio_transcriber()`) then records through `audio_transcriber/audio_transcriber.py::AudioTranscriber.record`.
 4. `CONN-AUDIO-TRANSCRIBER-R004`: (planned) The `audio-transcriber-mcp` console script runs `scion_sdk.cli:serve` and loads `audio_transcriber/__init__.py::connector`; the four meeting tools will be registered from `audio_transcriber/mcp_server.py` through `extra_registrations` like the existing `register_prompts` hook, and no meeting code exists in the package today.
+5. `CONN-AUDIO-TRANSCRIBER-R005`: (planned) The `audio-transcriber-mcp` console script runs `scion_sdk.cli:serve` and loads `audio_transcriber/__init__.py::connector`; a second `extra_registrations` hook calls `register_transcript_tools` in `audio_transcriber/mcp_server.py`, which registers `list_transcripts` and `get_transcript`; each reads the `<id>.json` exports under `DEFAULT_TRANSCRIBE_DIRECTORY`.
 
 ## Cross-repo seams
 
