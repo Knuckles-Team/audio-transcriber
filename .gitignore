@@ -169,3 +169,6 @@ docker/debug.Dockerfile
 docker/*.compose.yml
 audio_transcriber/ontology/shapes/connector.shacl.ttl
 audio_transcriber/ontology/certification.json
+
+# generated spec status, never committed
+specs/**/status.json
