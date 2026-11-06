@@ -8,7 +8,7 @@
 
 # Audio-transcription ontology — Whisper transcription of audio/video into text. All
 # classes and properties live in the shared `:` (kg#) namespace; only the owl:Ontology
-# node gets the per-package IRI. Backs the audio-transcriber MCP surface (transcribe_audio /
+# node gets the per-package IRI. Backs the audio-transcriber MCP surface (transcribe_audio / transcribe_speech /
 # audio_ingest_transcription). The raw audio is stored as a shared :AssetOccurrence/:Blob; the
 # transcription text is a shared :Document; only the segment breakdown is new here.
 

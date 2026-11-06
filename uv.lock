@@ -54,7 +54,7 @@ wheels = [
 
 [[package]]
 name = "audio-transcriber"
-version = "2.3.9"
+version = "2.3.12"
 source = { editable = "." }
 dependencies = [
     { name = "faster-whisper" },

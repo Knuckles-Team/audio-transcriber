@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.12] - 2026-11-06
+
+### Added
+- `transcribe_speech`: the typed `speech-to-text` contract tool. A base64 payload verified by its sha256 digest returns a `SpeechTranscript` with detected language, segment and word timestamps, a diarisation availability report, and typed refusals (`INVALID_ARGUMENT`, `DIGEST_MISMATCH`, `MEDIA_TOO_LARGE`, `MEDIA_TOO_LONG`, `UNSUPPORTED_MEDIA`, `TRANSCRIPTION_FAILED`). Limits: `SPEECH_MAX_BYTES`, `SPEECH_MAX_DURATION_S`.
+- The runtime image installs `ffmpeg`; non-canonical audio converts to 16 kHz mono WAV before inference.
+
+### Fixed
+- faster-whisper failed every file on current installs: the device probe imported torch (absent), and faster-whisper's decoder passes `metadata_errors` to `av.open`, which current PyAV rejects. The device now comes from CTranslate2 and audio is decoded with the ffmpeg binary.
+
 ## [2.3.10] - 2026-10-30
 
 ### Changed
