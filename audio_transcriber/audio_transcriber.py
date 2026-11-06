@@ -227,10 +227,12 @@ class AudioTranscriber:
         self.ingest_to_kg = ingest_to_kg
         self.last_kg_result: dict | None = None
         self.chunk = 1024
-        self.format = pyaudio.paInt16
+        # pyaudio is optional (absent in the container image): file transcription
+        # must still work, so microphone state is only built when it is installed.
+        self.format = pyaudio.paInt16 if pyaudio else 8
         self.channels = channels
         self.rate = rate
-        self.pyaudio_instance = pyaudio.PyAudio()
+        self.pyaudio_instance: Any = pyaudio.PyAudio() if pyaudio else None
         self.stream: Any = None
         self.frames: list[bytes] = []
         self.file_path = Path(file) if file else Path(directory) / file_name
@@ -279,6 +281,8 @@ class AudioTranscriber:
 
     def _get_default_device(self) -> int:
         """Get the default input device index."""
+        if self.pyaudio_instance is None:
+            return -1
         try:
             return int(self.pyaudio_instance.get_default_input_device_info()["index"])
         except OSError:
@@ -346,7 +350,8 @@ class AudioTranscriber:
         if self.stream:
             self.stream.stop_stream()
             self.stream.close()
-        self.pyaudio_instance.terminate()
+        if self.pyaudio_instance is not None:
+            self.pyaudio_instance.terminate()
 
     def save_stream(self) -> None:
         """Save the recorded frames to a WAV file."""
@@ -355,7 +360,11 @@ class AudioTranscriber:
             return
         with wave.open(str(self.file_path), "wb") as wave_file:
             wave_file.setnchannels(self.channels)
-            wave_file.setsampwidth(self.pyaudio_instance.get_sample_size(self.format))
+            wave_file.setsampwidth(
+                self.pyaudio_instance.get_sample_size(self.format)
+                if self.pyaudio_instance is not None
+                else 2
+            )
             wave_file.setframerate(self.rate)
             wave_file.writeframes(b"".join(self.frames))
         self.logger.info("Audio stream saved")
@@ -527,6 +536,8 @@ class AudioTranscriber:
 
     async def interact(self, server_url: str) -> None:
         """Interact with PersonaPlex server via WebSocket."""
+        if self.pyaudio_instance is None:
+            raise RuntimeError("Audio devices are unavailable (pyaudio not installed).")
         from .personaplex_client import PersonaPlexClient
 
         client = PersonaPlexClient(server_url, self.logger)
