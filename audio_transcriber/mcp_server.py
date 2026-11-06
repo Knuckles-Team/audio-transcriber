@@ -428,6 +428,105 @@ def register_media_sidecar_tools(mcp: FastMCP):
         }
 
 
+def register_speech_tools(mcp: FastMCP):
+    """The typed speech-transcription contract tool (TRANSCRIBE-R002.1).
+
+    One typed tool, no ``action``/``params_json`` routing. A front door
+    finds it by contract (``artifact_b64``/``digest``/``media_type`` inputs and
+    the ``speech-to-text`` capability line) and gets a typed
+    :class:`~audio_transcriber.speech_contract.SpeechTranscript` back.
+    """
+    from audio_transcriber.speech_contract import (
+        CAPABILITY,
+        DEFAULT_MAX_BYTES,
+        DEFAULT_MAX_DURATION_S,
+    )
+    from audio_transcriber.speech_contract import (
+        transcribe_speech as _transcribe_speech,
+    )
+
+    @mcp.tool(
+        annotations={
+            "title": "Transcribe Speech",
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
+        tags={"audio_processing", CAPABILITY},
+        name="transcribe_speech",
+        description=(
+            f"Capability: {CAPABILITY}. Transcribe one base64 audio or video "
+            "payload (verified by its sha256 digest) to text with detected "
+            "language, segment timestamps, optional word timestamps and a "
+            "diarisation availability report. Converts any container format "
+            "with ffmpeg. Returns a typed result whose status is ok or refused "
+            "(refusal_code INVALID_ARGUMENT, DIGEST_MISMATCH, MEDIA_TOO_LARGE, "
+            "MEDIA_TOO_LONG, UNSUPPORTED_MEDIA or TRANSCRIPTION_FAILED)."
+        ),
+    )
+    async def transcribe_speech(
+        artifact_b64: str = Field(description="The audio bytes, base64 encoded."),
+        digest: str = Field(
+            description="sha256 of the raw bytes, hex, optionally 'sha256:'-prefixed."
+        ),
+        media_type: str = Field(
+            default="audio/wav", description="The MIME type, audio/* or video/*."
+        ),
+        language: str | None = Field(
+            default=None, description="Language code; detected when omitted."
+        ),
+        task: str = Field(
+            default="transcribe",
+            description="'transcribe' or 'translate' (to English).",
+        ),
+        word_timestamps: bool = Field(
+            default=False, description="Include word-level timestamps."
+        ),
+        diarize: bool = Field(
+            default=False,
+            description="Ask for speaker labels; the result reports whether supported.",
+        ),
+    ) -> dict:
+        import asyncio
+
+        max_bytes = int(setting("SPEECH_MAX_BYTES", str(DEFAULT_MAX_BYTES)))
+        max_duration = float(
+            setting("SPEECH_MAX_DURATION_S", str(DEFAULT_MAX_DURATION_S))
+        )
+        state: dict[str, Any] = {}
+
+        def _run(path: Path, **kwargs: Any) -> dict:
+            transcriber = AudioTranscriber(
+                model=DEFAULT_WHISPER_MODEL,
+                file=path,
+                logger=logger,
+                ingest_to_kg=False,
+            )
+            state["backend"] = type(transcriber.backend_instance).__name__
+            return transcriber.transcribe(**kwargs)
+
+        def _call() -> Any:
+            return _transcribe_speech(
+                artifact_b64=artifact_b64,
+                digest=digest,
+                media_type=media_type,
+                transcribe=_run,
+                language=language,
+                task=task,
+                word_timestamps=word_timestamps,
+                diarize=diarize,
+                max_bytes=max_bytes,
+                max_duration_s=max_duration,
+                model=DEFAULT_WHISPER_MODEL,
+            )
+
+        result = await asyncio.to_thread(_call)
+        if state.get("backend"):
+            result.backend = state["backend"]
+        return result.model_dump(mode="json")
+
+
 def register_prompts(mcp: FastMCP):
     @mcp.prompt
     def transcribe_file_prompt(

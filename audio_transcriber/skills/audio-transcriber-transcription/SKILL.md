@@ -37,7 +37,7 @@ GPU is used automatically when available (`float16`), else CPU (`int8`).
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`audio-transcriber`** MCP server.
-`ffmpeg` should be installed for broad input-format support.
+The runtime image installs `ffmpeg` for format conversion.
 
 | Variable | Required | Notes |
 |----------|----------|-------|
@@ -51,6 +51,17 @@ Connect via the `mcp-client` skill against the **`audio-transcriber`** MCP serve
 | Tool | Purpose |
 |------|---------|
 | `transcribe_audio` | Transcribe a file or a microphone recording; optionally export captions |
+| `transcribe_speech` | Typed `speech-to-text` contract: base64 payload + sha256 digest in, a `SpeechTranscript` out (`status` ok/refused, `refusal_code`, `language`, `language_probability`, `duration_s`, segment and word timestamps, `diarization` report, `converted`). Front doors (voice notes, audio prompts) call this one. |
+
+### `transcribe_speech` (front-door voice prompts)
+Send `artifact_b64`, `digest` (`sha256:<hex>` of the raw bytes) and `media_type`
+(`audio/*` or `video/*`). Any container (Ogg/Opus voice notes, WebM, M4A, MP3) is
+converted to 16 kHz mono WAV with ffmpeg before inference. Limits come from
+`SPEECH_MAX_BYTES` (default 25 MiB) and `SPEECH_MAX_DURATION_S` (default 600 s).
+Refusals are typed and never carry text: `INVALID_ARGUMENT`, `DIGEST_MISMATCH`,
+`MEDIA_TOO_LARGE`, `MEDIA_TOO_LONG`, `UNSUPPORTED_MEDIA`, `TRANSCRIPTION_FAILED`.
+`diarize=true` reports `diarization.supported=false` here: no diarisation backend
+ships, so segments carry no speaker labels.
 
 ### Key parameters
 - `audio_file` — path to transcribe. Provide this **or** a positive `record_seconds`.

@@ -52,6 +52,64 @@ class TranscriberBackend(ABC):
         pass
 
 
+def _decode_with_ffmpeg(file_path: str | Path) -> Any:
+    """Decode to 16 kHz mono float32 samples with the ffmpeg binary (TRANSCRIBE-R002.4).
+
+    faster-whisper's own decoder calls ``av.open(..., metadata_errors=...)``,
+    which current PyAV releases reject, so every file failed to decode. With
+    the ffmpeg binary present (the runtime image installs it) the audio is
+    decoded here and handed over as samples; without it the path goes to
+    faster-whisper unchanged.
+    """
+    import shutil
+    import subprocess  # nosec B404 - fixed argv, no shell
+
+    binary = shutil.which("ffmpeg")
+    if not binary:
+        return str(file_path)
+    import numpy as np
+
+    completed = subprocess.run(  # nosec B603 - fixed argv, no shell
+        [
+            binary,
+            "-nostdin",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-i",
+            str(file_path),
+            "-f",
+            "s16le",
+            "-ac",
+            "1",
+            "-ar",
+            "16000",
+            "-",
+        ],
+        capture_output=True,
+        check=False,
+        timeout=600,
+    )
+    if completed.returncode != 0:
+        raise ValueError("ffmpeg could not decode the audio file")
+    return np.frombuffer(completed.stdout, np.int16).astype(np.float32) / 32768.0
+
+
+def _ctranslate2_device() -> str:
+    """Pick the device from CTranslate2 itself (TRANSCRIBE-R002.4).
+
+    faster-whisper runs on CTranslate2 and does not depend on torch; probing
+    the GPU through torch made a torch-less install fail the model load with an
+    ImportError, which read as "faster-whisper not found".
+    """
+    try:
+        import ctranslate2
+
+        return "cuda" if ctranslate2.get_cuda_device_count() > 0 else "cpu"
+    except Exception:  # noqa: BLE001 - no CUDA runtime means CPU
+        return "cpu"
+
+
 class FasterWhisperBackend(TranscriberBackend):
     """Backend using faster-whisper (CTranslate2)."""
 
@@ -69,9 +127,7 @@ class FasterWhisperBackend(TranscriberBackend):
         from faster_whisper import WhisperModel
 
         if device is None:
-            import torch
-
-            device = "cuda" if torch.cuda.is_available() else "cpu"
+            device = _ctranslate2_device()
 
         if compute_type is None:
             compute_type = "float16" if device == "cuda" else "int8"
@@ -98,7 +154,7 @@ class FasterWhisperBackend(TranscriberBackend):
             raise RuntimeError("Model not loaded. Call load_model() first.")
 
         segments_generator, info = self.model.transcribe(
-            str(file_path),
+            _decode_with_ffmpeg(file_path),
             language=language,
             task=task,
             beam_size=5,

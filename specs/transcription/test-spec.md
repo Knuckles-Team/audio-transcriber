@@ -10,6 +10,10 @@ Governing spec: [spec.md](spec.md).
 | T-004 | TRANSCRIBE-R001.4 | Negative | Misconfigured remote endpoint setting | Refusal logged; transmission blocked; no network call made. |  |
 | T-005 | TRANSCRIBE-R001.5 | Contract/integration | End-to-end local inference | Positive case passes; negative case blocks external transmission. |  |
 | T-006 | TRANSCRIBE-R001.6 | Integration | pytest test_transcription_local_egress_zero | Test passes; local inference completes; zero external calls observed. |  |
+| T-007 | TRANSCRIBE-R002.1 | Contract | Registered `transcribe_speech` tool called with a WAV payload and with each caller error | Typed `SpeechTranscript`; every caller error is a typed refusal with zero backend calls; size and duration limits refuse. | `tests/test_speech_contract.py` |
+| T-008 | TRANSCRIBE-R002.2 | Contract | Stub backend with language, segments and words; `diarize=true` | Language and probability, ms timestamps, words; `diarization.supported=false`. | `tests/test_speech_contract.py` |
+| T-009 | TRANSCRIBE-R002.3 | Integration | 44.1 kHz stereo WAV with the ffmpeg binary present | Backend receives `normalized.wav`; `converted=true`. | `tests/test_speech_contract.py` |
+| T-010 | TRANSCRIBE-R002.4 | Integration | torch import blocked; 44.1 kHz stereo WAV decoded with ffmpeg | Device probe returns cpu or cuda; samples are 16 kHz mono float32. | `tests/test_speech_contract.py` |
 
 ## Negative and boundary cases
 

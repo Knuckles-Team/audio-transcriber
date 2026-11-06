@@ -30,14 +30,18 @@ def test_faster_whisper_backend():
     assert backend.model is None
 
     # load_model CUDA/float16
-    with patch("torch.cuda.is_available", return_value=True):
+    with patch(
+        "audio_transcriber.audio_transcriber._ctranslate2_device", return_value="cuda"
+    ):
         backend.load_model("tiny")
     mock_fw.WhisperModel.assert_called_with(
         "tiny", device="cuda", compute_type="float16"
     )
 
     # load_model CPU/int8
-    with patch("torch.cuda.is_available", return_value=False):
+    with patch(
+        "audio_transcriber.audio_transcriber._ctranslate2_device", return_value="cpu"
+    ):
         backend.load_model("tiny")
     mock_fw.WhisperModel.assert_called_with("tiny", device="cpu", compute_type="int8")
 
@@ -78,7 +82,10 @@ def test_faster_whisper_backend():
 
     mock_model.transcribe.return_value = ([mock_segment], mock_info)
 
-    res = backend.transcribe("dummy.wav", word_timestamps=True)
+    with patch(
+        "audio_transcriber.audio_transcriber._decode_with_ffmpeg", side_effect=str
+    ):
+        res = backend.transcribe("dummy.wav", word_timestamps=True)
     assert res["text"] == " Hello world "
     assert len(res["segments"]) == 1
     assert res["segments"][0]["words"][0]["word"] == "Hello"
