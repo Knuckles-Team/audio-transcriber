@@ -1,6 +1,6 @@
-"""Native epistemic-graph blob ingestion for transcribed audio.
+"""Native medulla blob ingestion for transcribed audio.
 
-CONCEPT:AU-KG.ingest.list-durable-media. When a live epistemic-graph engine is
+CONCEPT:AU-KG.ingest.list-durable-media. When a live medulla engine is
 reachable, the audio file that was transcribed is stored as a content-addressed
 **blob** with a shared media-asset graph record (carrying its Whisper metadata),
 via the scion-sdk knowledge-ingest facade

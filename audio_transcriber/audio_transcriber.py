@@ -468,7 +468,7 @@ class AudioTranscriber:
         return result
 
     def _maybe_ingest_kg(self, result: dict, *, task: str = "transcribe") -> None:
-        """Natively push the transcription into the epistemic-graph knowledge graph.
+        """Natively push the transcription into the medulla knowledge graph.
 
         Default-on and best-effort: no-ops when ``ingest_to_kg`` is off or no live
         engine is reachable. On success records ``self.last_kg_result``

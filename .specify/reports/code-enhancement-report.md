@@ -42,12 +42,12 @@ xychart-beta
 `██████████████░░░░░░` 74/100
 
 > [!NOTE]
-> Detected ecosystem marker: scion-sdk → Agent-Utilities Ecosystem
+> Detected ecosystem marker: scion-sdk → Meristem Ecosystem
 
 | Criterion | Points | Evidence | Reasoning |
 |-----------|--------|----------|-----------|
 | has_pyproject | 10 | `pyproject.toml and requirements.txt` | Both pyproject.toml and requirements.txt exist, fulfilling mandatory Python proj |
-| project_type_detected | 10 | `Agent-Utilities Ecosystem` | Identified 1 ecosystem marker(s) in dependencies |
+| project_type_detected | 10 | `Meristem Ecosystem` | Identified 1 ecosystem marker(s) in dependencies |
 | externalized_prompts | 0 | `${WORKSPACE_ROOT}/agent-packages/agents/audio-transcriber` | No prompts/ directory found. Prompts may be hardcoded in source. |
 | observability | 0 | `dependency list` | No observability tools (logfire, sentry, opentelemetry) found |
 | testing_suite | 10 | `tests dir: True, pytest dep: True` | Tests directory exists, pytest in dependencies |
@@ -306,7 +306,7 @@ xychart-beta
 | 12 | 🔴 High | Pytest Quality | 6 tests have no assertions | High | Medium |
 | 13 | 🔴 High | Pytest Quality | 9 tests have excessive mocking (>5 mocks) — test behavior, not implementation | High | Medium |
 | 14 | 🔴 High | Pytest Quality | 1 tests exceed 100 lines — likely doing too much per test | High | Medium |
-| 15 | 🟡 Medium | Project Analysis | Detected ecosystem marker: scion-sdk → Agent-Utilities Ecosystem | Medium | Low |
+| 15 | 🟡 Medium | Project Analysis | Detected ecosystem marker: scion-sdk → Meristem Ecosystem | Medium | Low |
 | 16 | 🟡 Medium | Project Analysis | Protocol support: MCP | Medium | Low |
 | 17 | 🟡 Medium | Architecture & Design Patterns | SRP: 1 modules exceed 500 lines (god modules) | Medium | Low |
 | 18 | 🟡 Medium | Architecture & Design Patterns | SRP: 1 classes have >15 methods | Medium | Low |

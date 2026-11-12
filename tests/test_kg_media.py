@@ -1,6 +1,6 @@
-"""Native epistemic-graph audio-blob ingestion — Wire-First live-path coverage.
+"""Native medulla audio-blob ingestion — Wire-First live-path coverage.
 
-Exercises the real ``ingest_audio_file`` seam with a fake epistemic-graph ingest
+Exercises the real ``ingest_audio_file`` seam with a fake medulla ingest
 transport (no engine required). CONCEPT:AU-KG.ingest.list-durable-media.
 """
 
