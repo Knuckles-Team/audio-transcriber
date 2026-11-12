@@ -320,7 +320,7 @@ CONTRACTS = (
 
 LINKS = (
     SurfaceLink(
-        task="audio-transcriber-mcp-audio-transcriber-administrator",
+        task="transcription_specialist",
         tools=(
             "audio_ingest_transcription",
             "audio_transcriber_export",
@@ -335,9 +335,7 @@ LINKS = (
             "transcribe_media_transcribe_segments",
             "transcribe_speech",
         ),
-        prompts=(
-            "audio-transcriber-mcp-audio-transcriber-administrator",
-        ),
+        prompts=("transcription_specialist", "transcribe_file_prompt", "record_and_transcribe_prompt", "translate_audio_prompt",),
     ),
     SurfaceLink(
         task="audio-transcriber-mcp-operator",
@@ -355,9 +353,7 @@ LINKS = (
             "transcribe_media_transcribe_segments",
             "transcribe_speech",
         ),
-        prompts=(
-            "audio-transcriber-mcp-operator",
-        ),
+        prompts=("audio-transcriber-mcp-operator",),
     ),
     SurfaceLink(
         task="transcription_specialist",
@@ -366,9 +362,7 @@ LINKS = (
             "transcribe_audio",
             "transcribe_speech",
         ),
-        prompts=(
-            "transcription_specialist",
-        ),
+        prompts=("transcription_specialist",),
     ),
     SurfaceLink(
         task="audio-transcriber-development",

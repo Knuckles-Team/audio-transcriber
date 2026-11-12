@@ -9,6 +9,7 @@ Resource Scheduling and priority queuing.
 """
 
 #!/usr/bin/python
+import json
 import warnings
 
 from fastmcp import Context, FastMCP
@@ -45,6 +46,17 @@ logger = get_logger(name="TokenMiddleware")
 logger.setLevel(logging.DEBUG)
 
 DEFAULT_WHISPER_MODEL = setting("WHISPER_MODEL", "base")
+
+
+_PROMPT_AGENT = json.loads(
+    (Path(__file__).parent / "prompts/transcription_specialist.json").read_text(encoding="utf-8")
+)["agent"]
+
+
+def _prompt_meta(role: str, goal: str) -> dict:
+    """The agent definition every served prompt carries (the packaged role prompt's)."""
+    return {"team.knuckles/prompt": {"role": role, "goal": goal, "agent": _PROMPT_AGENT}}
+
 
 
 def _default_transcribe_directory() -> Path:
@@ -528,7 +540,7 @@ def register_speech_tools(mcp: FastMCP):
 
 
 def register_prompts(mcp: FastMCP):
-    @mcp.prompt
+    @mcp.prompt(meta=_prompt_meta("Business Role Specialist", "Transcribe file."))
     def transcribe_file_prompt(
         audio_file: str,
         language: str = "",
@@ -539,7 +551,7 @@ def register_prompts(mcp: FastMCP):
         """
         return f"Transcribe the audio file '{audio_file}'. Language: '{language}', Model: '{model}'. Use the `transcribe_audio` tool with `audio_file`."
 
-    @mcp.prompt
+    @mcp.prompt(meta=_prompt_meta("Business Role Specialist", "Record and transcribe."))
     def record_and_transcribe_prompt(
         record_seconds: int,
         language: str = "",
@@ -550,7 +562,7 @@ def register_prompts(mcp: FastMCP):
         """
         return f"Record audio for {record_seconds} seconds and transcribe it. Language: '{language}', Model: '{model}'. Use the `transcribe_audio` tool with `record_seconds`."
 
-    @mcp.prompt
+    @mcp.prompt(meta=_prompt_meta("Business Role Specialist", "Translate audio."))
     def translate_audio_prompt(
         audio_file: str,
         model: str = "base",
