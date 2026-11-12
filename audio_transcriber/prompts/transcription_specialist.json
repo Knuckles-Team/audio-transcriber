@@ -89,5 +89,13 @@
       "transcribe_media_transcribe_segments",
       "transcribe_speech"
     ]
-  }
+  },
+  "skills": [
+    "audio-transcriber-transcription",
+    "audio-transcriber-knowledge-graph"
+  ],
+  "tools": [
+    "transcribe_audio",
+    "audio_ingest_transcription"
+  ]
 }
