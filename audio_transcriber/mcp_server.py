@@ -610,7 +610,7 @@ def _parse_date(value: str | None) -> datetime.date | None:
 
 
 def _transcript_date(path: Path) -> str:
-    stamp = datetime.datetime.fromtimestamp(path.stat().st_mtime, datetime.timezone.utc)
+    stamp = datetime.datetime.fromtimestamp(path.stat().st_mtime, datetime.UTC)
     return stamp.date().isoformat()
 
 

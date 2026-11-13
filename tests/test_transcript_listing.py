@@ -20,7 +20,13 @@ BASE = 1_767_225_600  # 2026-01-01T00:00:00Z
 def _write(directory, name, texts, days):
     path = directory / f"{name}.json"
     segments = [
-        {"id": i, "start": float(i), "end": i + 1.0, "text": t, "no_speech_prob": 0.1 * i}
+        {
+            "id": i,
+            "start": float(i),
+            "end": i + 1.0,
+            "text": t,
+            "no_speech_prob": 0.1 * i,
+        }
         for i, t in enumerate(texts)
     ]
     path.write_text(json.dumps({"text": " ".join(texts), "segments": segments}))
@@ -58,14 +64,22 @@ def test_list_and_get_by_recording_id_and_date(monkeypatch, tmp_path):
     by_id = asyncio.run(_call(mcp, "list_transcripts", {"recording_id": "c"})).data
     assert [i["id"] for i in by_id["items"]] == ["c"]
     ranged = asyncio.run(
-        _call(mcp, "list_transcripts", {"date_from": "2026-01-02", "date_to": "2026-01-02"})
+        _call(
+            mcp,
+            "list_transcripts",
+            {"date_from": "2026-01-02", "date_to": "2026-01-02"},
+        )
     ).data
     assert [i["id"] for i in ranged["items"]] == ["a", "b"]
     limited = asyncio.run(_call(mcp, "list_transcripts", {"limit": 2})).data
-    assert [i["id"] for i in limited["items"]] == ["a", "b"] and limited["truncated"] is True
+    assert [i["id"] for i in limited["items"]] == ["a", "b"] and limited[
+        "truncated"
+    ] is True
 
     got = asyncio.run(_call(mcp, "get_transcript", {"recording_id": "b"})).data
-    assert got["id"] == "b" and got["date"] == "2026-01-02" and got["text"] == "two parts"
+    assert (
+        got["id"] == "b" and got["date"] == "2026-01-02" and got["text"] == "two parts"
+    )
     assert got["segments"][1] == {"start": 1.0, "end": 2.0, "no_speech_prob": 0.1}
 
 
@@ -79,7 +93,11 @@ def test_refusals_write_nothing(monkeypatch, tmp_path):
         ("get_transcript", {"recording_id": "a/b"}, "INVALID_RECORDING_ID"),
         ("get_transcript", {"recording_id": ".."}, "INVALID_RECORDING_ID"),
         ("list_transcripts", {"date_from": "2026-13-01"}, "INVALID_DATE_RANGE"),
-        ("list_transcripts", {"date_from": "2026-02-01", "date_to": "2026-01-01"}, "INVALID_DATE_RANGE"),
+        (
+            "list_transcripts",
+            {"date_from": "2026-02-01", "date_to": "2026-01-01"},
+            "INVALID_DATE_RANGE",
+        ),
         ("list_transcripts", {"limit": 0}, "LIMIT_OUT_OF_RANGE"),
         ("list_transcripts", {"limit": 501}, "LIMIT_OUT_OF_RANGE"),
         ("get_transcript", {"recording_id": "missing"}, "TRANSCRIPT_NOT_FOUND"),
