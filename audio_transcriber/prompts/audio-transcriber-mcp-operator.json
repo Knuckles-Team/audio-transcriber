@@ -31,7 +31,9 @@
       "audio_transcriber_save_stream",
       "audio_transcriber_stop_stream",
       "audio_transcriber_transcribe",
+      "get_transcript",
       "health_check",
+      "list_transcripts",
       "transcribe_audio",
       "transcribe_media_transcribe_segments",
       "transcribe_speech"

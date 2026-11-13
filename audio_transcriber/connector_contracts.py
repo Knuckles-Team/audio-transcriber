@@ -286,6 +286,51 @@ CONTRACTS = (
             ),
         ),
     ),
+    ToolUseContract(
+        task="get-transcript",
+        steps=(
+            ToolStep(
+                tool="get_transcript",
+                params=("recording_id",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="list-transcripts",
+        steps=(
+            ToolStep(
+                tool="list_transcripts",
+                params=(
+                    "date_from",
+                    "date_to",
+                    "limit",
+                    "recording_id",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
 )
 
 LINKS = (
@@ -334,6 +379,8 @@ LINKS = (
         task="transcription_specialist",
         tools=(
             "audio_ingest_transcription",
+            "get_transcript",
+            "list_transcripts",
             "transcribe_audio",
             "transcribe_speech",
         ),
@@ -378,6 +425,8 @@ LINKS = (
     SurfaceLink(
         task="audio-transcriber-transcription",
         tools=(
+            "get_transcript",
+            "list_transcripts",
             "transcribe_audio",
             "transcribe_speech",
         ),
@@ -406,7 +455,9 @@ ROLES = (
             "audio-transcriber-save-stream",
             "audio-transcriber-stop-stream",
             "audio-transcriber-transcribe",
+            "get-transcript",
             "health-check",
+            "list-transcripts",
             "transcribe-audio",
             "transcribe-media-transcribe-segments",
             "transcribe-speech",

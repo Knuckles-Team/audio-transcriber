@@ -31,7 +31,6 @@ warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
 import datetime
-import json
 import logging
 import os
 import sys
