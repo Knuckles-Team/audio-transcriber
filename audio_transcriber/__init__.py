@@ -4,11 +4,19 @@ from scion_sdk.connector import Connector
 from scion_sdk.connector_hooks import RegistrationContext
 
 from audio_transcriber.audio_transcriber import AudioTranscriber
-from audio_transcriber.mcp_server import get_client, register_prompts
+from audio_transcriber.mcp_server import (
+    get_client,
+    register_prompts,
+    register_transcript_tools,
+)
 
 
 def _register_prompts(context: RegistrationContext) -> None:
     register_prompts(context.server)
+
+
+def _register_transcripts(context: RegistrationContext) -> None:
+    register_transcript_tools(context.server)
 
 
 connector = Connector(
@@ -16,5 +24,5 @@ connector = Connector(
     get_client=get_client,
     tools="audio_transcriber.mcp_server",
     instructions="Audio Transcriber MCP Server - Run Whisper transcription on audio files or microphone input.",
-    extra_registrations=(_register_prompts,),
+    extra_registrations=(_register_prompts, _register_transcripts),
 )

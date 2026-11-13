@@ -8,4 +8,4 @@ Each task line reads `- [ ] T001 [P] [US1] <ID>-R012.4 description`. Order is pr
 - [x] T002 [US1] CONN-AUDIO-TRANSCRIBER-R002 Fleet name.
 - [x] T003 [US1] CONN-AUDIO-TRANSCRIBER-R003 Microphone extra.
 - [ ] T004 [US1] CONN-AUDIO-TRANSCRIBER-R004 Meeting segment tools.
-- [ ] T005 [US1] CONN-AUDIO-TRANSCRIBER-R005 Transcript list and get by recording id and date.
+- [x] T005 [US1] CONN-AUDIO-TRANSCRIBER-R005 Transcript list and get by recording id and date.

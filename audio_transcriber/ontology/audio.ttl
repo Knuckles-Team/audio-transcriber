@@ -82,6 +82,12 @@
     rdfs:domain :TranscriptSegment ;
     rdfs:range xsd:float .
 
+:avgLogprob a owl:DatatypeProperty ;
+    rdfs:label "average log probability" ;
+    rdfs:comment "Whisper average token log probability (confidence) of a TranscriptSegment." ;
+    rdfs:domain :TranscriptSegment ;
+    rdfs:range xsd:float .
+
 :noSpeechProb a owl:DatatypeProperty ;
     rdfs:label "no-speech probability" ;
     rdfs:comment "Whisper probability (0..1) that a TranscriptSegment contains no speech." ;

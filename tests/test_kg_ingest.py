@@ -156,3 +156,18 @@ async def test_empty_entities_is_rejected(ingest):
     service, _ = ingest
     with pytest.raises(IngestError, match="at least one entity"):
         await ingest_entities([], ingest=service)
+
+
+@pytest.mark.spec("CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R003")
+@pytest.mark.asyncio
+async def test_ingest_transcription_carries_avg_logprob_per_segment(ingest):
+    service, transport = ingest
+    result = dict(_RESULT)
+    result["segments"] = [
+        {**seg, "avg_logprob": lp}
+        for seg, lp in zip(_RESULT["segments"], (-0.25, -0.75))
+    ]
+    await ingest_transcription(result, name="Conf", model="base", ingest=service)
+    records = {r.record_id: r for q in transport.requests for r in q.records}
+    assert records["audio:segment:conf:0"].payload["avgLogprob"] == -0.25
+    assert records["audio:segment:conf:1"].payload["avgLogprob"] == -0.75
