@@ -115,7 +115,7 @@ When query strings or parameters are provided, an LLM-free **Knowledge Graph res
 
 > **Install the connector-focused `[mcp]` extra.** Examples use `audio-transcriber[mcp]` to add
 > FastMCP / FastAPI through `scion-sdk`; the required Scion SDK core
-> still carries `epistemic-graph[full]`. The `[agent-runtime]` extra additionally
+> still carries `medulla[full]`. The `[agent-runtime]` extra additionally
 > enables model orchestration.
 
 #### stdio Transport (local IDEs — Cursor, Claude Desktop, VS Code)
@@ -253,7 +253,7 @@ One multi-stage `docker/Dockerfile` builds the MCP-only image (`--target mcp`):
 
 | Image tag | Build target | Contents | Entrypoint |
 |-----------|--------------|----------|------------|
-| `example/audio-transcriber:mcp` | `--target mcp` | `audio-transcriber[mcp]` — **connector-focused**, includes `epistemic-graph[full]`; no model-orchestration stack | `audio-transcriber-mcp` |
+| `example/audio-transcriber:mcp` | `--target mcp` | `audio-transcriber[mcp]` — **connector-focused**, includes `medulla[full]`; no model-orchestration stack | `audio-transcriber-mcp` |
 
 ```bash
 docker build --target mcp   -t example/audio-transcriber:mcp    docker/   # connector-focused MCP server
@@ -261,14 +261,14 @@ docker build --target mcp   -t example/audio-transcriber:mcp    docker/   # conn
 
 agent (`immutable agent digest`) with a co-located `:mcp` sidecar.
 
-### Knowledge-graph database (`epistemic-graph`)
+### Knowledge-graph database (`medulla`)
 
-Scion SDK core dependency (`epistemic-graph[full]`). The `[mcp]` extra keeps
+Scion SDK core dependency (`medulla[full]`). The `[mcp]` extra keeps
 deployments can use the bundled engine. For production or shared state, run
-**epistemic-graph as a dedicated database service** and configure the runtime to use it.
+**medulla as a dedicated database service** and configure the runtime to use it.
 Deployment recipes (single-node + Raft HA), connection configuration, and architecture
 diagrams are documented in the
-[epistemic-graph deployment guide](https://knuckles-team.github.io/epistemic-graph/deployment/).
+[medulla deployment guide](https://knuckles-team.github.io/medulla/deployment/).
 
 ---
 

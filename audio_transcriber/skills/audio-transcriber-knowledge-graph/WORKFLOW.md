@@ -1,11 +1,11 @@
 # Audio Transcriber Knowledge Graph
 
-Native knowledge-graph ingestion of Whisper transcripts on the audio-transcriber MCP server — transcribe an audio/video file and push it into the epistemic-graph in one call: the raw audio as a shared :AssetOccurrence blob, the transcript text as a :Document, and each Whisper segment as a :TranscriptSegment node linked :segmentOf the transcript and :transcribedFrom the audio. Use when a transcript must be durable and semantically searchable in the KG. Do NOT use for a one-off transcription with no KG persistence (use audio-transcriber-transcription).
+Native knowledge-graph ingestion of Whisper transcripts on the audio-transcriber MCP server — transcribe an audio/video file and push it into the medulla in one call: the raw audio as a shared :AssetOccurrence blob, the transcript text as a :Document, and each Whisper segment as a :TranscriptSegment node linked :segmentOf the transcript and :transcribedFrom the audio. Use when a transcript must be durable and semantically searchable in the KG. Do NOT use for a one-off transcription with no KG persistence (use audio-transcriber-transcription).
 
 # Audio Transcript → Knowledge Graph
 
 Wire-First native ingestion: the **`audio-transcriber`** MCP server transcribes a file
-and natively writes the result into the ONE epistemic-graph engine across every modality
+and natively writes the result into the ONE medulla engine across every modality
 (CONCEPT:AU-KG.ingest.enterprise-source-extractor). Ordinary `transcribe_audio` calls also
 ingest by default; this skill covers the explicit ingest tool and the graph shape.
 
@@ -21,7 +21,7 @@ ingest by default; this skill covers the explicit ingest tool and the graph shap
 
 ## Prerequisites & environment
 Connect via the `mcp-client` skill against the **`audio-transcriber`** MCP server. A live
-epistemic-graph engine must be reachable for anything to be written — otherwise ingestion
+medulla engine must be reachable for anything to be written — otherwise ingestion
 **no-ops** cleanly (the tool still returns the transcript, with `ingested: null`).
 
 | Variable | Required | Notes |

@@ -4,7 +4,7 @@ Governing spec: [spec.md](spec.md). Rows: [requirements.md](requirements.md).
 
 ## Summary
 
-audio-transcriber owns transcription via local models. agent-connector-sdk owns transport contracts. medulla owns transcript consumers. No duplicated transcription authority. audio-transcriber owns transcription via local models. scion-sdk owns transport contracts. medulla owns transcript consumers. No duplicated transcription authority. Speech input enters audio-transcriber transcribe endpoint. Local model inference produces text output. SDK contracts govern egress checks: raw audio blocked, transcripts validated, origin traced to medulla. Refusal gates block misconfigured remote endpoints before transmission.
+audio-transcriber owns transcription via local models. scion-sdk owns transport contracts. medulla owns transcript consumers. No duplicated transcription authority. audio-transcriber owns transcription via local models. scion-sdk owns transport contracts. medulla owns transcript consumers. No duplicated transcription authority. Speech input enters audio-transcriber transcribe endpoint. Local model inference produces text output. SDK contracts govern egress checks: raw audio blocked, transcripts validated, origin traced to medulla. Refusal gates block misconfigured remote endpoints before transmission.
 
 ## Technical Context
 

@@ -30,7 +30,7 @@ repository `AGENTS.md`, the connector-content specifications, and focused tests.
   schema declaration. Change source IDs, record mappings, and resource names
   there rather than duplicating them in tool code.
 - `audio_transcriber/kg_ingest.py` and `kg_media.py` map transcript documents,
-  segments, and audio assets through the SDK/epistemic-graph ingestion boundary.
+  segments, and audio assets through the SDK/medulla ingestion boundary.
   Preserve stable IDs and no-op behavior when no engine is available.
 - `audio_transcriber/skills/**`, `prompts/**`, `ontology/**`, and
   `connectors/**` are package data. A skill change needs a package-content check

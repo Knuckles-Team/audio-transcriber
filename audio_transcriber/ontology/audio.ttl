@@ -1,7 +1,8 @@
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix core: <https://knuckles-team.github.io/ontology/core#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix dc: <http://purl.org/dc/terms/> .
-@prefix : <http://knuckles.team/kg#> .
+@prefix : <https://knuckles-team.github.io/ontology/connector/audio-transcription#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -14,10 +15,12 @@
 
 # --- new classes ---
 
-:Transcript a owl:Class .
+:Transcript a owl:Class ;
+    rdfs:subClassOf core:Transcript .
 
 
 :TranscriptSegment a owl:Class ;
+    rdfs:subClassOf core:TranscriptSegment ;
     rdfs:label "Transcript Segment" ;
     rdfs:comment "A single timestamped span of a Transcript (Whisper segment) with its start/end time and text." .
 
@@ -27,7 +30,7 @@
     rdfs:label "transcribed from" ;
     rdfs:comment "Links a Transcript to the source audio/video :AssetOccurrence it was transcribed from." ;
     rdfs:domain :Transcript ;
-    rdfs:range :AssetOccurrence .
+    rdfs:range core:AssetOccurrence .
 
 :segmentOf a owl:ObjectProperty ;
     rdfs:label "segment of" ;
@@ -38,7 +41,7 @@
 :spokenBy a owl:ObjectProperty ;
     rdfs:label "spoken by" ;
     rdfs:comment "Links a Transcript or TranscriptSegment to the Person (speaker) attributed to it." ;
-    rdfs:range :Person .
+    rdfs:range core:Person .
 
 # --- fields (owl:DatatypeProperty) ---
 
@@ -85,7 +88,7 @@
     rdfs:domain :TranscriptSegment ;
     rdfs:range xsd:float .
 
-<http://knuckles.team/kg/audio> a owl:Ontology ;
+<https://knuckles-team.github.io/ontology/connector/audio> a owl:Ontology ;
     rdfs:label "Audio Transcription Ontology" ;
     rdfs:comment """Audio/video transcription domain model — Whisper transcripts and their
     timestamped segments, transcribed from a shared :AssetOccurrence blob and carried as a shared

@@ -1,8 +1,8 @@
-"""Native epistemic-graph ingestion for audio transcriptions.
+"""Native medulla ingestion for audio transcriptions.
 
 CONCEPT:AU-KG.ingest.enterprise-source-extractor. audio-transcriber is a *producer*:
 after Whisper transcribes an audio/video file it natively pushes the result into the ONE
-epistemic-graph engine across every modality that applies (the "maximum ingestion" bar):
+medulla engine across every modality that applies (the "maximum ingestion" bar):
 
 * **blob**  — the raw audio bytes → a shared media-asset record (``audio_transcriber.kg_media``)
 * **document** — the transcript text → shared ``:Document`` (``ingest_documents``); the hub

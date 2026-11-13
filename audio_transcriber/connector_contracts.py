@@ -1,0 +1,415 @@
+"""Surface contracts: tool use, links, data locations and business roles.
+
+Drafted by ``python -m scion_sdk.testing.surface_draft complete``; edit freely.
+"""
+
+from scion_sdk.surface_contracts import (
+    BusinessRole,
+    DataLocation,
+    Refusal,
+    SurfaceLink,
+    ToolStep,
+    ToolUseContract,
+)
+
+CONTRACTS = (
+    ToolUseContract(
+        task="audio-ingest-transcription",
+        steps=(
+            ToolStep(
+                tool="audio_ingest_transcription",
+                params=(
+                    "audio_file",
+                    "language",
+                    "model",
+                    "task",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="audio-transcriber-export",
+        steps=(
+            ToolStep(
+                tool="audio_transcriber_export",
+                params=(
+                    "formats",
+                    "result",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="audio-transcriber-initiate-stream",
+        steps=(
+            ToolStep(
+                tool="audio_transcriber_initiate_stream",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="audio-transcriber-interact",
+        steps=(
+            ToolStep(
+                tool="audio_transcriber_interact",
+                params=("server_url",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="audio-transcriber-record",
+        steps=(
+            ToolStep(
+                tool="audio_transcriber_record",
+                params=("seconds",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="audio-transcriber-save-stream",
+        steps=(
+            ToolStep(
+                tool="audio_transcriber_save_stream",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="audio-transcriber-stop-stream",
+        steps=(
+            ToolStep(
+                tool="audio_transcriber_stop_stream",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="audio-transcriber-transcribe",
+        steps=(
+            ToolStep(
+                tool="audio_transcriber_transcribe",
+                params=(
+                    "fp16",
+                    "initial_prompt",
+                    "language",
+                    "task",
+                    "temperature",
+                    "verbose",
+                    "word_timestamps",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="health-check",
+        steps=(
+            ToolStep(
+                tool="health_check",
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="transcribe-audio",
+        steps=(
+            ToolStep(
+                tool="transcribe_audio",
+                params=(
+                    "audio_file",
+                    "backend",
+                    "directory",
+                    "export_formats",
+                    "fp16",
+                    "initial_prompt",
+                    "language",
+                    "model",
+                    "record_seconds",
+                    "task",
+                    "temperature",
+                    "word_timestamps",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="transcribe-media-transcribe-segments",
+        steps=(
+            ToolStep(
+                tool="transcribe_media_transcribe_segments",
+                params=("params_json",),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="INVALID_ARGUMENT",
+                        when="the upstream system rejects the input",
+                    ),
+                ),
+            ),
+        ),
+    ),
+    ToolUseContract(
+        task="transcribe-speech",
+        steps=(
+            ToolStep(
+                tool="transcribe_speech",
+                params=(
+                    "artifact_b64",
+                    "diarize",
+                    "digest",
+                    "language",
+                    "media_type",
+                    "task",
+                    "word_timestamps",
+                ),
+                result=("result",),
+                refusals=(
+                    Refusal(
+                        code="ACCESS_DENIED",
+                        when="the credential lacks access to the operation",
+                    ),
+                    Refusal(
+                        code="NOT_FOUND",
+                        when="the requested record does not exist",
+                    ),
+                ),
+            ),
+        ),
+    ),
+)
+
+LINKS = (
+    SurfaceLink(
+        task="transcription_specialist",
+        tools=(
+            "audio_ingest_transcription",
+            "audio_transcriber_export",
+            "audio_transcriber_initiate_stream",
+            "audio_transcriber_interact",
+            "audio_transcriber_record",
+            "audio_transcriber_save_stream",
+            "audio_transcriber_stop_stream",
+            "audio_transcriber_transcribe",
+            "health_check",
+            "transcribe_audio",
+            "transcribe_media_transcribe_segments",
+            "transcribe_speech",
+        ),
+        prompts=(
+            "transcription_specialist",
+            "transcribe_file_prompt",
+            "record_and_transcribe_prompt",
+            "translate_audio_prompt",
+        ),
+    ),
+    SurfaceLink(
+        task="audio-transcriber-mcp-operator",
+        tools=(
+            "audio_ingest_transcription",
+            "audio_transcriber_export",
+            "audio_transcriber_initiate_stream",
+            "audio_transcriber_interact",
+            "audio_transcriber_record",
+            "audio_transcriber_save_stream",
+            "audio_transcriber_stop_stream",
+            "audio_transcriber_transcribe",
+            "health_check",
+            "transcribe_audio",
+            "transcribe_media_transcribe_segments",
+            "transcribe_speech",
+        ),
+        prompts=("audio-transcriber-mcp-operator",),
+    ),
+    SurfaceLink(
+        task="transcription_specialist",
+        tools=(
+            "audio_ingest_transcription",
+            "transcribe_audio",
+            "transcribe_speech",
+        ),
+        prompts=("transcription_specialist",),
+    ),
+    SurfaceLink(
+        task="audio-transcriber-development",
+        tools=(
+            "audio_transcriber_export",
+            "audio_transcriber_initiate_stream",
+            "audio_transcriber_interact",
+            "audio_transcriber_record",
+            "audio_transcriber_save_stream",
+            "audio_transcriber_stop_stream",
+            "audio_transcriber_transcribe",
+            "transcribe_audio",
+        ),
+        skills=("audio-transcriber-development",),
+    ),
+    SurfaceLink(
+        task="audio-transcriber-knowledge-graph",
+        tools=(
+            "audio_ingest_transcription",
+            "transcribe_audio",
+        ),
+        skills=("audio-transcriber-knowledge-graph",),
+    ),
+    SurfaceLink(
+        task="audio-transcriber-operations",
+        tools=(
+            "audio_transcriber_export",
+            "audio_transcriber_initiate_stream",
+            "audio_transcriber_interact",
+            "audio_transcriber_record",
+            "audio_transcriber_save_stream",
+            "audio_transcriber_stop_stream",
+            "audio_transcriber_transcribe",
+            "transcribe_audio",
+        ),
+        skills=("audio-transcriber-operations",),
+    ),
+    SurfaceLink(
+        task="audio-transcriber-transcription",
+        tools=(
+            "transcribe_audio",
+            "transcribe_speech",
+        ),
+        skills=("audio-transcriber-transcription",),
+    ),
+)
+
+LOCATIONS = (
+    DataLocation(
+        name="audio-transcripts",
+        holds=("Document",),
+        instance="audio-transcriber-mcp-default",
+        read_tool="audio_ingest_transcription",
+    ),
+)
+
+ROLES = (
+    BusinessRole(
+        name="audio-transcriber administrator",
+        tasks=(
+            "audio-ingest-transcription",
+            "audio-transcriber-export",
+            "audio-transcriber-initiate-stream",
+            "audio-transcriber-interact",
+            "audio-transcriber-record",
+            "audio-transcriber-save-stream",
+            "audio-transcriber-stop-stream",
+            "audio-transcriber-transcribe",
+            "health-check",
+            "transcribe-audio",
+            "transcribe-media-transcribe-segments",
+            "transcribe-speech",
+        ),
+    ),
+)

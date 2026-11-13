@@ -1,7 +1,7 @@
-"""Native epistemic-graph transcription ingestion — Wire-First coverage.
+"""Native medulla transcription ingestion — Wire-First coverage.
 
 Exercises the real ``ingest_entities`` / ``ingest_documents`` / ``ingest_transcription``
-seam with a fake epistemic-graph ingest transport (no engine required), asserting the
+seam with a fake medulla ingest transport (no engine required), asserting the
 generated ``SourceIngestionRequest`` records/relationships the SDK's own request
 builder produces, and the Whisper-result -> blob/document/segment mapping.
 CONCEPT:AU-KG.ingest.enterprise-source-extractor.
