@@ -51,6 +51,8 @@ The runtime image installs `ffmpeg` for format conversion.
 | Tool | Purpose |
 |------|---------|
 | `transcribe_audio` | Transcribe a file or a microphone recording; optionally export captions |
+| `list_transcripts` | List exported transcripts, filtered by recording id and date range |
+| `get_transcript` | Read one exported transcript by recording id with its segments (avg_logprob per segment) |
 | `transcribe_speech` | Typed `speech-to-text` contract: base64 payload + sha256 digest in, a `SpeechTranscript` out (`status` ok/refused, `refusal_code`, `language`, `language_probability`, `duration_s`, segment and word timestamps, `diarization` report, `converted`). Front doors (voice notes, audio prompts) call this one. |
 
 ### `transcribe_speech` (front-door voice prompts)

@@ -220,6 +220,7 @@ async def ingest_transcription(
                 "startTime": seg.get("start"),
                 "endTime": seg.get("end"),
                 "noSpeechProb": seg.get("no_speech_prob"),
+                "avgLogprob": seg.get("avg_logprob"),
             }
         )
         relationships.append(

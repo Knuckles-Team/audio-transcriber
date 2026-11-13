@@ -30,6 +30,7 @@ SCHEMA_VERSION = 2
 
 FIELD_SETS = {
     "fields_1": {
+        "avgLogprob": "xsd:float",
         "duration": "xsd:float",
         "endTime": "xsd:float",
         "language": "xsd:string",

@@ -38,6 +38,8 @@ Connect via the `mcp-client` skill against the **`audio-transcriber`** MCP serve
 | Tool | Purpose |
 |------|---------|
 | `transcribe_audio` | Transcribe a file or a microphone recording; optionally export captions |
+| `list_transcripts` | List exported transcripts, filtered by recording id and date range |
+| `get_transcript` | Read one exported transcript by recording id with its segments (avg_logprob per segment) |
 
 ### Key parameters
 - `audio_file` — path to transcribe. Provide this **or** a positive `record_seconds`.

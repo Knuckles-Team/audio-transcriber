@@ -85,6 +85,8 @@
       "audio_transcriber_stop_stream",
       "audio_transcriber_transcribe",
       "health_check",
+      "get_transcript",
+      "list_transcripts",
       "transcribe_audio",
       "transcribe_media_transcribe_segments",
       "transcribe_speech"
@@ -96,6 +98,8 @@
   ],
   "tools": [
     "transcribe_audio",
-    "audio_ingest_transcription"
+    "audio_ingest_transcription",
+    "get_transcript",
+    "list_transcripts"
   ]
 }

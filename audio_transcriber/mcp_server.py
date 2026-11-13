@@ -30,6 +30,7 @@ with warnings.catch_warnings():
 warnings.filterwarnings("ignore", message=".*urllib3.*or chardet.*")
 warnings.filterwarnings("ignore", message=".*urllib3.*or charset_normalizer.*")
 
+import datetime
 import logging
 import os
 import sys
@@ -574,6 +575,112 @@ def register_prompts(mcp: FastMCP):
         Generates a prompt for transcribing an audio file and translating it to English.
         """
         return f"Transcribe and translate the audio file '{audio_file}' to English. Model: '{model}'. Use the `transcribe_audio` tool with `task='translate'`."
+
+
+def load_transcript(path: Path) -> dict:
+    """Read one exported transcript JSON; raise ValueError when unreadable."""
+    try:
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ValueError(f"TRANSCRIPT_UNREADABLE {Path(path).name}: {exc}") from exc
+    if not isinstance(data, dict) or not isinstance(data.get("segments"), list):
+        raise ValueError(f"TRANSCRIPT_UNREADABLE {Path(path).name}: no segments list")
+    return data
+
+
+def _check_recording_id(recording_id: str) -> None:
+    if (
+        not recording_id
+        or len(recording_id) > 255
+        or "/" in recording_id
+        or "\\" in recording_id
+        or recording_id in {".", ".."}
+    ):
+        raise ValueError("INVALID_RECORDING_ID recording_id is not a valid id")
+
+
+def _parse_date(value: str | None) -> datetime.date | None:
+    if value is None:
+        return None
+    try:
+        return datetime.datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError as exc:
+        raise ValueError(f"INVALID_DATE_RANGE {value!r} is not YYYY-MM-DD") from exc
+
+
+def _transcript_date(path: Path) -> str:
+    stamp = datetime.datetime.fromtimestamp(path.stat().st_mtime, datetime.UTC)
+    return stamp.date().isoformat()
+
+
+def _transcript_text(data: dict) -> str:
+    return " ".join(str(seg.get("text", "")) for seg in data["segments"])
+
+
+def register_transcript_tools(mcp: FastMCP):
+    """Register the read-only transcript list and get tools."""
+    read_only = {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    }
+
+    @mcp.tool(annotations={"title": "List Transcripts", **read_only})
+    async def list_transcripts(
+        recording_id: str | None = None,
+        date_from: str | None = None,
+        date_to: str | None = None,
+        limit: int = 100,
+    ) -> dict:
+        """List exported transcripts, filtered by recording id and modification date range."""
+        if recording_id is not None:
+            _check_recording_id(recording_id)
+        start, end = _parse_date(date_from), _parse_date(date_to)
+        if start and end and start > end:
+            raise ValueError("INVALID_DATE_RANGE date_from is after date_to")
+        if not 1 <= limit <= 500:
+            raise ValueError("LIMIT_OUT_OF_RANGE limit must be 1 to 500")
+        directory = Path(DEFAULT_TRANSCRIBE_DIRECTORY)
+        rows: list[dict] = []
+        for path in directory.glob("*.json") if directory.is_dir() else []:
+            if recording_id is not None and path.stem != recording_id:
+                continue
+            day = _transcript_date(path)
+            if start and day < start.isoformat():
+                continue
+            if end and day > end.isoformat():
+                continue
+            try:
+                text = _transcript_text(load_transcript(path))
+            except ValueError:
+                continue
+            rows.append({"id": path.stem, "date": day, "text": text})
+        rows.sort(key=lambda r: r["id"])
+        rows.sort(key=lambda r: r["date"], reverse=True)
+        return {"items": rows[:limit], "truncated": len(rows) > limit}
+
+    @mcp.tool(annotations={"title": "Get Transcript", **read_only})
+    async def get_transcript(recording_id: str) -> dict:
+        """Read one exported transcript by recording id with its segments."""
+        _check_recording_id(recording_id)
+        path = Path(DEFAULT_TRANSCRIBE_DIRECTORY) / f"{recording_id}.json"
+        if not path.is_file():
+            raise ValueError(f"TRANSCRIPT_NOT_FOUND {recording_id}")
+        data = load_transcript(path)
+        return {
+            "id": recording_id,
+            "date": _transcript_date(path),
+            "text": _transcript_text(data),
+            "segments": [
+                {
+                    "start": seg.get("start"),
+                    "end": seg.get("end"),
+                    "no_speech_prob": seg.get("no_speech_prob"),
+                }
+                for seg in data["segments"]
+            ],
+        }
 
 
 def register_misc_tools(mcp: FastMCP):
