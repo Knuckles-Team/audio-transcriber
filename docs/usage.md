@@ -46,7 +46,7 @@ transcriber = AudioTranscriber(
     directory="~/Downloads",
 )
 transcriber.initiate_stream()
-transcriber.record(seconds=30)        # capture 30 seconds
+transcriber.record(seconds=30)  # capture 30 seconds
 transcriber.stop_stream()
 transcriber.save_stream()
 result = transcriber.transcribe()

@@ -24,9 +24,7 @@ CONTRACTS = (
                     "model",
                     "task",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -49,9 +47,7 @@ CONTRACTS = (
                     "formats",
                     "result",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -70,9 +66,7 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="audio_transcriber_initiate_stream",
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -91,12 +85,8 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="audio_transcriber_interact",
-                params=(
-                    "server_url",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("server_url",),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -115,12 +105,8 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="audio_transcriber_record",
-                params=(
-                    "seconds",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("seconds",),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -139,9 +125,7 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="audio_transcriber_save_stream",
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -160,9 +144,7 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="audio_transcriber_stop_stream",
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -190,9 +172,7 @@ CONTRACTS = (
                     "verbose",
                     "word_timestamps",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -211,9 +191,7 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="health_check",
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -246,9 +224,7 @@ CONTRACTS = (
                     "temperature",
                     "word_timestamps",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -267,12 +243,8 @@ CONTRACTS = (
         steps=(
             ToolStep(
                 tool="transcribe_media_transcribe_segments",
-                params=(
-                    "params_json",
-                ),
-                result=(
-                    "result",
-                ),
+                params=("params_json",),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -300,9 +272,7 @@ CONTRACTS = (
                     "task",
                     "word_timestamps",
                 ),
-                result=(
-                    "result",
-                ),
+                result=("result",),
                 refusals=(
                     Refusal(
                         code="ACCESS_DENIED",
@@ -335,7 +305,12 @@ LINKS = (
             "transcribe_media_transcribe_segments",
             "transcribe_speech",
         ),
-        prompts=("transcription_specialist", "transcribe_file_prompt", "record_and_transcribe_prompt", "translate_audio_prompt",),
+        prompts=(
+            "transcription_specialist",
+            "transcribe_file_prompt",
+            "record_and_transcribe_prompt",
+            "translate_audio_prompt",
+        ),
     ),
     SurfaceLink(
         task="audio-transcriber-mcp-operator",
@@ -376,9 +351,7 @@ LINKS = (
             "audio_transcriber_transcribe",
             "transcribe_audio",
         ),
-        skills=(
-            "audio-transcriber-development",
-        ),
+        skills=("audio-transcriber-development",),
     ),
     SurfaceLink(
         task="audio-transcriber-knowledge-graph",
@@ -386,9 +359,7 @@ LINKS = (
             "audio_ingest_transcription",
             "transcribe_audio",
         ),
-        skills=(
-            "audio-transcriber-knowledge-graph",
-        ),
+        skills=("audio-transcriber-knowledge-graph",),
     ),
     SurfaceLink(
         task="audio-transcriber-operations",
@@ -402,9 +373,7 @@ LINKS = (
             "audio_transcriber_transcribe",
             "transcribe_audio",
         ),
-        skills=(
-            "audio-transcriber-operations",
-        ),
+        skills=("audio-transcriber-operations",),
     ),
     SurfaceLink(
         task="audio-transcriber-transcription",
@@ -412,18 +381,14 @@ LINKS = (
             "transcribe_audio",
             "transcribe_speech",
         ),
-        skills=(
-            "audio-transcriber-transcription",
-        ),
+        skills=("audio-transcriber-transcription",),
     ),
 )
 
 LOCATIONS = (
     DataLocation(
         name="audio-transcripts",
-        holds=(
-            "Document",
-        ),
+        holds=("Document",),
         instance="audio-transcriber-mcp-default",
         read_tool="audio_ingest_transcription",
     ),

@@ -49,14 +49,17 @@ DEFAULT_WHISPER_MODEL = setting("WHISPER_MODEL", "base")
 
 
 _PROMPT_AGENT = json.loads(
-    (Path(__file__).parent / "prompts/transcription_specialist.json").read_text(encoding="utf-8")
+    (Path(__file__).parent / "prompts/transcription_specialist.json").read_text(
+        encoding="utf-8"
+    )
 )["agent"]
 
 
 def _prompt_meta(role: str, goal: str) -> dict:
     """The agent definition every served prompt carries (the packaged role prompt's)."""
-    return {"team.knuckles/prompt": {"role": role, "goal": goal, "agent": _PROMPT_AGENT}}
-
+    return {
+        "team.knuckles/prompt": {"role": role, "goal": goal, "agent": _PROMPT_AGENT}
+    }
 
 
 def _default_transcribe_directory() -> Path:
