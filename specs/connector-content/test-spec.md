@@ -5,6 +5,7 @@ Governing spec: [spec.md](spec.md).
 | Test ID | Requirement | Proving test | Expected observation |
 |---|---|---|---|
 | T-001 | `CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R001` | `tests/test_default_content_surfaces.py` | The listings include the packaged skills, ontology and prompts. |
+| T-002 | `CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R004` | `tests/test_pack_extends_core.py` | No core term is redeclared and no retired IRI base remains. |
 
 ## Rows awaiting bound tests
 - `CONN-AUDIO-TRANSCRIBER-CONNECTOR-CONTENT-R002`: planned proof `tests/test_mcp_server.py::test_transcript_list_filters_by_recording_id_and_date`. Expected: A fixture transcript is returned for its recording id and date with the documented fields.. Refusal: An unknown recording id or a date outside the range returns an empty list, and a malformed date is refused..
