@@ -20,7 +20,8 @@
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/audio-transcriber)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/audio-transcriber)
 
-> **Documentation** — Installation, deployment, and usage across the CLI, Python API,
+> **Documentation** — Installation, deployment, and usage across the API, CLI, MCP,
+> and A2A agent interfaces are maintained in the
 > [official documentation](https://knuckles-team.github.io/audio-transcriber/).
 
 ---
@@ -234,6 +235,8 @@ the detailed transport contract.
   `MCP_ALLOWED_HOSTS` in `AgentConfig`.
 <!-- END GENERATED: additional-deployment-options -->
 
+---
+
 ## Agent
 
 # Configure transcription (optional)
@@ -272,15 +275,6 @@ diagrams are documented in the
 
 ---
 
-## Repository Owners
-
-<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
-
-![GitHub followers](https://img.shields.io/github/followers/example)
-![GitHub User's stars](https://img.shields.io/github/stars/example)
-
----
-
 ## Documentation
 
 The complete documentation is published as the
@@ -294,6 +288,15 @@ is the recommended reference for installation, deployment, and day-to-day operat
 | [Usage](https://knuckles-team.github.io/audio-transcriber/usage/) | the MCP tool, the `AudioTranscriber` API, the CLI |
 | [Overview](https://knuckles-team.github.io/audio-transcriber/overview/) | capability summary and ecosystem role |
 | [Concepts](https://knuckles-team.github.io/audio-transcriber/concepts/) | concept registry (`CONCEPT:AUDIO-*`) |
+
+---
+
+## Repository Owners
+
+<img width="100%" height="180em" src="https://github-readme-stats.vercel.app/api?username=example&show_icons=true&hide_border=true&&count_private=true&include_all_commits=true" />
+
+![GitHub followers](https://img.shields.io/github/followers/example)
+![GitHub User's stars](https://img.shields.io/github/stars/example)
 
 ---
 
