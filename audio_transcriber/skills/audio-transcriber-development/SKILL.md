@@ -49,6 +49,22 @@ configuration, and the SDK credential/TLS settings inherited by the connector.
 Model downloads and microphone access remain operator-controlled; never add a
 network or hardware bypass.
 
+## Steps
+
+1. Read the connector-content specs, `AGENTS.md` and the bound tests with `ls specs tests`, and verify the change maps to one requirement.
+2. Make the smallest connector-owned edit and verify with `git diff --stat` that only intended files changed and public tool names are untouched.
+3. Run the bound tests with `uv run --locked --extra test pytest -q tests/test_audio_transcriber_development_skill.py`, and verify they pass without loading a model or using hardware.
+4. Run the repository hooks with `uvx pre-commit run --all-files`, and verify every hook reports Passed.
+5. When package content changed, build with `uv build` and verify the wheel lists the intended `audio_transcriber/skills/` files.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Test fails on a missing heading or package data | Skill or `pyproject.toml` package-data edit dropped a required item | Restore the `Rapid delivery` heading and the `skills/**` package-data entry, and rerun the bound test file |
+| Import error for `pyaudio` in tests | Microphone dependency imported at module level | Keep the import optional inside the microphone path so file transcription imports without PortAudio |
+| Hook fails | Formatting or spelling mismatch | Apply the change the hook reports, restage the exact files and rerun `uvx pre-commit run --all-files` |
+
 ## Rapid delivery: the 5-minute contract
 
 1. Read the owning connector-content specs, this skill, `AGENTS.md`, and the
