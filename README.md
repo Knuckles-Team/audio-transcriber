@@ -239,6 +239,7 @@ the detailed transport contract.
 
 ## Agent
 
+```bash
 # Configure transcription (optional)
 export WHISPER_MODEL="base"
 export TRANSCRIBE_DIRECTORY="/path/to/transcribe_directory"
