@@ -2,13 +2,7 @@
 name: audio-transcriber-knowledge-graph
 skill_type: skill
 description: >-
-  Native knowledge-graph ingestion of Whisper transcripts on the audio-transcriber
-  MCP server — transcribe an audio/video file and push it into the medulla in
-  one call: the raw audio as a shared :MediaAsset blob, the transcript text as a
-  :Document, and each Whisper segment as a :TranscriptSegment node linked :segmentOf
-  the transcript and :transcribedFrom the audio. Use when a transcript must be durable
-  and semantically searchable in the KG. Do NOT use for a one-off transcription with no
-  KG persistence (use audio-transcriber-transcription).
+  Native knowledge-graph ingestion of Whisper transcripts on the audio-transcriber MCP server — transcribe an audio/video file and push it into the medulla in one call: the raw audio as a shared :MediaAsset blob, the transcript text as a :Document, and each Whisper segment as a :TranscriptSegment node linked :segmentOf the transcript and :transcribedFrom the audio.
 license: MIT
 tags: [audio, transcription, knowledge-graph, ingestion, whisper, mcp]
 metadata:
@@ -16,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # Audio Transcript → Knowledge Graph
+
+Scope: Native knowledge-graph ingestion of Whisper transcripts on the audio-transcriber MCP server — transcribe an audio/video file and push it into the medulla in one call: the raw audio as a shared :MediaAsset blob, the transcript text as a :Document, and each Whisper segment as a :TranscriptSegment node linked :segmentOf the transcript and :transcribedFrom the audio. Use when a transcript must be durable and semantically searchable in the KG. Do NOT use for a one-off transcription with no KG persistence (use audio-transcriber-transcription).
 
 Wire-First native ingestion: the **`audio-transcriber`** MCP server transcribes a file
 and natively writes the result into the ONE medulla engine across every modality
@@ -40,6 +36,22 @@ medulla engine must be reachable for anything to be written — otherwise ingest
 | Variable | Required | Notes |
 |----------|----------|-------|
 | `WHISPER_MODEL` | optional | Default model when `model` is omitted |
+
+## Steps
+
+1. Confirm the audio or video file exists with `ls -l <audio_file>` and verify it is readable and non-empty.
+2. Call `audio_ingest_transcription`(`audio_file`, optionally `model`, `language`, `task`), and verify the response contains the transcript text.
+3. Check the `ingested` key in the response and verify it is not null, since null means no engine was reachable and nothing was written.
+4. Find the transcript with `graph_search` for `audio:transcript:<slug>`, and verify the `:Document` and its `:TranscriptSegment` nodes exist.
+5. For a repeated file, rerun step 2 and verify the same `audio:transcript:<slug>` node is reused instead of duplicated.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| `ingested` is null | No medulla engine reachable, so ingestion no-oped | Restore engine connectivity from the `mcp-client` setup and call `audio_ingest_transcription` for the same file |
+| No `:MediaAsset` node | Audio path not available on disk to the server | Pass an `audio_file` path readable by the server process |
+| Long recording missing late segments | Segment ingestion is capped at 500 by default | Split the recording into parts and ingest each part |
 
 ## Tools & actions
 | Tool | Purpose |

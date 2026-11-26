@@ -2,13 +2,7 @@
 name: audio-transcriber-transcription
 skill_type: skill
 description: >-
-  Speech-to-text on the audio-transcriber MCP server — run Whisper (faster-whisper,
-  falling back to openai-whisper) over a local audio/video file or a microphone
-  recording, and export txt/srt/vtt/json captions. Use when the agent must
-  transcribe or translate spoken audio, generate subtitle/caption files, or pick a
-  Whisper model for an accuracy/latency trade-off. Do NOT use to push a transcript
-  into the knowledge graph (use audio-transcriber-knowledge-graph) or to download
-  the media first (use media-downloader).
+  Speech-to-text on the audio-transcriber MCP server — run Whisper (faster-whisper, falling back to openai-whisper) over a local audio/video file or a microphone recording, and export txt/srt/vtt/json captions. Use when the agent must transcribe or translate spoken audio, generate subtitle/caption files, or pick a Whisper model for an accuracy/latency trade-off.
 license: MIT
 tags: [audio, transcription, whisper, speech-to-text, captions, mcp]
 metadata:
@@ -16,6 +10,8 @@ metadata:
   version: '0.1.0'
 ---
 # Audio Transcription
+
+Scope: Speech-to-text on the audio-transcriber MCP server — run Whisper (faster-whisper, falling back to openai-whisper) over a local audio/video file or a microphone recording, and export txt/srt/vtt/json captions. Use when the agent must transcribe or translate spoken audio, generate subtitle/caption files, or pick a Whisper model for an accuracy/latency trade-off. Do NOT use to push a transcript into the knowledge graph (use audio-transcriber-knowledge-graph) or to download the media first (use media-downloader).
 
 Whisper transcription of audio/video via the **`audio-transcriber`** MCP server. The
 server prefers **faster-whisper** (CTranslate2) and falls back to **openai-whisper**;
@@ -46,6 +42,22 @@ The runtime image installs `ffmpeg` for format conversion.
 
 `MCP_TOOL_MODE` (`condensed`|`verbose`|`both`) selects the condensed surface vs. the
 1:1 verbose tools.
+
+## Steps
+
+1. Choose the input: a local file for `audio_file`, or a positive `record_seconds` for the microphone, and verify exactly one is set.
+2. Pick `model` for the accuracy and latency trade-off (`base` or `small` on CPU, `large-v3` on GPU), and verify `ffmpeg` is available for format conversion.
+3. Call `transcribe_audio`(`audio_file`, `model`, `language`, `task`, `export_formats`), and verify the response includes transcript text and segments.
+4. When captions are requested, verify files `<stem>.srt` or `<stem>.vtt` exist next to the source with `ls`.
+5. Read back an earlier result with `list_transcripts` or `get_transcript`, and verify the recording id matches.
+
+## Failure recovery
+
+| Failure | Cause | Recovery |
+|---------|-------|----------|
+| Error "Either audio_file must be provided or record_seconds must be positive." | Neither input supplied | Provide `audio_file`, or a positive `record_seconds` when no file is given |
+| Microphone capture fails | Headless server has no input device | Transcribe a recorded file with `audio_file` instead |
+| `transcribe_speech` returns `status` refused | Payload failed a limit, with a code such as `DIGEST_MISMATCH` or `MEDIA_TOO_LARGE` | Fix the cause named by `refusal_code`, such as recomputing the `sha256:` digest or trimming to under `SPEECH_MAX_BYTES` |
 
 ## Tools & actions
 | Tool | Purpose |
